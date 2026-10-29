@@ -1,0 +1,6 @@
+build/
+build-tmp/
+*.class
+*.jar
+Thumbs.db
+.DS_Store
