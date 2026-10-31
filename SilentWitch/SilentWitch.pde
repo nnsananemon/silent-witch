@@ -1,5 +1,5 @@
 /**
- * SILENT WITCH - Stage 01: Audit dan fondasi.
+ * SILENT WITCH - Stage 03: Interaksi dan dialog.
  *
  * Processing 4, Java Mode. Entry point ini sengaja tipis: seluruh logika
  * berada di tab .java agar dapat diuji terpisah dan tidak menumpuk di file PDE.
@@ -18,7 +18,7 @@ void settings() {
 }
 
 void setup() {
-  surface.setTitle("Silent Witch - Tahap 01");
+  surface.setTitle("Silent Witch - Tahap 03");
   game = new GameManager(this);
   game.start();
 }
@@ -35,6 +35,15 @@ void keyPressed() {
     key = 0;
   }
   game.keyPressed(typed, keyCode);
+}
+
+void keyReleased() {
+  game.keyReleased(key, keyCode);
+}
+
+void focusLost() {
+  // Mencegah tombol gerak tertahan aktif saat jendela kehilangan fokus.
+  game.focusLost();
 }
 
 void mousePressed() {

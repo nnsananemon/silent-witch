@@ -2,7 +2,7 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /**
- * Main Menu Stage 01.
+ * Main Menu (diperbarui pada Stage 02).
  *
  * Menu sudah mendukung keyboard dan mouse. Tombol "Lanjutkan" sengaja tampil
  * nonaktif karena sistem save baru dijadwalkan pada Stage 06.
@@ -252,7 +252,7 @@ public final class MainMenuScene extends Scene {
     private void drawFooter(PGraphics g) {
         PixelUI.centered(g, "W/S ATAU PANAH - PILIH   ENTER - KONFIRMASI", 160, 169,
                 Palette.TEXT_MUTED);
-        PixelFont.drawRight(g, "TAHAP 01", 312, 6, 1, Palette.TEXT_MUTED);
+        PixelFont.drawRight(g, "TAHAP 03", 312, 6, 1, Palette.TEXT_MUTED);
     }
 
     private void drawHelp(PGraphics g) {
@@ -265,11 +265,12 @@ public final class MainMenuScene extends Scene {
         PixelUI.text(g, "PANAH ATAS/BAWAH / W / S - PILIH", 50, 70, Palette.TEXT_DIM);
         PixelUI.text(g, "ENTER / SPASI / KLIK - KONFIRMASI", 50, 80, Palette.TEXT_DIM);
         PixelUI.text(g, "ESC - TUTUP PANEL INI", 50, 90, Palette.TEXT_DIM);
-        PixelUI.text(g, "ESC SAAT GAMEPLAY - KEMBALI KE MENU", 50, 100, Palette.TEXT_DIM);
+        PixelUI.text(g, "E / ENTER / SPASI - BICARA & PERIKSA", 50, 100, Palette.TEXT_DIM);
+        PixelUI.text(g, "ESC SAAT GAMEPLAY - KEMBALI KE MENU", 50, 110, Palette.TEXT_DIM);
 
-        PixelUI.centered(g, "PEMAIN DITAMBAHKAN PADA TAHAP 02.", 160, 116,
+        PixelUI.centered(g, "GERAK: WASD / PANAH DI DALAM GAME.", 160, 122,
                 Palette.TEXT_MUTED);
-        PixelUI.centered(g, "ESC / ENTER - TUTUP", 160, 132, Palette.TEXT_DIM);
+        PixelUI.centered(g, "ESC / ENTER - TUTUP", 160, 136, Palette.TEXT_DIM);
     }
 
     @Override

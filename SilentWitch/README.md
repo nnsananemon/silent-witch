@@ -3,9 +3,11 @@
 Game pixel-art mystery RPG untuk Windows PC, dibangun dengan **Processing 4 (Java Mode)**.
 Dokumen kebutuhan lengkap ada di [`../Silent_Witch_PRD.md`](../Silent_Witch_PRD.md).
 
-**Status saat ini: Stage 01 - Audit dan fondasi.**
-Belum ada pemain, collision, clue, quest, puzzle, dialog NPC, atau save. Lihat
-[Scope Stage 01](#scope-stage-01) dan [Status acceptance criteria](#status-acceptance-criteria).
+**Status saat ini: Stage 03 - Interaksi dan dialog.**
+Pemain dapat bergerak, bertabrakan dengan dunia dan NPC, bicara dengan NPC, serta
+memeriksa objek. Dialog tampil pada panel bawah dan mengunci gerakan pemain selama
+terbuka. Belum ada clue, casebook, quest, puzzle, atau save. Lihat
+[Scope Stage 03](#scope-stage-03) dan [Status acceptance criteria](#status-acceptance-criteria).
 
 ---
 
@@ -51,8 +53,13 @@ Untuk hanya memeriksa kompilasi:
 | Menu | `W` / `S` atau panah atas/bawah | Pilih item |
 | Menu | `Enter` / `Spasi` / klik mouse | Konfirmasi item |
 | Menu | `Esc` | Menutup panel Kontrol atau membatalkan pesan |
-| Gameplay placeholder | `Esc` | Kembali ke menu |
-| Gameplay placeholder | Klik tombol `KEMBALI KE MENU` | Kembali ke menu |
+| Gameplay | `W` / `A` / `S` / `D` atau tombol panah | Bergerak empat arah |
+| Gameplay | `E` / `Enter` / `Spasi` | Bicara dengan NPC atau periksa objek terdekat |
+| Gameplay | `Esc` | Kembali ke menu utama |
+| Dialog terbuka | `E` / `Enter` / `Spasi` | Lanjut ke baris berikutnya; menutup pada baris terakhir |
+| Dialog terbuka | `Esc` | Menutup dialog tanpa keluar ke menu |
+| Dialog terbuka | Tombol gerak | Diabaikan; pemain tidak bergerak di belakang panel |
+| Gameplay | Klik mouse | Belum ada aksi mouse untuk gameplay |
 
 `Esc` tidak menutup aplikasi. Keluar dilakukan melalui item **KELUAR** di menu utama.
 
@@ -65,7 +72,14 @@ SilentWitch/
 ├── SceneManager.java    # scene aktif dan siklus hidup
 ├── Scene.java           # kontrak dasar scene
 ├── MainMenuScene.java   # menu utama
-├── GameplayScene.java   # scene gameplay placeholder
+├── GameplayScene.java   # gameplay: peta, kamera, input, NPC, dialog, HUD
+├── TileMap.java         # data tile 26x16, collision, render placeholder
+├── Player.java          # gerakan, collision tile + NPC, sprite prosedural
+├── Interactable.java    # kontrak objek interaktif + pemilihan target terdekat
+├── Npc.java             # NPC penjaga, sprite, radius bicara, penghalang
+├── ExamineSpot.java     # titik periksa untuk objek yang digambar TileMap
+├── Dialogue.java        # model data dialog (pembicara + baris)
+├── DialogueSystem.java  # state dialog dan panel bawah
 ├── PixelFont.java       # font bitmap 5x7 bawaan
 ├── PixelUI.java         # panel, tombol, divider, vignette
 ├── Palette.java         # palet warna dan util warna
@@ -78,11 +92,16 @@ SilentWitch/
 
 ### Penyimpangan dari struktur PRD
 
-PRD menyarankan folder `src/` untuk kelas Java. Processing hanya mengompilasi tab
-`.java` yang berada di **root folder sketch**, sehingga seluruh kelas proyek
-diletakkan di root `SilentWitch/` dan bukan di `src/`. Struktur ini dipilih agar
-proyek dapat langsung dibuka dan dijalankan di Processing 4 tanpa build tool
-tambahan. Tidak ada kelas kosong yang dibuat hanya untuk mengikuti daftar modul PRD.
+- PRD menyarankan folder `src/` untuk kelas Java. Processing hanya mengompilasi tab
+  `.java` yang berada di **root folder sketch**, sehingga seluruh kelas proyek
+  diletakkan di root `SilentWitch/` dan bukan di `src/`. Struktur ini dipilih agar
+  proyek dapat langsung dibuka dan dijalankan di Processing 4 tanpa build tool tambahan.
+- PRD menyarankan `WorldManager`. Untuk satu area statis, tanggung jawab tersebut masih
+  kecil sehingga dipecah menjadi `TileMap` (data tile, collision, render),
+  `Player` (gerakan), dan daftar `Interactable` di `GameplayScene`. `WorldManager`
+  akan dibuat saat sudah ada lebih dari satu area dan perpindahan antar-area
+  (Stage 05-06), agar tidak ada kelas kosong.
+- Tidak ada kelas kosong yang dibuat hanya untuk mengikuti daftar modul PRD.
 
 ## Rendering
 
@@ -93,34 +112,78 @@ tambahan. Tidak ada kelas kosong yang dibuat hanya untuk mengikuti daftar modul 
   pixel art tidak kabur.
 - Teks memakai font bitmap 5x7 buatan sendiri (`PixelFont.java`), sehingga tidak
   bergantung pada font sistem atau file aset. Huruf kecil ditampilkan sebagai huruf kapital.
+- Tile placeholder 16x16, sprite pemain, dan sprite NPC digambar prosedural; tidak ada
+  file gambar.
 
-## Scope Stage 01
+## Area uji
+
+Area: **The Silent Manor - Aula Uji**, grid 26x16 tile (416x256 piksel). Viewport
+320x180 lebih kecil dari peta, sehingga kamera mengikuti pemain dan berhenti di tepi peta.
+
+Legenda tile pada `TileMap.java`:
+
+| Karakter | Isi | Solid |
+|---|---|---|
+| `#` | Dinding batu | Ya |
+| `W` | Dinding dengan jendela | Ya |
+| `.` | Lantai kayu | Tidak |
+| `,` | Karpet | Tidak |
+| `B` | Rak buku | Ya |
+| `T` | Meja | Ya |
+| `P` | Pilar | Ya |
+| `S` | Titik spawn pemain | Tidak |
+
+Peta divalidasi saat dibuat: baris harus sama panjang, harus ada tepat satu spawn, dan
+spawn tidak boleh berada di tile solid. Kesalahan data menghasilkan
+`IllegalArgumentException` dengan pesan yang jelas, bukan crash tanpa penjelasan.
+
+## Scope Stage 03
 
 Sudah ada:
 
-- Proyek Processing 4 Java Mode yang dapat dikompilasi dan dijalankan.
-- Game loop dengan delta time dan pembatas dt.
-- `SceneManager` sederhana dengan perpindahan dua scene.
-- Render buffer pixel-art 320x180 dengan skala integer.
-- Main menu: **Mulai Baru**, **Lanjutkan** (nonaktif), **Kontrol**, **Keluar**.
-- Navigasi menu dengan keyboard dan mouse.
-- Panel Kontrol sederhana.
-- Scene gameplay placeholder dengan latar prosedural, tombol kembali, dan `Esc`.
-- Umpan balik jelas saat **Lanjutkan** dipilih: belum ada data investigasi/save.
-- Dokumentasi, changelog, dan kredit aset.
+- Seluruh fondasi Stage 01-02 tetap berfungsi: menu, game loop, render 320x180,
+  scene manager, area uji, gerakan, collision, dan kamera.
+- `Interactable` sebagai kontrak objek interaktif: posisi, radius, prompt, dialog, dan
+  render opsional. `Interactable.nearest()` memilih objek terdekat yang berada dalam
+  jangkauan.
+- `Npc` dengan sprite penjaga prosedural, radius bicara 22 px, prompt **BICARA**, dan
+  tubuh yang menjadi penghalang agar pemain tidak berjalan menembusnya.
+- `ExamineSpot` untuk objek yang sudah digambar `TileMap` (meja, rak buku, jendela)
+  dengan prompt **PERIKSA**.
+- Prompt `[E] ...` muncul di atas objek terdekat dan mengikuti kamera.
+- `Dialogue` sebagai model data tervalidasi (pembicara dan baris tidak boleh kosong).
+- `DialogueSystem` menampilkan panel bawah berisi nama pembicara, nomor baris, teks
+  terbungkus, dan indikator lanjut/tutup.
+- Interaksi dengan `E`, `Enter`, atau `Spasi`; dialog maju per baris dan menutup pada
+  baris terakhir.
+- `Esc` menutup dialog tanpa keluar ke menu; `Esc` di gameplay biasa tetap kembali ke menu.
+- Input gerak dikunci selama dialog terbuka dan tombol gerak yang sedang ditekan
+  dilepas saat dialog dibuka, sehingga pemain tidak meluncur di belakang panel.
+- Cooldown input 0,18 detik untuk mencegah dialog terbuka kembali atau maju beberapa
+  baris dalam satu tekanan tombol.
+- NPC dan pemain digambar dengan urutan kedalaman berdasarkan posisi `y`.
+- HUD berubah saat dialog terbuka: petunjuk menjadi `E / ENTER : LANJUT` dan
+  `ESC : TUTUP`.
+- Dialog tetap di dalam area layar 320x180 dan tidak menutupi bar petunjuk bawah.
+- Dokumentasi, changelog, dan kredit aset diperbarui.
 
 Belum ada (sesuai tahap berikutnya):
 
-- Pemain, gerakan, collision, dan eksplorasi (Stage 02).
-- NPC, interaksi objek, dan dialog (Stage 03).
-- Clue dan casebook (Stage 04).
-- Puzzle, quest, dan area unlock (Stage 05).
+- Clue, bukti, dan casebook (Stage 04).
+- Puzzle logika, quest, dan area unlock (Stage 05).
 - Save/autosave/load dan tombol **Lanjutkan** yang aktif (Stage 06).
 - Konten cerita kanonis, ending, dan aset final (Stage 07).
 
+### Catatan konten dialog
+
+Seluruh teks dialog pada Stage 03 adalah **placeholder teknis**. Tidak ada fakta cerita
+kanonis yang ditambahkan: belum ada identitas korban, pelaku, motif, atau kronologi.
+Teks hanya menjelaskan fungsi teknis (objek dapat diperiksa, cerita menyusul) agar
+sistem dialog dapat diuji tanpa mengarang kanon.
+
 ## Save
 
-Belum ada sistem save pada Stage 01. Karena itu:
+Belum ada sistem save pada Stage 03. Karena itu:
 
 - Item **Lanjutkan** selalu nonaktif dan diberi label `TERKUNCI`.
 - Memilih item tersebut menampilkan pesan bahwa simpan otomatis baru akan
@@ -130,52 +193,58 @@ Belum ada sistem save pada Stage 01. Karena itu:
 
 ## Pengujian yang dilakukan
 
-Tanggal pengujian: **29 Oktober 2026**. Lingkungan: Windows, Processing 4.5.7
-(portable), Java Mode, tampilan 1920x1080 dengan DPI 125%.
+Tanggal pengujian: **31 Oktober 2026**. Lingkungan: Windows, Processing 4.5.7 portable
+(Java Mode), JDK 8 (Temurin 1.8.0_504) untuk uji headless dan build.
 
 | Pengujian | Metode | Hasil |
 |---|---|---|
-| Kompilasi proyek | `Processing.exe cli --sketch=... --build` | **Lulus**, exit code 0, 9 file `.class` dihasilkan |
-| Startup aplikasi | `Processing.exe cli --sketch=... --run` | **Lulus**, jendela `Silent Witch - Tahap 01` muncul tanpa exception |
-| Render menu | Tangkapan jendela (PrintWindow) | **Lulus**, judul, subtitle, empat item, label `TERKUNCI`, dan footer tampil |
-| Render panel Kontrol | Harness memanggil `Down`, `Down`, `Enter` | **Lulus**, panel Kontrol tampil |
-| Tutup panel Kontrol | Harness memanggil `Esc` | **Lulus**, panel tertutup |
-| Pesan Lanjutkan | Harness memanggil `Up`, `Enter` | **Lulus**, pesan "belum ada data" tampil |
-| Pindah ke gameplay | Harness memanggil `Up`, `Enter` dari menu | **Lulus**, scene gameplay placeholder tampil |
-| Kembali ke menu | Harness memanggil `Esc` saat gameplay | **Lulus**, menu utama tampil kembali |
-| Klik Mulai Baru | Harness memanggil `mouseMoved`/`mousePressed` di koordinat layar item | **Lulus**, scene gameplay terbuka; konversi koordinat 3x benar |
-| Klik Kembali ke Menu | Harness mengklik tombol pada koordinat layar | **Lulus**, menu utama terbuka |
-| Klik Kontrol | Harness mengklik item Kontrol | **Lulus**, panel Kontrol terbuka |
-| Klik Lanjutkan | Harness mengklik item Lanjutkan | **Lulus**, pesan "belum ada data" tampil |
-| Skala pixel | Inspeksi tangkapan 960x540 | **Lulus**, tepi pixel tajam; tidak ada blur |
-| Input keyboard/mouse fisik | Injeksi input OS | **Tidak teruji**: sesi CI tidak memiliki desktop interaktif yang menerima injeksi input. Logika input diuji lewat pemanggilan langsung pada harness (termasuk konversi koordinat mouse), bukan perangkat fisik |
+| Kompilasi kelas Java | `javac -Xlint:all` terhadap Processing core 3.3.7 | **Lulus**, tanpa error/warning |
+| Build Processing | `Processing.exe cli --sketch=... --build` | **Lulus**, exit code 0, `Finished.` |
+| Validasi `Dialogue` | Harness headless | **Lulus**, pembicara kosong, tanpa baris, baris kosong/null, dan indeks di luar batas ditolak; array masukan disalin |
+| Transisi `DialogueSystem` | Harness headless | **Lulus**, buka, maju, baris terakhir, tutup, reset indeks, dan `open(null)` ditolak |
+| `Interactable.nearest` | Harness headless | **Lulus**, daftar null/kosong aman, objek di luar radius diabaikan, target terdekat dipilih, batas radius tepat diterima |
+| Validasi `Npc` dan `ExamineSpot` | Harness headless | **Lulus**, nama/label/radius/dialog divalidasi; prompt dan posisi benar |
+| Penghalang NPC pada `Player` | Harness headless | **Lulus**, pemain berhenti di bawah NPC (y=227,5) dan tetap bisa lewat tanpa penghalang |
+| Seluruh uji headless Stage 03 | `java Stage03Test` | **Lulus**, 59 dari 59 pemeriksaan |
+| Uji regresi Stage 02 | `java Stage02Test` | **Lulus**, 36 dari 36 pemeriksaan (gerakan, collision, layout) |
+| Startup aplikasi | `Processing.exe cli --sketch=... --run` | **Lulus**, jendela `Silent Witch - Tahap 03` muncul dan render loop berjalan |
+| Prompt NPC | Harness in-app `GameManager` + `save()` | **Lulus**, prompt `[E] BICARA` tampil setelah pemain mendekat |
+| Dialog NPC | Harness in-app | **Lulus**, panel menampilkan `PENJAGA AULA`, nomor `1/3`, dan baris berganti saat `E` ditekan |
+| Kunci gerak saat dialog | Tahan `A` 0,83 detik saat dialog terbuka | **Lulus**, posisi pemain tetap `x=219,13 y=212,87` sebelum dan sesudah; dialog tetap terbuka |
+| Penutupan dialog | `E` pada baris terakhir dan `Esc` | **Lulus**, dialog tertutup dan prompt kembali tampil |
+| Prompt objek | Jalan ke meja | **Lulus**, prompt `[E] PERIKSA` tampil pada jarak interaksi |
+| Dialog objek | `E` di dekat meja | **Lulus**, panel `MEJA AULA` menampilkan baris objek |
+| `Esc` menutup dialog | Tekan `Esc` saat dialog objek | **Lulus**, dialog tertutup, tetap di gameplay (tidak kembali ke menu) |
+| Render akhir Stage 03 | Sepuluh frame 320x180 dari `GameManager` yang sama | **Lulus**, menu, gameplay, prompt NPC, tiga baris dialog, prompt meja, dialog objek, dan keadaan setelah `Esc` tampil benar |
+| Input keyboard fisik | Perangkat fisik | **Tidak teruji**: harness memanggil `GameManager.keyPressed/keyReleased` langsung, bukan keyboard fisik |
 
-Harness uji berada di folder sementara di luar proyek dan **tidak** disertakan
-sebagai bagian game. Tidak ada klaim bahwa pengujian visual dilakukan dengan
-klik/keyboard fisik.
+Harness uji, harness tampilan, dan skrip tangkapan berada di folder sementara di luar
+proyek dan **tidak** disertakan sebagai bagian game. Tidak ada klaim pengujian dengan
+keyboard fisik. Frame verifikasi dihasilkan oleh `GameManager` yang sama dengan build
+final (skala internal 320x180), bukan mockup terpisah.
 
 ## Status acceptance criteria
 
-Status berikut hanya menilai kriteria yang relevan dengan Stage 01.
+Status berikut menilai kriteria yang relevan sampai Stage 03.
 
 | Kriteria | Status | Catatan |
 |---|---|---|
-| AC-01 Build dan startup | **Pass** | Build exit code 0; menu tampil; README tersedia |
-| AC-02 Movement dan collision | **Not Tested** | Dijadwalkan Stage 02; belum ada pemain |
-| AC-03 Interaksi | **Not Tested** | Dijadwalkan Stage 03; belum ada NPC/objek interaktif |
+| AC-01 Build dan startup | **Pass** | Build Processing exit code 0; menu dan gameplay tampil |
+| AC-02 Movement dan collision | **Pass** | Gerakan, batas peta, collision tile, dan penghalang NPC diuji headless |
+| AC-03 Interaksi | **Pass** | NPC dan tiga objek dapat diinteraksikan; prompt, dialog, kunci gerak, dan penutupan diuji |
 | AC-04 Clue dan casebook | **Not Tested** | Dijadwalkan Stage 04 |
 | AC-05 Puzzle | **Not Tested** | Dijadwalkan Stage 05 |
 | AC-06 Quest dan unlock | **Not Tested** | Dijadwalkan Stage 05-06 |
 | AC-07 Autosave dan load | **Not Tested** | Dijadwalkan Stage 06; **Lanjutkan** sengaja nonaktif |
-| AC-08 Narasi dan logika | **N/A** | Belum ada konten cerita final yang diimplementasikan |
-| AC-09 UI | **Partial** | Teks menu/panel/placeholder tidak terpotong; dialog dan puzzle belum ada |
-| AC-10 Dokumentasi dan lisensi | **Pass** | README dan `ASSET_CREDITS.md` tersedia; tidak ada aset eksternal |
+| AC-08 Narasi dan logika | **N/A** | Dialog masih placeholder; belum ada konten cerita final |
+| AC-09 UI | **Partial** | Prompt dan panel dialog tampil tanpa terpotong; casebook dan puzzle belum ada |
+| AC-10 Dokumentasi dan lisensi | **Pass** | README, changelog, dan `ASSET_CREDITS.md` diperbarui; tidak ada aset eksternal |
 
 ## Lisensi aset
 
-Stage 01 tidak memakai aset eksternal. Seluruh visual dibuat secara prosedural di
-kode dan font 5x7 dibuat manual. Lihat
-[`data/licenses/ASSET_CREDITS.md`](data/licenses/ASSET_CREDITS.md).
+Stage 03 tidak memakai aset eksternal. Seluruh visual (tileset placeholder, sprite
+pemain, sprite NPC, panel dialog, dan font 5x7) dibuat secara prosedural di kode.
+Lihat [`data/licenses/ASSET_CREDITS.md`](data/licenses/ASSET_CREDITS.md).
 
 ## Keterbatasan yang diketahui
 
@@ -183,12 +252,16 @@ kode dan font 5x7 dibuat manual. Lihat
   harus mampu menampilkan jendela tersebut.
 - Font 5x7 hanya memiliki bentuk huruf kapital; huruf kecil otomatis ditampilkan
   sebagai kapital.
-- Belum ada audio, animasi karakter, atau efek transisi antar-scene.
+- Baru ada satu area; belum ada perpindahan antar-area.
+- Baru ada satu NPC dan tiga titik periksa. Dialog masih placeholder dan belum
+  terhubung ke clue, quest, atau casebook.
+- Sprite pemain dan NPC digambar dengan kode (belum ada spritesheet/animasi penuh).
+- Belum ada audio, efek transisi antar-scene, atau dukungan mouse untuk gameplay.
 - Belum ada save, sehingga **Lanjutkan** tetap terkunci.
-- Pengujian input fisik tidak dapat dilakukan di sesi CI; lihat catatan pada
+- Pengujian input fisik tidak dapat dilakukan di sesi ini; lihat catatan pada
   bagian pengujian.
 
 ## Tahap berikutnya
 
-Stage 02 - Player dan world: gerakan pemain, collision, dan satu area kecil yang
-dapat dijelajahi. Jangan lanjut ke Stage 02 sebelum Stage 01 disetujui.
+Stage 04 - Clue dan casebook: objek/bukti yang dapat dikumpulkan, pencatatan bukti,
+dan tampilan casebook. Jangan lanjut ke Stage 04 sebelum Stage 03 disetujui.

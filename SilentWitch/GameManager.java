@@ -49,6 +49,11 @@ public final class GameManager {
         scenes.switchTo(new GameplayScene(this));
     }
 
+    /** Scene aktif; dipakai harness pengujian dan debug. */
+    public Scene currentScene() {
+        return scenes.current();
+    }
+
     public void quit() {
         app.exit();
     }
@@ -85,6 +90,14 @@ public final class GameManager {
 
     public void keyPressed(char key, int keyCode) {
         scenes.keyPressed(key, keyCode);
+    }
+
+    public void keyReleased(char key, int keyCode) {
+        scenes.keyReleased(key, keyCode);
+    }
+
+    public void focusLost() {
+        scenes.focusLost();
     }
 
     public void mousePressed(float screenX, float screenY) {

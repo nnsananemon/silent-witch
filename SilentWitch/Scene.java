@@ -30,6 +30,15 @@ public abstract class Scene {
         // Opsional.
     }
 
+    public void keyReleased(char key, int keyCode) {
+        // Opsional.
+    }
+
+    /** Dipanggil saat jendela kehilangan fokus; berguna untuk mereset input. */
+    public void focusLost() {
+        // Opsional.
+    }
+
     public void mousePressed(float x, float y) {
         // Opsional.
     }

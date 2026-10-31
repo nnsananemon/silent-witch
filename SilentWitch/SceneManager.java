@@ -43,6 +43,18 @@ public final class SceneManager {
         }
     }
 
+    public void keyReleased(char key, int keyCode) {
+        if (current != null) {
+            current.keyReleased(key, keyCode);
+        }
+    }
+
+    public void focusLost() {
+        if (current != null) {
+            current.focusLost();
+        }
+    }
+
     public void mousePressed(float x, float y) {
         if (current != null) {
             current.mousePressed(x, y);
