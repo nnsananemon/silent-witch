@@ -15,6 +15,7 @@ public final class GameManager {
     private final PApplet app;
     private final PGraphics canvas;
     private final SceneManager scenes;
+    private final SaveManager saveManager;
 
     private int viewportW = -1;
     private int viewportH = -1;
@@ -24,12 +25,23 @@ public final class GameManager {
 
     private float lastTime = -1f;
 
-    public GameManager(PApplet app) {
+    public GameManager(PApplet app, SaveManager saveManager) {
         this.app = app;
         this.canvas = app.createGraphics(VIRTUAL_W, VIRTUAL_H);
         this.canvas.noSmooth();
         this.scenes = new SceneManager(this);
+        if (saveManager != null) {
+            this.saveManager = saveManager;
+        } else {
+            java.io.File sf = (app != null) ? new java.io.File(app.sketchPath(SaveManager.DEFAULT_SAVE_PATH))
+                    : new java.io.File(SaveManager.DEFAULT_SAVE_PATH);
+            this.saveManager = new SaveManager(sf);
+        }
         updateViewport();
+    }
+
+    public GameManager(PApplet app) {
+        this(app, null);
     }
 
     public void start() {
@@ -41,12 +53,29 @@ public final class GameManager {
         return app;
     }
 
+    public SaveManager saveManager() {
+        return saveManager;
+    }
+
     public void showMenu() {
         scenes.switchTo(new MainMenuScene(this));
     }
 
     public void showGameplay() {
+        startNewGame();
+    }
+
+    public void startNewGame() {
         scenes.switchTo(new GameplayScene(this));
+    }
+
+    public void continueGame() {
+        SaveManager.LoadResult res = saveManager.load();
+        if (res.isSuccess()) {
+            scenes.switchTo(new GameplayScene(this, res.data()));
+        } else {
+            showMenu();
+        }
     }
 
     /** Scene aktif; dipakai harness pengujian dan debug. */

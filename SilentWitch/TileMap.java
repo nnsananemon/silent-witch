@@ -26,8 +26,8 @@ public final class TileMap {
             "#..BBBB..........BBBB....#",
             "#........................#",
             "#....PP..........PP......#",
-            "#........................#",
-            "#....TT..........TT......#",
+            "#.......................G#",
+            "#....TT..........TT.....G#",
             "#....TT..........TT......#",
             "#........................#",
             "#.........,,,,,,.........#",
@@ -43,6 +43,7 @@ public final class TileMap {
     private final int rows;
     private int spawnCol = -1;
     private int spawnRow = -1;
+    private boolean gateOpen = false;
 
     /**
      * @throws IllegalArgumentException bila layout kosong, tidak berbentuk
@@ -122,7 +123,18 @@ public final class TileMap {
 
     public boolean isSolid(int col, int row) {
         char ch = tileAt(col, row);
+        if (ch == 'G') {
+            return !gateOpen;
+        }
         return ch == '#' || ch == 'W' || ch == 'B' || ch == 'T' || ch == 'P';
+    }
+
+    public boolean isGateOpen() {
+        return gateOpen;
+    }
+
+    public void setGateOpen(boolean open) {
+        this.gateOpen = open;
     }
 
     /**
@@ -190,6 +202,9 @@ public final class TileMap {
             case 'P':
                 drawFloor(g, x, y, col, row);
                 drawPillar(g, x, y, col, row);
+                break;
+            case 'G':
+                drawGate(g, x, y, col, row);
                 break;
             case '.':
             case 'S':
@@ -371,6 +386,38 @@ public final class TileMap {
         g.rect(x, y + 3, TILE, 1);
         g.fill(0xFF23242D);
         g.rect(x, y + TILE - 3, TILE, 3);
+    }
+
+    private void drawGate(PGraphics g, int x, int y, int col, int row) {
+        drawFloor(g, x, y, col, row);
+        g.noStroke();
+        if (!gateOpen) {
+            // Gerbang tertutup: tiang batu sisi & terali besi tebal
+            g.fill(0xFF282530);
+            g.rect(x, y, 3, TILE);
+            g.rect(x + TILE - 3, y, 3, TILE);
+            // Batang terali besi
+            g.fill(0xFF383C48);
+            g.rect(x + 5, y, 2, TILE);
+            g.rect(x + 9, y, 2, TILE);
+            // Palang horizontal & gembok mekanis
+            g.fill(0xFF484E5E);
+            g.rect(x + 3, y + 6, TILE - 6, 3);
+            g.fill(0xFF8E7CC3); // Gembok ungu misterius
+            g.rect(x + 6, y + 5, 4, 5);
+        } else {
+            // Gerbang terbuka: lorong menuju sayap timur
+            g.fill(0xFF201A2C);
+            g.rect(x, y, TILE, TILE);
+            // Cahaya hangat dari sayap timur
+            g.fill(0xFFD4AF37);
+            g.rect(x + 3, y + 2, TILE - 6, TILE - 4);
+            g.fill(0xFFF0D572);
+            g.rect(x + 6, y + 5, TILE - 12, TILE - 10);
+            // Lengkungan atas batu
+            g.fill(0xFF383C48);
+            g.rect(x + 2, y, TILE - 4, 3);
+        }
     }
 
     private static final int[] BOOK_COLORS = {

@@ -50,6 +50,17 @@ public final class Player {
         return y;
     }
 
+    public void setPosition(float newX, float newY) {
+        this.x = newX;
+        this.y = newY;
+    }
+
+    public void setFacing(Facing facing) {
+        if (facing != null) {
+            this.facing = facing;
+        }
+    }
+
     /**
      * Menambahkan penghalang tambahan di luar tile peta, misalnya tubuh NPC.
      * Koordinat adalah titik tengah kotak pada koordinat dunia.
@@ -64,6 +75,20 @@ public final class Player {
                 width,
                 height
         });
+    }
+
+    /** Menghapus blocker berdasarkan titik tengahnya; dipakai saat pintu/gerbang dibuka. */
+    public boolean removeBlocker(float centerX, float centerY) {
+        for (int i = 0; i < blockers.size(); i++) {
+            float[] b = blockers.get(i);
+            float cx = b[0] + b[2] / 2f;
+            float cy = b[1] + b[3] / 2f;
+            if (Math.abs(cx - centerX) < 1f && Math.abs(cy - centerY) < 1f) {
+                blockers.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     public Facing facing() {

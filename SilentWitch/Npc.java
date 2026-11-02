@@ -6,8 +6,8 @@ import processing.core.PGraphics;
  * Sprite penjaga digambar secara prosedural (tanpa aset eksternal). Tubuh NPC
  * juga menjadi penghalang agar pemain tidak berjalan menembusnya.
  *
- * Nama dan dialog di sini masih placeholder tahap teknis; belum menambah
- * fakta cerita kanonis.
+ * Menyimpan dialog awal (yang memberikan kesaksian/clue) dan dialog pengingat
+ * bila kesaksian telah dicatat ke dalam buku kasus.
  */
 public final class Npc implements Interactable {
 
@@ -18,19 +18,27 @@ public final class Npc implements Interactable {
     private final float x;
     private final float y;
     private final String name;
+    private final Clue clue;
     private final Dialogue dialogue;
+    private final Dialogue repeatDialogue;
 
     public Npc(float x, float y, String name, Dialogue dialogue) {
+        this(x, y, name, null, dialogue, null);
+    }
+
+    public Npc(float x, float y, String name, Clue clue, Dialogue initialDialogue, Dialogue repeatDialogue) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Nama NPC tidak boleh kosong.");
         }
-        if (dialogue == null) {
+        if (initialDialogue == null) {
             throw new IllegalArgumentException("NPC membutuhkan dialog.");
         }
         this.x = x;
         this.y = y;
         this.name = name;
-        this.dialogue = dialogue;
+        this.clue = clue;
+        this.dialogue = initialDialogue;
+        this.repeatDialogue = repeatDialogue;
     }
 
     @Override
@@ -57,8 +65,29 @@ public final class Npc implements Interactable {
         return name;
     }
 
+    public Clue clue() {
+        return clue;
+    }
+
+    public Dialogue repeatDialogue() {
+        return repeatDialogue;
+    }
+
     @Override
     public Dialogue createDialogue() {
+        return dialogue;
+    }
+
+    @Override
+    public Dialogue interact(InvestigationSystem investigation) {
+        if (clue != null && investigation != null) {
+            if (!investigation.isDiscovered(clue.id())) {
+                investigation.discover(clue);
+                return dialogue;
+            } else if (repeatDialogue != null) {
+                return repeatDialogue;
+            }
+        }
         return dialogue;
     }
 

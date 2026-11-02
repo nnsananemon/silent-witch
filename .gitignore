@@ -1,0 +1,28 @@
+# Processing build output
+applet/
+application.windows32/
+application.windows64/
+application.linux32/
+application.linux64/
+application.macosx/
+*.class
+
+# Temporary and backup files
+*.tmp
+*~
+*.bak
+
+# Runtime save files
+SilentWitch/save/
+save/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+*.iml

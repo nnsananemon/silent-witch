@@ -3,7 +3,7 @@
 Game pixel-art mystery RPG untuk Windows PC, dibangun dengan **Processing 4 (Java Mode)**.
 
 Repositori ini berisi implementasi bertahap sesuai PRD. Status saat ini:
-**Stage 03 - Interaksi dan dialog**.
+**Stage 06 - Save/load dan integrasi**.
 
 ## Isi repositori
 
@@ -20,17 +20,20 @@ lalu tekan **Run**.
 Processing.exe cli --sketch="SilentWitch" --run
 ```
 
-## Scope Stage 03
+## Scope Stage 06
 
-Sudah ada: seluruh fondasi Stage 01-02 (menu, scene manager, render 320x180, area uji
-26x16 tile, pemain, collision, kamera), ditambah NPC penjaga, tiga objek yang dapat
-diperiksa, prompt interaksi, panel dialog, dan penguncian gerak selama dialog terbuka.
+Sudah ada:
+- Seluruh fondasi Stage 01-05 (menu, scene manager, render 320x180, area aula 26x16 tile, pemain, collision, kamera, NPC, titik periksa, panel dialog, bukti kasus, casebook modal, pencegahan duplikasi, notifikasi toast, quest investigasi, puzzle kotak besi, gerbang sayap timur).
+- Sistem penyimpanan dan pemuatan game (`SaveData`, `SaveManager`):
+  - Skema data berversi (`CURRENT_SCHEMA_VERSION = 1`) menyimpan posisi pemain, arah hadap, bukti yang ditemukan, quest aktif, progres sub-tujuan, status puzzle/hint, dan flag dunia.
+  - Penulisan atomik via berkas temporer (`.tmp`) untuk mencegah kerusakan berkas saat proses simpan terputus (NFR-06 / AC-07).
+  - Penanganan berkas save rusak/cacat secara diagnostik tanpa crash dan tanpa menghapus berkas asli yang rusak.
+  - Autosave otomatis pada peristiwa penting (clue ditemukan, puzzle dipecahkan, gerbang dibuka, keluar scene).
+  - Tombol **LANJUTKAN** aktif dinamis di menu utama, dan modal konfirmasi peringatan saat memilih **MULAI BARU** jika data save lama sudah ada.
+- Seluruh kriteria penerimaan AC-01 sampai AC-07 (kecuali AC-08 yang menunggu cerita kanon final) berstatus **Pass**.
 
-Belum ada: clue/casebook, puzzle/quest, save/load, konten cerita final, dan ending.
-Tombol **Lanjutkan** sengaja terkunci sampai Stage 06. Dialog saat ini masih
-placeholder dan tidak menambah fakta cerita kanonis.
+Belum ada: area Sayap Timur penuh / transisi antar-peta (Stage 07), konten cerita kanon final dan ending deduksi (Stage 07).
 
 ## Lisensi aset
 
-Stage 03 tidak memakai aset eksternal. Seluruh visual dibuat prosedural dan font
-5x7 dibuat manual. Lihat [`SilentWitch/data/licenses/ASSET_CREDITS.md`](SilentWitch/data/licenses/ASSET_CREDITS.md).
+Stage 06 tidak memakai aset eksternal. Seluruh visual (tileset placeholder, sprite pemain, NPC, kotak besi, gerbang, panel modal, toast, dan font bitmap 5x7) dibuat secara prosedural. Lihat [`SilentWitch/data/licenses/ASSET_CREDITS.md`](SilentWitch/data/licenses/ASSET_CREDITS.md).

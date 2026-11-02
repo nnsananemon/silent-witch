@@ -1,11 +1,11 @@
 # Asset Credits - Silent Witch
 
-## Status Stage 03
+## Status Stage 04
 
-**Tidak ada aset eksternal yang digunakan.** Stage 03 hanya memakai visual
+**Tidak ada aset eksternal yang digunakan.** Stage 04 hanya memakai visual
 prosedural yang digambar langsung oleh kode Java: tileset placeholder 16x16,
-sprite pemain, sprite NPC penjaga, panel dialog, dan font bitmap 5x7 yang dibuat
-manual untuk proyek ini.
+sprite pemain, sprite NPC penjaga, panel dialog, modal Detective Casebook, notifikasi
+toast bukti, dan font bitmap 5x7 yang dibuat manual untuk proyek ini.
 
 Processing 4.5.7 dan JDK yang disertakan digunakan sebagai engine/runtime, bukan
 sebagai aset game.

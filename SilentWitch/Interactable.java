@@ -23,6 +23,15 @@ public interface Interactable {
     /** Dialog yang dibuka saat berinteraksi. */
     Dialogue createDialogue();
 
+    /**
+     * Interaksi dengan melibatkan sistem investigasi. Mengembalikan dialog
+     * yang sesuai (misal baris penemuan bukti pada interaksi pertama, atau baris
+     * pengingat jika bukti sudah tercatat di buku kasus).
+     */
+    default Dialogue interact(InvestigationSystem investigation) {
+        return createDialogue();
+    }
+
     /** Digambar di dunia. Objek yang sudah digambar TileMap boleh kosong. */
     void draw(PGraphics g, int cameraX, int cameraY);
 
