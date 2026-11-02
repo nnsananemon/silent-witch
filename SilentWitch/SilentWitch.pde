@@ -1,5 +1,5 @@
 /**
- * SILENT WITCH - Stage 06: Save/Load dan Integrasi.
+ * SILENT WITCH - Stage 07: Konten, Polish, dan Validasi (v1.0.0).
  *
  * Processing 4, Java Mode. Entry point ini sengaja tipis: seluruh logika
  * berada di tab .java agar dapat diuji terpisah dan tidak menumpuk di file PDE.
@@ -18,7 +18,7 @@ void settings() {
 }
 
 void setup() {
-  surface.setTitle("Silent Witch - Tahap 06");
+  surface.setTitle("Silent Witch - Stage 07 (v1.0.0)");
   game = new GameManager(this);
   game.start();
 }

@@ -78,6 +78,10 @@ public final class GameManager {
         }
     }
 
+    public void changeScene(Scene next) {
+        scenes.switchTo(next);
+    }
+
     /** Scene aktif; dipakai harness pengujian dan debug. */
     public Scene currentScene() {
         return scenes.current();

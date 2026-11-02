@@ -66,7 +66,7 @@ public final class GerbangTimur implements Interactable {
     @Override
     public String prompt() {
         if (map.isGateOpen()) {
-            return "PERIKSA LORONG";
+            return "MASUK SAYAP TIMUR";
         }
         return puzzle.isSolved() ? "BUKA GERBANG" : "PERIKSA GERBANG";
     }

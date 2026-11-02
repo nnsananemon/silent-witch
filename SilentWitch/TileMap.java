@@ -38,6 +38,27 @@ public final class TileMap {
             "##########################"
     };
 
+    // Sayap Timur The Silent Manor (Arsip & Altar Rekonstruksi).
+    // Ukuran 26x16 tile (416x256 piksel).
+    private static final String[] MANOR_EAST_WING = {
+            "####WW####WW####WW########",
+            "#........................#",
+            "#..BBBB..........BBBB....#",
+            "#..BBBB....AA....BBBB....#",
+            "#..........AA............#",
+            "#....PP..........PP......#",
+            "#G.S......,,,,......MM...#",
+            "#G........,,,,......MM...#",
+            "#.........,,,,...........#",
+            "#....PP..........PP......#",
+            "#........................#",
+            "#..BBBB..........BBBB....#",
+            "#..BBBB..........BBBB....#",
+            "#........................#",
+            "#........................#",
+            "##########################"
+    };
+
     private final char[][] tiles;
     private final int cols;
     private final int rows;
@@ -90,6 +111,12 @@ public final class TileMap {
         return new TileMap(MANOR_HALL);
     }
 
+    public static TileMap manorEastWing() {
+        TileMap wing = new TileMap(MANOR_EAST_WING);
+        wing.setGateOpen(true);
+        return wing;
+    }
+
     public int cols() {
         return cols;
     }
@@ -126,7 +153,7 @@ public final class TileMap {
         if (ch == 'G') {
             return !gateOpen;
         }
-        return ch == '#' || ch == 'W' || ch == 'B' || ch == 'T' || ch == 'P';
+        return ch == '#' || ch == 'W' || ch == 'B' || ch == 'T' || ch == 'P' || ch == 'A' || ch == 'M';
     }
 
     public boolean isGateOpen() {
@@ -205,6 +232,14 @@ public final class TileMap {
                 break;
             case 'G':
                 drawGate(g, x, y, col, row);
+                break;
+            case 'A':
+                drawFloor(g, x, y, col, row);
+                drawAltar(g, x, y, col, row);
+                break;
+            case 'M':
+                drawFloor(g, x, y, col, row);
+                drawMemorial(g, x, y, col, row);
                 break;
             case '.':
             case 'S':
@@ -418,6 +453,66 @@ public final class TileMap {
             g.fill(0xFF383C48);
             g.rect(x + 2, y, TILE - 4, 3);
         }
+    }
+
+    private void drawAltar(PGraphics g, int x, int y, int col, int row) {
+        g.noStroke();
+        g.fill(Palette.alpha(0x000000, 120));
+        g.rect(x + 1, y + 4, 14, 12);
+
+        // Dasar batu altar kuno
+        g.fill(0xFF2C2434);
+        g.rect(x + 1, y + 2, TILE - 2, 12);
+        g.fill(0xFF40364C);
+        g.rect(x + 2, y + 3, TILE - 4, 2);
+
+        // Kain penutup beludru ungu altar
+        g.fill(0xFF442756);
+        g.rect(x + 1, y + 6, TILE - 2, 6);
+        g.fill(0xFF5E3977);
+        g.rect(x + 2, y + 7, TILE - 4, 1);
+
+        // Lilin investigasi altar
+        if ((col & 1) == 0) {
+            g.fill(0xFFDCD2C4);
+            g.rect(x + 3, y + 1, 2, 5);
+            g.fill(Palette.WARM);
+            g.rect(x + 3, y - 1, 2, 2);
+        } else {
+            g.fill(0xFFDCD2C4);
+            g.rect(x + 11, y + 1, 2, 5);
+            g.fill(Palette.WARM);
+            g.rect(x + 11, y - 1, 2, 2);
+        }
+
+        // Simbol rune investigasi
+        g.fill(0xFF8F76C4);
+        g.rect(x + 7, y + 9, 2, 2);
+    }
+
+    private void drawMemorial(PGraphics g, int x, int y, int col, int row) {
+        g.noStroke();
+        g.fill(Palette.alpha(0x000000, 110));
+        g.rect(x + 2, y + 5, 12, 11);
+
+        // Meja arsip memorial
+        g.fill(0xFF2D1F1C);
+        g.rect(x + 1, y + 2, TILE - 2, 11);
+        g.fill(0xFF45302A);
+        g.rect(x + 2, y + 3, TILE - 4, 2);
+
+        // Berkas arsip Clara Thorne
+        g.fill(0xFFD6C8B0);
+        g.rect(x + 3, y + 5, 10, 6);
+        g.fill(0xFF6E5F4A);
+        g.rect(x + 4, y + 7, 8, 1);
+        g.rect(x + 4, y + 9, 6, 1);
+
+        // Bunga putih tanda kehormatan
+        g.fill(0xFFF7F2E7);
+        g.rect(x + 4, y + 3, 2, 2);
+        g.fill(0xFF7FA872);
+        g.rect(x + 3, y + 4, 1, 2);
     }
 
     private static final int[] BOOK_COLORS = {

@@ -22,7 +22,7 @@ public final class Player {
     private static final float HITBOX_H = 6f;
     private static final float MAX_STEP = 4f;
 
-    private final TileMap map;
+    private TileMap map;
     private final List<float[]> blockers = new ArrayList<float[]>();
     private float x;
     private float y;
@@ -40,6 +40,17 @@ public final class Player {
         if (collides(x, y)) {
             throw new IllegalArgumentException("Posisi awal pemain berada di tile solid.");
         }
+    }
+
+    public void setMap(TileMap map) {
+        if (map == null) {
+            throw new IllegalArgumentException("TileMap pemain tidak boleh null.");
+        }
+        this.map = map;
+    }
+
+    public void clearBlockers() {
+        blockers.clear();
     }
 
     public float x() {

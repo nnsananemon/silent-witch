@@ -4,6 +4,49 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-11-02
+
+### Added
+
+- Dokumen Kanon Resmi `Silent_Witch_Canon.md` sesuai PRD Seksi 2, 6.2, dan 20:
+  - Penetapan identitas korban: Clara Thorne (15 tahun).
+  - Penetapan identitas pelaku: Garrick (Penjaga Malam Aula).
+  - Penetapan motif final: Persekongkolan dan keserakahan menjarah relik Sayap Timur bersama kultus bayangan.
+  - Kronologi kanonis kejadian dan analisis kontradiksi bukti fisik.
+- Area baru **Sayap Timur (Arsip & Altar Rekonstruksi)** pada `TileMap.java`:
+  - Layout tile 26x16 dengan render prosedural batu altar kuno (`'A'`), meja memorial Clara Thorne (`'M'`), rak arsip mahoni, pilar batu, karpet beludru, dan lorong barat.
+  - Metode instansiasi `TileMap.manorEastWing()`.
+- Objek interaktif baru di Sayap Timur:
+  - `AltarDeduksi`: Altar batu kuno tempat pemain menyusun deduksi akhir.
+  - `GerbangBarat`: Lorong dua arah untuk kembali ke Aula Manor.
+  - Titik periksa `Memorial Clara Thorne` dengan potret, bunga putih, dan catatan wasiat.
+  - Titik periksa `Arsip Kuno Sayap Timur` dengan kronik sejarah pelindung desa dan segel relik.
+- Sistem Rekonstruksi Deduksi Kasus (`DeductionSystem.java`):
+  - Antarmuka modal interaktif 300x164 dengan 3 langkah deduksi kanonis.
+  - Navigasi penuh via keyboard (W/S, panah, angka 1-3, Enter, Esc) dan mouse.
+  - Evaluasi deduksi logis terhadap bukti yang ditemukan menghasilkan 3 rute ending.
+- Layar Hasil Investigasi & Ending (`EndingScene.java`):
+  - **Ending I (The Truth / True Ending):** Narasi kebenaran, pembongkaran alibi Garrick, pembersihan nama Clara Thorne, dan pulihnya ketenangan desa.
+  - **Ending II (The Unfinished Case / Partial Ending):** Narasi investigasi menggantung bila bukti kurang dari 4, Garrick kabur tanpa kepastian hukum.
+  - **Ending III (The False Accusation / Bad Deduction):** Narasi kegagalan bila deduksi salah, pelaku sebenarnya bebas, dan relik jatuh ke tangan kultus.
+  - Rangkuman statistik bukti, status kotak besi, dan putusan investigasi.
+- **Pause Menu (PRD 11.1 Layar minimum point 6)** pada `GameplayScene.java`:
+  - Tombol ESC membuka panel jeda terpusat (Resume, Pengaturan Cepat Tampilan 960x540 skala 3x, Kembali ke Menu Utama).
+  - Dialog konfirmasi aman sebelum kembali ke menu dengan penyimpanan progres otomatis.
+- Dukungan Multi-Map pada `Player.java`:
+  - Metode `setMap(TileMap)` dan `clearBlockers()` untuk pergantian area yang mulus.
+- Serialisasi SaveData multi-area yang menyimpan dan memulihkan status area `the_silent_manor_east_wing` secara transparan.
+
+### Changed
+
+- Status Acceptance Criteria **AC-08 (Narasi dan logika)** dinaikkan menjadi **Pass**.
+- Seluruh 10 Acceptance Criteria (**AC-01** sampai **AC-10**) kini berstatus **Pass**.
+- Versi proyek dan sketch ditingkatkan menjadi **Stage 07 v1.0.0**.
+- Prompt `GerbangTimur` saat terbuka diperbarui menjadi `"MASUK SAYAP TIMUR"`.
+- `GameManager` kini memiliki metode `changeScene(Scene)` untuk transisi langsung ke `EndingScene`.
+
+---
+
 ## [0.6.0] - 2026-11-02
 
 ### Added

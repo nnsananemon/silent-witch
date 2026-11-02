@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,16 +9,21 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /**
- * Scene gameplay Stage 06: Save/Load dan Integrasi.
+ * Scene gameplay Stage 07: Konten, Polish, dan Validasi.
  *
- * Mengintegrasikan area The Silent Manor dengan:
+ * Mengintegrasikan The Silent Manor dengan:
+ * - Dua area terhubung: Aula Manor & Sayap Timur (Arsip & Altar Rekonstruksi)
  * - 4 bukti investigasi aula dan Detective Casebook
- * - Quest "MISTERI AULA UTARA" dengan sub-tujuan pengumpulan bukti, puzzle, dan gerbang
- * - Teka-teki Kotak Besi Aula 3-dial angka (jawaban 2-4-9) dengan validasi kondisi dan 3-tier hint
- * - Gerbang Sayap Timur yang terkunci rapat sebelum puzzle dipecahkan
- * - Autosave otomatis pada peristiwa penting (clue, puzzle, gate, exit)
- * - Pemulihan state utuh (posisi, clue, quest, puzzle, gate) saat Load/Lanjutkan
- * - Penguncian gerak saat dialog, casebook, atau puzzle terbuka
+ * - Quest "MISTERI AULA UTARA" dengan sub-tujuan lengkap
+ * - Teka-teki Kotak Besi Aula 3-dial angka (jawaban 2-4-9)
+ * - Gerbang Sayap Timur dengan transisi lorong dua arah
+ * - Altar Rekonstruksi Kasus dengan 3-tier ending deduksi kanonis:
+ *   1. The Truth (True Ending)
+ *   2. The Unfinished Case (Partial Ending)
+ *   3. The False Accusation (Bad Deduction)
+ * - Pause Menu (Resume, Pengaturan Cepat, Kembali ke Menu dengan konfirmasi simpan)
+ * - Autosave otomatis pada peristiwa penting (clue, puzzle, gate, area transition, exit)
+ * - Pemulihan state utuh (areaId, posisi, clue, quest, puzzle, gate) saat Load/Lanjutkan
  */
 public final class GameplayScene extends Scene {
 
@@ -25,18 +32,28 @@ public final class GameplayScene extends Scene {
     private static final int DUST_COUNT = 16;
     private static final float INPUT_COOLDOWN = 0.18f;
 
-    private final TileMap map;
+    private TileMap map;
+    private final TileMap mapHall;
+    private final TileMap mapEastWing;
+    private String currentAreaId = "the_silent_manor_hall";
+
     private final Player player;
     private final Npc npc;
     private final List<Interactable> interactables = new ArrayList<Interactable>();
+    private final List<Interactable> hallInteractables = new ArrayList<Interactable>();
+    private final List<Interactable> eastWingInteractables = new ArrayList<Interactable>();
+
     private final DialogueSystem dialogue = new DialogueSystem();
     private final InvestigationSystem investigation = new InvestigationSystem();
     private final QuestSystem quest = new QuestSystem();
     private final PuzzleSystem puzzleSystem = new PuzzleSystem();
+    private final DeductionSystem deductionSystem = new DeductionSystem();
 
     private final Puzzle puzzleKotak;
     private final KotakBesi kotakBesi;
     private final GerbangTimur gerbangTimur;
+    private final AltarDeduksi altarDeduksi;
+    private final GerbangBarat gerbangBarat;
 
     private final float[] dustX = new float[DUST_COUNT];
     private final float[] dustY = new float[DUST_COUNT];
@@ -55,16 +72,25 @@ public final class GameplayScene extends Scene {
     private boolean keyLeft = false;
     private boolean keyRight = false;
 
+    // --- State Pause Menu ---
+    private boolean pauseOpen = false;
+    private int pauseSelected = 0;
+    private boolean pauseConfirmQuit = false;
+    private int pauseConfirmSelected = 1;
+    private boolean settingsInfoOpen = false;
+
     public GameplayScene(GameManager game) {
         this(game, null);
     }
 
     public GameplayScene(GameManager game, SaveData loadData) {
         super(game);
-        this.map = TileMap.manorHall();
+        this.mapHall = TileMap.manorHall();
+        this.mapEastWing = TileMap.manorEastWing();
+        this.map = mapHall;
         this.player = new Player(map, map.spawnX(), map.spawnY());
 
-        // --- Pendaftaran Clue Aula ---
+        // --- Pendaftaran Clue Aula (Kanonis) ---
         Clue clueRak = new Clue("clue_rak_harian",
                 "BUKU HARIAN USANG",
                 "BUKU HARIAN BERSAMPUL KULIT GELAP DENGAN BEBERAPA HALAMAN TENGAH SOBEK SECARA PAKSA.",
@@ -110,7 +136,7 @@ public final class GameplayScene extends Scene {
         investigation.registerClue(clueJendela);
         investigation.registerClue(cluePenjaga);
 
-        // --- Pendaftaran Quest Stage 05 ---
+        // --- Pendaftaran Quest Investigasi ---
         List<QuestObjective> objectives = new ArrayList<QuestObjective>();
         objectives.add(new QuestObjective("obj_kumpulkan_bukti", "Kumpulkan 4 bukti aula", 4));
         objectives.add(new QuestObjective("obj_pecahkan_puzzle", "Pecahkan teka-teki Kotak Besi Aula", 1));
@@ -127,7 +153,7 @@ public final class GameplayScene extends Scene {
         quest.registerQuest(questAula);
         quest.activateQuest("quest_investigasi_aula");
 
-        // --- Pendaftaran Puzzle Kotak Besi (PRD 5.1 type 2: 3-dial code 2-4-9) ---
+        // --- Pendaftaran Puzzle Kotak Besi ---
         String[] hints = new String[]{
                 "Periksa kembali aturan angka: cari bilangan prima genap untuk digit pertama, lalu kalikan dua untuk digit kedua.",
                 "Satu-satunya bilangan prima genap adalah 2. Digit kedua adalah 2 x 2 = 4. Digit ketiga adalah 3 x 3 = 9.",
@@ -150,7 +176,18 @@ public final class GameplayScene extends Scene {
             }
         });
 
-        // --- NPC dan Objek Interaktif ---
+        // --- Deduction System Callback (Stage 07) ---
+        deductionSystem.setOnCompleteListener(new DeductionSystem.OnDeductionComplete() {
+            @Override
+            public void onComplete(DeductionSystem.EndingType endingType) {
+                if (game != null) {
+                    game.changeScene(new EndingScene(game, endingType,
+                            investigation.discoveredCount(), investigation.totalCount(), puzzleKotak.isSolved()));
+                }
+            }
+        });
+
+        // --- Objek Interaktif Aula ---
         this.npc = new Npc(232f, 200f, "PENJAGA AULA", cluePenjaga,
                 new Dialogue("PENJAGA AULA",
                         "Penyelidik... malam ini terasa lebih dingin dari biasanya.",
@@ -161,10 +198,8 @@ public final class GameplayScene extends Scene {
                         "Aku tetap berjaga di aula ini sampai fajar menyingsing.",
                         "Semua yang kudengar malam itu sudah kukatakan padamu.",
                         "Periksalah meja, rak, dan jendela utara jika kau butuh bukti nyata."));
-        player.addBlocker(npc.x(), npc.y() - Npc.BLOCK_H / 2f, Npc.BLOCK_W, Npc.BLOCK_H);
-        interactables.add(npc);
 
-        interactables.add(new ExamineSpot(96f, 126f, 26f, "MEJA AULA", clueMeja,
+        ExamineSpot spotMeja = new ExamineSpot(96f, 126f, 26f, "MEJA AULA", clueMeja,
                 new Dialogue("MEJA AULA",
                         "Debu tebal menutupi permukaan meja kayu tua ini.",
                         "Terselip di celah laci, ada sobekan catatan berlumur lilin.",
@@ -173,9 +208,9 @@ public final class GameplayScene extends Scene {
                 new Dialogue("MEJA AULA",
                         "Meja kayu ini sudah diperiksa dengan teliti.",
                         "Sobekan catatan jadwal jaga sudah tersimpan di Buku Kasus.",
-                        "Tidak ada petunjuk lain yang tertinggal di sini.")));
+                        "Tidak ada petunjuk lain yang tertinggal di sini."));
 
-        interactables.add(new ExamineSpot(80f, 62f, 26f, "RAK BUKU", clueRak,
+        ExamineSpot spotRak = new ExamineSpot(80f, 62f, 26f, "RAK BUKU", clueRak,
                 new Dialogue("RAK BUKU",
                         "Di antara deretan buku tebal tanpa judul, ada jilid kecil bersampul kulit.",
                         "Sebagian halaman tengah telah dirobek dengan tergesa-gesa.",
@@ -184,9 +219,9 @@ public final class GameplayScene extends Scene {
                 new Dialogue("RAK BUKU",
                         "Rak buku berdebu yang penuh naskah tua tanpa judul.",
                         "Buku harian usang sudah kau periksa sebelumnya.",
-                        "Halaman lainnya di rak ini hanya teks usang yang tidak terbaca.")));
+                        "Halaman lainnya di rak ini hanya teks usang yang tidak terbaca."));
 
-        interactables.add(new ExamineSpot(168f, 16f, 30f, "JENDELA UTARA", clueJendela,
+        ExamineSpot spotJendela = new ExamineSpot(168f, 16f, 30f, "JENDELA UTARA", clueJendela,
                 new Dialogue("JENDELA UTARA",
                         "Angin malam berhembus melalui celah daun jendela yang renggang.",
                         "Di ambang jendela luar, terlihat bekas cungkilan logam yang masih baru.",
@@ -195,15 +230,51 @@ public final class GameplayScene extends Scene {
                 new Dialogue("JENDELA UTARA",
                         "Kusen jendela utara menghadap ke kabut malam yang pekat.",
                         "Bekas cungkilan logam sudah tercatat rapi di Buku Kasus.",
-                        "Tidak ada tanda jejak kaki baru di bawah terpaan angin luar.")));
+                        "Tidak ada tanda jejak kaki baru di bawah terpaan angin luar."));
 
-        // --- Objek Puzzle & Gerbang Stage 05 ---
         this.kotakBesi = new KotakBesi(368f, 48f, puzzleKotak);
-        interactables.add(kotakBesi);
+        this.gerbangTimur = new GerbangTimur(388f, 104f, mapHall, player, puzzleKotak, quest);
 
-        this.gerbangTimur = new GerbangTimur(388f, 104f, map, player, puzzleKotak, quest);
-        player.addBlocker(388f, 104f, 16f, 32f);
-        interactables.add(gerbangTimur);
+        hallInteractables.add(npc);
+        hallInteractables.add(spotMeja);
+        hallInteractables.add(spotRak);
+        hallInteractables.add(spotJendela);
+        hallInteractables.add(kotakBesi);
+        hallInteractables.add(gerbangTimur);
+
+        // --- Objek Interaktif Sayap Timur (Stage 07) ---
+        this.altarDeduksi = new AltarDeduksi(192f, 64f);
+        this.gerbangBarat = new GerbangBarat(24f, 104f);
+
+        ExamineSpot memorialClara = new ExamineSpot(336f, 112f, 26f, "MEMORIAL CLARA",
+                new Dialogue("MEMORIAL CLARA THORNE",
+                        "Potret Clara Thorne (15 tahun) tersandar di atas meja arsip berpelitur gelap.",
+                        "Setangkai bunga mawar putih diletakkan dengan hormat di samping potret.",
+                        "Catatan riset Clara: 'Garrick bersekongkol dengan kultus untuk menjarah relik malam ini. Aku harus menghentikannya.'",
+                        "Pengorbanan Clara demi melindungi warisan desa terpatri abadi di sini."),
+                new Dialogue("MEMORIAL CLARA THORNE",
+                        "Meja memorial Clara Thorne tertata rapi dalam keheningan.",
+                        "Catatan riset dan potretnya membuktikan keberanian seorang anak melindungi Ashen Village.",
+                        "Semua yang kau butuhkan untuk menegakkan keadilan telah tercatat."));
+
+        ExamineSpot rakArsip = new ExamineSpot(80f, 48f, 26f, "ARSIP KUNO",
+                new Dialogue("ARSIP KUNO SAYAP TIMUR",
+                        "Deretan naskah kuno tersusun rapi di rak mahoni setinggi langit-langit.",
+                        "Sebuah kronik tua mencatat sumpah leluhur desa untuk menjaga segel peninggalan.",
+                        "Kunci segel itu hanya dapat dibuka melalui mekanisme Kotak Besi Aula.",
+                        "Catatan sejarah ini membantah kemungkinan keterlibatan pihak luar."),
+                new Dialogue("ARSIP KUNO SAYAP TIMUR",
+                        "Naskah-naskah kuno penjaga Ashen Village.",
+                        "Informasi tentang segel relik dan mekanisme penguncinya sudah kau pelajari.",
+                        "Tidak ada dokumen lain yang mencurigakan di rak ini."));
+
+        eastWingInteractables.add(altarDeduksi);
+        eastWingInteractables.add(memorialClara);
+        eastWingInteractables.add(rakArsip);
+        eastWingInteractables.add(gerbangBarat);
+
+        // Setup awal area
+        setupArea("the_silent_manor_hall");
 
         for (int i = 0; i < DUST_COUNT; i++) {
             dustX[i] = Palette.hash(i * 9 + 21) * GameManager.VIRTUAL_W;
@@ -217,6 +288,46 @@ public final class GameplayScene extends Scene {
         } else {
             centerCameraOnPlayer();
         }
+    }
+
+    public void setupArea(String areaId) {
+        if ("the_silent_manor_east_wing".equals(areaId)) {
+            currentAreaId = "the_silent_manor_east_wing";
+            map = mapEastWing;
+            player.setMap(mapEastWing);
+            player.clearBlockers();
+            interactables.clear();
+            interactables.addAll(eastWingInteractables);
+        } else {
+            currentAreaId = "the_silent_manor_hall";
+            map = mapHall;
+            player.setMap(mapHall);
+            player.clearBlockers();
+            player.addBlocker(npc.x(), npc.y() - Npc.BLOCK_H / 2f, Npc.BLOCK_W, Npc.BLOCK_H);
+            if (!gerbangTimur.isGateOpen()) {
+                player.addBlocker(gerbangTimur.x(), gerbangTimur.y(), 16f, 32f);
+            }
+            interactables.clear();
+            interactables.addAll(hallInteractables);
+        }
+    }
+
+    public void transitionToEastWing() {
+        setupArea("the_silent_manor_east_wing");
+        player.setPosition(56f, 104f);
+        player.setFacing(Player.Facing.RIGHT);
+        centerCameraOnPlayer();
+        investigation.setNotification("MASUK KE SAYAP TIMUR: ARSIP & ALTAR", 3.0f);
+        autosave();
+    }
+
+    public void transitionToHall() {
+        setupArea("the_silent_manor_hall");
+        player.setPosition(368f, 104f);
+        player.setFacing(Player.Facing.LEFT);
+        centerCameraOnPlayer();
+        investigation.setNotification("KEMBALI KE AULA UTARA", 2.5f);
+        autosave();
     }
 
     public int interactableCount() {
@@ -233,6 +344,22 @@ public final class GameplayScene extends Scene {
 
     public boolean isPuzzleOpen() {
         return puzzleSystem.isOpen();
+    }
+
+    public boolean isDeductionOpen() {
+        return deductionSystem.isOpen();
+    }
+
+    public boolean isPauseOpen() {
+        return pauseOpen;
+    }
+
+    public DeductionSystem deductionSystem() {
+        return deductionSystem;
+    }
+
+    public String currentAreaId() {
+        return currentAreaId;
     }
 
     public InvestigationSystem investigation() {
@@ -259,6 +386,10 @@ public final class GameplayScene extends Scene {
         return gerbangTimur;
     }
 
+    public AltarDeduksi altarDeduksi() {
+        return altarDeduksi;
+    }
+
     public int discoveredClueCount() {
         return investigation.discoveredCount();
     }
@@ -275,6 +406,19 @@ public final class GameplayScene extends Scene {
     public void toggleCasebook() {
         clearInput();
         investigation.toggleCasebook();
+    }
+
+    public void openPauseMenu() {
+        clearInput();
+        pauseOpen = true;
+        pauseSelected = 0;
+        pauseConfirmQuit = false;
+        pauseConfirmSelected = 1;
+    }
+
+    public void closePauseMenu() {
+        pauseOpen = false;
+        pauseConfirmQuit = false;
     }
 
     public float playerX() {
@@ -338,7 +482,7 @@ public final class GameplayScene extends Scene {
         return new SaveData(
                 SaveData.CURRENT_SCHEMA_VERSION,
                 System.currentTimeMillis(),
-                "the_silent_manor_hall",
+                currentAreaId,
                 player.x(),
                 player.y(),
                 player.facing(),
@@ -350,10 +494,16 @@ public final class GameplayScene extends Scene {
         );
     }
 
+    public SaveData createSaveData() {
+        return captureCurrentState();
+    }
+
     public void restoreFrom(SaveData data) {
         if (data == null) {
             return;
         }
+
+        setupArea(data.areaId());
 
         // 1. Posisi dan arah hadap pemain
         player.setPosition(data.playerX(), data.playerY());
@@ -382,6 +532,7 @@ public final class GameplayScene extends Scene {
         boolean gateOpen = data.isWorldFlag("gate_east_open", false);
         if (gateOpen || (ps != null && ps.isSolved() && quest.isQuestCompleted("quest_investigasi_aula"))) {
             gerbangTimur.restoreOpen(true);
+            mapHall.setGateOpen(true);
         }
 
         // Bersihkan notifikasi awal agar layar bersih saat baru dimuat
@@ -396,6 +547,8 @@ public final class GameplayScene extends Scene {
         dialogue.close();
         investigation.closeCasebook();
         puzzleSystem.close();
+        deductionSystem.close();
+        closePauseMenu();
         focused = null;
         centerCameraOnPlayer();
     }
@@ -407,6 +560,8 @@ public final class GameplayScene extends Scene {
         dialogue.close();
         investigation.closeCasebook();
         puzzleSystem.close();
+        deductionSystem.close();
+        closePauseMenu();
     }
 
     private void clearInput() {
@@ -445,14 +600,29 @@ public final class GameplayScene extends Scene {
 
         float inputX = 0f;
         float inputY = 0f;
-        // Kunci gerakan pemain jika dialog, buku kasus, atau puzzle sedang terbuka
-        if (!dialogue.isOpen() && !investigation.isCasebookOpen() && !puzzleSystem.isOpen()) {
+        // Kunci gerakan pemain jika modal, dialog, pause, atau deduksi terbuka
+        if (!dialogue.isOpen() && !investigation.isCasebookOpen() && !puzzleSystem.isOpen()
+                && !deductionSystem.isOpen() && !pauseOpen) {
             inputX = (keyRight ? 1f : 0f) - (keyLeft ? 1f : 0f);
             inputY = (keyDown ? 1f : 0f) - (keyUp ? 1f : 0f);
         }
         player.update(dt, inputX, inputY);
 
-        focused = (dialogue.isOpen() || investigation.isCasebookOpen() || puzzleSystem.isOpen()) ? null
+        // Transisi otomatis antar-ruang saat melangkah ke ambang gerbang terbuka
+        if (currentAreaId.equals("the_silent_manor_hall") && gerbangTimur.isGateOpen()) {
+            if (player.x() >= 392f) {
+                clearInput();
+                transitionToEastWing();
+            }
+        } else if (currentAreaId.equals("the_silent_manor_east_wing")) {
+            if (player.x() <= 20f) {
+                clearInput();
+                transitionToHall();
+            }
+        }
+
+        focused = (dialogue.isOpen() || investigation.isCasebookOpen() || puzzleSystem.isOpen()
+                || deductionSystem.isOpen() || pauseOpen) ? null
                 : Interactable.nearest(interactables, player.x(), player.y());
 
         float targetX = player.x() - GameManager.VIRTUAL_W / 2f;
@@ -496,19 +666,33 @@ public final class GameplayScene extends Scene {
         investigation.drawNotification(g);
         investigation.drawCasebook(g);
         puzzleSystem.draw(g);
+        deductionSystem.draw(g);
+
+        if (pauseOpen) {
+            drawPauseMenu(g);
+        }
     }
 
-    /** Menggambar objek interaktif dunia, NPC, dan pemain dengan urutan kedalaman. */
+    /** Menggambar seluruh objek interaktif dan pemain dengan kedalaman Y yang akurat. */
     private void drawEntities(PGraphics g, int camX, int camY) {
-        kotakBesi.draw(g, camX, camY);
-        gerbangTimur.draw(g, camX, camY);
+        List<Interactable> sorted = new ArrayList<Interactable>(interactables);
+        Collections.sort(sorted, new Comparator<Interactable>() {
+            @Override
+            public int compare(Interactable a, Interactable b) {
+                return Float.compare(a.y(), b.y());
+            }
+        });
 
-        if (npc.y() <= player.y()) {
-            npc.draw(g, camX, camY);
+        boolean playerDrawn = false;
+        for (Interactable item : sorted) {
+            if (!playerDrawn && player.y() < item.y()) {
+                player.draw(g, camX, camY);
+                playerDrawn = true;
+            }
+            item.draw(g, camX, camY);
+        }
+        if (!playerDrawn) {
             player.draw(g, camX, camY);
-        } else {
-            player.draw(g, camX, camY);
-            npc.draw(g, camX, camY);
         }
     }
 
@@ -533,7 +717,8 @@ public final class GameplayScene extends Scene {
     }
 
     private void drawPrompt(PGraphics g, int camX, int camY) {
-        if (focused == null || dialogue.isOpen() || investigation.isCasebookOpen() || puzzleSystem.isOpen()) {
+        if (focused == null || dialogue.isOpen() || investigation.isCasebookOpen()
+                || puzzleSystem.isOpen() || deductionSystem.isOpen() || pauseOpen) {
             return;
         }
         String label = "[E] " + focused.prompt();
@@ -564,19 +749,25 @@ public final class GameplayScene extends Scene {
         g.fill(Palette.BORDER_DIM);
         g.rect(0, HEADER_H, GameManager.VIRTUAL_W, 1);
 
-        PixelUI.text(g, "AULA MANOR", 6, 4, Palette.TEXT_DIM);
+        String areaTitle = currentAreaId.equals("the_silent_manor_east_wing") ? "SAYAP TIMUR" : "AULA MANOR";
+        PixelUI.text(g, areaTitle, 6, 4, Palette.TEXT_DIM);
 
         if (autosaveNoticeTimer > 0f) {
-            PixelUI.text(g, "[AUTOSAVE OK]", 76, 4, Palette.WARM);
+            int autoAlpha = (int) (255 * Math.min(1f, autosaveNoticeTimer));
+            PixelUI.text(g, "[SIMPAN OTOMATIS]", 76, 4, Palette.alpha(Palette.WARM, autoAlpha));
         }
 
-        String info = "BUKTI: " + investigation.discoveredCount() + "/" + investigation.totalCount()
-                + "  " + quest.hudSummary() + "  TAHAP 06";
-        PixelFont.drawRight(g, info, 314, 4, 1, Palette.TEXT_MUTED);
+        String clueProgress = "BUKTI: " + investigation.discoveredCount() + "/" + investigation.totalCount();
+        int clueColor = (investigation.discoveredCount() == investigation.totalCount() && investigation.totalCount() > 0)
+                ? Palette.ACCENT : Palette.TEXT_MUTED;
+        PixelUI.text(g, clueProgress, 192, 4, clueColor);
+
+        PixelUI.text(g, "[C] BUKU KASUS", 244, 4,
+                investigation.isCasebookOpen() ? Palette.ACCENT : Palette.TEXT_DIM);
     }
 
     private void drawHint(PGraphics g) {
-        if (investigation.isCasebookOpen() || puzzleSystem.isOpen()) {
+        if (investigation.isCasebookOpen() || puzzleSystem.isOpen() || deductionSystem.isOpen() || pauseOpen) {
             return;
         }
 
@@ -593,26 +784,199 @@ public final class GameplayScene extends Scene {
                     : "E / ENTER : LANJUT     ESC : TUTUP";
             PixelUI.centered(g, text, 160, y + 3, Palette.TEXT_DIM);
         } else {
-            PixelUI.centered(g, "GERAK: WASD   E: INTERAKSI   C: BUKU KASUS   ESC: MENU", 160, y + 3,
+            PixelUI.centered(g, "GERAK: WASD   E: INTERAKSI   C: BUKU KASUS   ESC: JEDA", 160, y + 3,
                     Palette.TEXT_MUTED);
+        }
+    }
+
+    private void drawPauseMenu(PGraphics g) {
+        PixelUI.dim(g, 190);
+        int pw = 180;
+        int ph = 110;
+        int px = (GameManager.VIRTUAL_W - pw) / 2;
+        int py = (GameManager.VIRTUAL_H - ph) / 2;
+
+        PixelUI.panel(g, px, py, pw, ph);
+        PixelUI.centered(g, "JEDA (PAUSE)", px + pw / 2, py + 8, 2, Palette.WARM);
+        PixelUI.divider(g, px + pw / 2, py + 22, pw - 24);
+
+        if (!pauseConfirmQuit) {
+            String[] options = {
+                    "LANJUTKAN",
+                    settingsInfoOpen ? "TAMPILAN: 960x540 (SKALA 3X)" : "PENGATURAN TAMPILAN",
+                    "KEMBALI KE MENU UTAMA"
+            };
+
+            int btnY = py + 30;
+            int btnH = 18;
+            int gap = 6;
+            for (int i = 0; i < options.length; i++) {
+                boolean isSelected = (i == pauseSelected);
+                PixelUI.button(g, px + 16, btnY + i * (btnH + gap), pw - 32, btnH, options[i], isSelected, true);
+            }
+
+            PixelUI.divider(g, px + pw / 2, py + ph - 16, pw - 24);
+            PixelUI.centered(g, "W/S: PILIH   ENTER/KLIK: OK   ESC: RESUME", px + pw / 2, py + ph - 11, Palette.TEXT_MUTED);
+        } else {
+            PixelUI.centered(g, "KEMBALI KE MENU UTAMA?", px + pw / 2, py + 32, Palette.TEXT);
+            PixelUI.centered(g, "PROGRES DISIMPAN OTOMATIS", px + pw / 2, py + 44, Palette.ACCENT_DIM);
+
+            int btnW = 66;
+            int btnH = 16;
+            int bY = py + 62;
+            PixelUI.button(g, px + 18, bY, btnW, btnH, "YA", pauseConfirmSelected == 0, true);
+            PixelUI.button(g, px + pw - 18 - btnW, bY, btnW, btnH, "BATAL", pauseConfirmSelected == 1, true);
+
+            PixelUI.divider(g, px + pw / 2, py + ph - 16, pw - 24);
+            PixelUI.centered(g, "A/D: PILIH   ENTER: KONFIRMASI   ESC: BATAL", px + pw / 2, py + ph - 11, Palette.TEXT_MUTED);
+        }
+    }
+
+    private void handlePauseKey(char key, int keyCode) {
+        if (!pauseConfirmQuit) {
+            if (isEscape(key, keyCode)) {
+                closePauseMenu();
+                return;
+            }
+
+            if (keyCode == PConstants.UP || key == 'w' || key == 'W') {
+                pauseSelected = (pauseSelected - 1 + 3) % 3;
+                return;
+            }
+
+            if (keyCode == PConstants.DOWN || key == 's' || key == 'S') {
+                pauseSelected = (pauseSelected + 1) % 3;
+                return;
+            }
+
+            if (key == '\n' || key == '\r' || key == ' ' || keyCode == 10 || keyCode == 13) {
+                executePauseAction(pauseSelected);
+            }
+        } else {
+            if (isEscape(key, keyCode)) {
+                pauseConfirmQuit = false;
+                return;
+            }
+
+            if (keyCode == PConstants.LEFT || keyCode == PConstants.RIGHT || key == 'a' || key == 'A' || key == 'd' || key == 'D') {
+                pauseConfirmSelected = 1 - pauseConfirmSelected;
+                return;
+            }
+
+            if (key == '\n' || key == '\r' || key == ' ' || keyCode == 10 || keyCode == 13) {
+                if (pauseConfirmSelected == 0) { // YA
+                    autosave();
+                    closePauseMenu();
+                    game.showMenu();
+                } else { // BATAL
+                    pauseConfirmQuit = false;
+                }
+            }
+        }
+    }
+
+    private void executePauseAction(int index) {
+        switch (index) {
+            case 0: // Resume
+                closePauseMenu();
+                break;
+            case 1: // Settings display toggle
+                settingsInfoOpen = !settingsInfoOpen;
+                break;
+            case 2: // Kembali ke menu utama
+                pauseConfirmQuit = true;
+                pauseConfirmSelected = 1;
+                break;
+        }
+    }
+
+    private void handlePauseMouseMove(float x, float y) {
+        int pw = 180;
+        int ph = 110;
+        int px = (GameManager.VIRTUAL_W - pw) / 2;
+        int py = (GameManager.VIRTUAL_H - ph) / 2;
+
+        if (!pauseConfirmQuit) {
+            int btnY = py + 30;
+            int btnH = 18;
+            int gap = 6;
+            for (int i = 0; i < 3; i++) {
+                int curY = btnY + i * (btnH + gap);
+                if (x >= px + 16 && x <= px + pw - 16 && y >= curY && y <= curY + btnH) {
+                    pauseSelected = i;
+                    break;
+                }
+            }
+        } else {
+            int btnW = 66;
+            int btnH = 16;
+            int bY = py + 62;
+            if (x >= px + 18 && x <= px + 18 + btnW && y >= bY && y <= bY + btnH) {
+                pauseConfirmSelected = 0;
+            } else if (x >= px + pw - 18 - btnW && x <= px + pw - 18 && y >= bY && y <= bY + btnH) {
+                pauseConfirmSelected = 1;
+            }
+        }
+    }
+
+    private void handlePauseMouseClick(float x, float y) {
+        int pw = 180;
+        int ph = 110;
+        int px = (GameManager.VIRTUAL_W - pw) / 2;
+        int py = (GameManager.VIRTUAL_H - ph) / 2;
+
+        if (!pauseConfirmQuit) {
+            int btnY = py + 30;
+            int btnH = 18;
+            int gap = 6;
+            for (int i = 0; i < 3; i++) {
+                int curY = btnY + i * (btnH + gap);
+                if (x >= px + 16 && x <= px + pw - 16 && y >= curY && y <= curY + btnH) {
+                    executePauseAction(i);
+                    return;
+                }
+            }
+        } else {
+            int btnW = 66;
+            int btnH = 16;
+            int bY = py + 62;
+            if (x >= px + 18 && x <= px + 18 + btnW && y >= bY && y <= bY + btnH) {
+                autosave();
+                closePauseMenu();
+                game.showMenu();
+            } else if (x >= px + pw - 18 - btnW && x <= px + pw - 18 && y >= bY && y <= bY + btnH) {
+                pauseConfirmQuit = false;
+            }
         }
     }
 
     @Override
     public void keyPressed(char key, int keyCode) {
-        // 1. Jika Puzzle terbuka, seluruh input keyboard diarahkan ke Puzzle
+        // 0. Pause menu terbuka
+        if (pauseOpen) {
+            handlePauseKey(key, keyCode);
+            return;
+        }
+
+        // 1. Rekonstruksi Deduksi Kasus terbuka
+        if (deductionSystem.isOpen()) {
+            deductionSystem.keyPressed(key, keyCode);
+            return;
+        }
+
+        // 2. Puzzle terbuka
         if (puzzleSystem.isOpen()) {
             puzzleSystem.keyPressed(key, keyCode);
             return;
         }
 
-        // 2. Jika Casebook terbuka, seluruh input keyboard diarahkan ke Casebook
+        // 3. Casebook terbuka
         if (investigation.isCasebookOpen()) {
             investigation.keyPressed(key, keyCode);
             return;
         }
 
-        // 3. Jika dialog terbuka, tangani navigasi dialog
+        // 4. Dialog terbuka
         if (dialogue.isOpen()) {
             if (isEscape(key, keyCode)) {
                 dialogue.close();
@@ -626,19 +990,19 @@ public final class GameplayScene extends Scene {
             return;
         }
 
-        // 4. Gameplay biasa: cek tombol buka Casebook (C, J, Tab)
+        // 5. Shortcut Casebook (C, J, Tab)
         if (key == 'c' || key == 'C' || key == 'j' || key == 'J' || key == '\t') {
             openCasebook();
             return;
         }
 
-        // 5. ESC pada gameplay kembali ke menu utama
+        // 6. ESC membuka Pause Menu
         if (isEscape(key, keyCode)) {
-            game.showMenu();
+            openPauseMenu();
             return;
         }
 
-        // 6. Interaksi dengan objek atau NPC
+        // 7. Interaksi dengan objek / NPC
         if (isInteract(key, keyCode)) {
             if (interactCooldown <= 0f && focused != null) {
                 // Objek kotak besi membuka puzzle bila belum terpecahkan
@@ -650,6 +1014,33 @@ public final class GameplayScene extends Scene {
                         interactCooldown = INPUT_COOLDOWN;
                         return;
                     }
+                }
+
+                // Altar rekonstruksi membuka modal deduksi kasus
+                if (focused instanceof AltarDeduksi) {
+                    clearInput();
+                    deductionSystem.open(investigation.discoveredCount());
+                    interactCooldown = INPUT_COOLDOWN;
+                    return;
+                }
+
+                // Gerbang timur saat sudah terbuka melakukan transisi ke Sayap Timur
+                if (focused instanceof GerbangTimur) {
+                    GerbangTimur gt = (GerbangTimur) focused;
+                    if (gt.isGateOpen()) {
+                        clearInput();
+                        transitionToEastWing();
+                        interactCooldown = INPUT_COOLDOWN;
+                        return;
+                    }
+                }
+
+                // Gerbang barat kembali ke Aula
+                if (focused instanceof GerbangBarat) {
+                    clearInput();
+                    transitionToHall();
+                    interactCooldown = INPUT_COOLDOWN;
+                    return;
                 }
 
                 boolean prevGate = gerbangTimur.isGateOpen();
@@ -679,6 +1070,14 @@ public final class GameplayScene extends Scene {
 
     @Override
     public void mousePressed(float x, float y) {
+        if (pauseOpen) {
+            handlePauseMouseClick(x, y);
+            return;
+        }
+        if (deductionSystem.isOpen()) {
+            deductionSystem.mousePressed(x, y);
+            return;
+        }
         if (puzzleSystem.isOpen()) {
             puzzleSystem.mousePressed(x, y);
         } else if (investigation.isCasebookOpen()) {
@@ -688,6 +1087,14 @@ public final class GameplayScene extends Scene {
 
     @Override
     public void mouseMoved(float x, float y) {
+        if (pauseOpen) {
+            handlePauseMouseMove(x, y);
+            return;
+        }
+        if (deductionSystem.isOpen()) {
+            deductionSystem.mouseMoved(x, y);
+            return;
+        }
         if (puzzleSystem.isOpen()) {
             puzzleSystem.mouseMoved(x, y);
         } else if (investigation.isCasebookOpen()) {

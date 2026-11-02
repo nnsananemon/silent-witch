@@ -21,6 +21,11 @@ public final class ExamineSpot implements Interactable {
         this(x, y, radius, label, null, dialogue, null);
     }
 
+    public ExamineSpot(float x, float y, float radius, String label,
+                       Dialogue initialDialogue, Dialogue repeatDialogue) {
+        this(x, y, radius, label, null, initialDialogue, repeatDialogue);
+    }
+
     public ExamineSpot(float x, float y, float radius, String label, Clue clue,
                        Dialogue initialDialogue, Dialogue repeatDialogue) {
         if (radius <= 0f) {
