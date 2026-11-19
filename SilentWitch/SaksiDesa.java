@@ -3,8 +3,9 @@ import processing.core.PGraphics;
 /**
  * NPC Saksi Desa di Ashen Village (Prolog).
  *
- * Menggunakan sprite gadis desa (girl_front.png) dengan animasi menoleh (mirror)
- * dan efek hop (bob) saat diajak bicara.
+ * Menggunakan sprite gadis desa 4-arah (girl_front/left/back/right.png):
+ * animasi menoleh memakai sprite arah asli (mirror hanya fallback) dan
+ * efek hop (bob) saat diajak bicara.
  *
  * Seorang perempuan muda yang memberikan kesaksian pertama tentang
  * malam kematian Clara. Informasi yang diberikan belum lengkap
@@ -18,27 +19,35 @@ public final class SaksiDesa implements Interactable {
     public static final int DIR_RIGHT = 3;
     public static final float TURN_DURATION = 0.22f;
 
-    public static final float INTERACT_RADIUS = 22f;
+    public static final float INTERACT_RADIUS = 20f;
     public static final float BLOCK_W = 10f;
     public static final float BLOCK_H = 6f;
 
     private final float x;
     private final float y;
+    private final int homeDir;
     private boolean spoken = false;
 
     private final Dialogue initialDialogue;
     private final Dialogue repeatDialogue;
 
-    private int dir = DIR_DOWN;
-    private int targetDir = DIR_DOWN;
+    private int dir;
+    private int targetDir;
     private float turnTimer = 0f;
 
     public SaksiDesa(float x, float y) {
+        this(x, y, DIR_RIGHT);
+    }
+
+    public SaksiDesa(float x, float y, int homeDir) {
         this.x = x;
         this.y = y;
+        this.homeDir = homeDir;
+        this.dir = homeDir;
+        this.targetDir = homeDir;
 
         this.initialDialogue = new Dialogue("WARGA DESA",
-                "Seorang gadis desa berdiri di depan rumahnya, tampak cemas.",
+                "Seorang gadis desa berdiri di dekat sumur tua, tampak cemas.",
                 "\"Kau menyelidiki kasus Clara? Bagus. Seseorang harus melakukannya.\"",
                 "\"Malam itu... aku mendengar suara dari arah manor. Seperti besi beradu.\"",
                 "\"Tapi ketika aku melihat ke jendela, yang kulihat hanya kabut.\"",
@@ -126,10 +135,14 @@ public final class SaksiDesa implements Interactable {
     }
 
     public void goHome() {
-        if (dir != DIR_DOWN && turnTimer <= 0f) {
-            targetDir = DIR_DOWN;
+        if (dir != homeDir && turnTimer <= 0f) {
+            targetDir = homeDir;
             turnTimer = TURN_DURATION;
         }
+    }
+
+    public int homeDir() {
+        return homeDir;
     }
 
     public void update(float dt) {

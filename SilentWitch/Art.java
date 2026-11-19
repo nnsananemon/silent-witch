@@ -1222,16 +1222,16 @@ public final class Art {
         if (boySprites == null) {
             boySprites = new PImage[4];
             boySprites[0] = loadImage("boy_front.png");
-            boySprites[1] = null;
-            boySprites[2] = null;
-            boySprites[3] = null;
+            boySprites[1] = loadImage("boy_left.png");
+            boySprites[2] = loadImage("boy_back.png");
+            boySprites[3] = loadImage("boy_right.png");
         }
         if (girlSprites == null) {
             girlSprites = new PImage[4];
             girlSprites[0] = loadImage("girl_front.png");
-            girlSprites[1] = null;
-            girlSprites[2] = null;
-            girlSprites[3] = null;
+            girlSprites[1] = loadImage("girl_left.png");
+            girlSprites[2] = loadImage("girl_back.png");
+            girlSprites[3] = loadImage("girl_right.png");
         }
     }
 
@@ -1242,13 +1242,13 @@ public final class Art {
         if ("librarian".equalsIgnoreCase(kind) || "guard".equalsIgnoreCase(kind) || "elder".equalsIgnoreCase(kind)
                 || "elder_librarian".equalsIgnoreCase(kind)) {
             sprites = elderSprites;
-            h = 32f;
+            h = (sprites != null && sprites[0] != null) ? sprites[0].height : 32f;
         } else if ("boy".equalsIgnoreCase(kind) || "tetua".equalsIgnoreCase(kind) || "tetua_desa".equalsIgnoreCase(kind)) {
             sprites = boySprites;
-            h = 29f;
+            h = (sprites != null && sprites[0] != null) ? sprites[0].height : 25f;
         } else if ("girl".equalsIgnoreCase(kind) || "saksi".equalsIgnoreCase(kind) || "saksi_desa".equalsIgnoreCase(kind)) {
             sprites = girlSprites;
-            h = 29f;
+            h = (sprites != null && sprites[0] != null) ? sprites[0].height : 25f;
         }
 
         if (sprites == null || sprites[0] == null) {

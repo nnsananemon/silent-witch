@@ -3,8 +3,9 @@ import processing.core.PGraphics;
 /**
  * NPC Tetua Desa di Ashen Village (Prolog).
  *
- * Menggunakan sprite warga muda (boy_front.png) dengan animasi menoleh (mirror)
- * dan efek hop (bob) saat diajak bicara.
+ * Menggunakan sprite warga muda 4-arah (boy_front/left/back/right.png):
+ * animasi menoleh memakai sprite arah asli (mirror hanya fallback) dan
+ * efek hop (bob) saat diajak bicara.
  *
  * NPC pertama yang ditemui pemain. Memberikan konteks awal tentang
  * kematian Clara dan mengarahkan pemain ke manor untuk memulai

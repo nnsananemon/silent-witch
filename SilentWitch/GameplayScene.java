@@ -446,11 +446,12 @@ public final class GameplayScene extends Scene {
         valleyRuinsInteractables.add(gerbangReruntuhan);
 
         // --- Objek Interaktif Ashen Village (Prolog) ---
-        // Posisi mengikuti gambar latar baru: papan di kol 18, gerbang di ujung
-        // jalan kanan (kol 35-36), sumur di kol 20, pintu rumah di kol 6.
+        // Posisi mengikuti gambar latar: papan di kol 18, sumur di kol 20,
+        // saksi desa di sebelah kiri sumur (kol 19, menghadap sumur),
+        // tetua desa di dekat jalan, dan gerbang di ujung jalan kanan (kol 35-36).
         this.papanPengumuman = new PapanPengumuman(296f, 88f);
         this.tetuaDesa = new TetuaDesa(192f, 128f);
-        this.saksiDesa = new SaksiDesa(416f, 128f);
+        this.saksiDesa = new SaksiDesa(312f, 86f);
         this.gerbangDesa = new GerbangDesa(568f, 128f);
 
         ExamineSpot sumurDesa = new ExamineSpot(330f, 76f, 26f, "SUMUR TUA DESA",

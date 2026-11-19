@@ -217,7 +217,7 @@ public final class TileMap {
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVXXVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVXXVVVVVVVVVVVVVVVVVV",
-            "ggggggggggggggggggNNgggggggggggggggggggg",
+            "ggggggggggggggggggNggggggggggggggggggggg",
             "gggLggggggLggggggggggggggLgggggggggggggg",
             "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
             "YYSYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYGGYYY",

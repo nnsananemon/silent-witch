@@ -9,10 +9,14 @@ bukti, dan font bitmap 5x7 yang dibuat manual untuk proyek ini.
 Satu-satunya aset gambar eksternal adalah sprite karakter utama
 (`data/art/hero_knight_body.png`, `hero_knight_attack.png`, dan
 `hero_knight_portrait.png`), yang diturunkan dari paket "Dark Knight"
-(`knight_game_assets`, dari pengguna), latar penuh Ashen Village
+(`knight_game_assets`, dari pengguna), sprite NPC warga desa
+(`data/art/boy_front.png`, `boy_left.png`, `boy_back.png`, `boy_right.png`,
+`girl_front.png`, `girl_left.png`, `girl_back.png`, dan `girl_right.png`), yang
+diturunkan dari lembar sprite "Lembar Sprite Petualang Desa Bergaya Pixel"
+(1536x1024, dari pengguna), latar penuh Ashen Village
 (`data/art/bg_ashen_village.png`, render dari pengguna), serta latar penuh
 Aula Manor (`data/art/bg_manor_hall.png`, dari gambar pengguna).
-Status lisensi paket tersebut **belum terverifikasi** dan wajib dicek sebelum
+Status lisensi paket/lembar tersebut **belum terverifikasi** dan wajib dicek sebelum
 rilis publik.
 
 Sprite `data/art/door_iron.png` dan `door_iron_open.png` bukan aset eksternal:
@@ -33,6 +37,8 @@ lisensi pada halaman resmi sumber. Jangan menghapus atribusi yang diwajibkan.
 | `hero_knight_portrait.png` (turunan `ui/knight_portrait.png`) | belum diketahui | paket "Dark Knight" / `knight_game_assets` (dari pengguna) | **belum terverifikasi** | 2026-11-12 | Di-downscale lewat `SpriteSheetBuilder`, 1 frame, tinggi 20 px, dipakai di pause menu |
 | `bg_ashen_village.png` (latar Ashen Village) | belum diketahui | render 1983x793 dari pengguna | **belum terverifikasi** | 2026-11-14 | Di-downscale ke 640x256 (ukuran peta) lewat `BackgroundBuilder` (rata-rata area), dipakai sebagai latar penuh area awal |
 | `bg_manor_hall.png` (latar Aula Manor) | belum diketahui | gambar 1024x572 dari pengguna (`.webp`) | **belum terverifikasi** | 2026-11-15 | Dikonversi ke PNG lewat WPF `PresentationCore`, lalu di-crop 930x572 @ (75,0) dan di-downscale ke 416x256 lewat `PixelScaler` (mode-color per blok) |
+| `boy_front/left/back/right.png`, `girl_front/left/back/right.png` (sprite NPC warga desa) | belum diketahui | lembar sprite "Lembar Sprite Petualang Desa Bergaya Pixel" (1536x1024, dari pengguna) | **belum terverifikasi** | 2026-11-19 | Dipotong 4 kolom x 2 baris (baris cowok/cewek, tiap kolom satu arah hadap), latar hitam di-flood-fill menjadi transparan, trim sejajar agar kepala/kaki konsisten antar arah, downscale area-weighted box filter pixel-art tinggi 25 px dengan kontras tajam |
+| `elder_front/left/back/right.png` (sprite Sage Istana Gothic di Aula Manor) | belum diketahui | lembar sprite "Lembar Sprite Sage Istana Gothic" (1536x1024, 1x4 kolom dari pengguna) | **belum terverifikasi** | 2026-11-19 | Dipotong 4 kolom (front, right, back, left), flood-fill latar hitam menjadi transparan, trim sejajar kepala dan kaki (y: 264..803), downscale area-weighted box filter tinggi 28 px dengan kontras tajam, mendukung animasi menoleh 4-arah |
 | `door_iron.png`, `door_iron_open.png` | proyek ini | dibuat oleh `DoorBuilder` (kode Java) | milik proyek | 2026-11-18 | Sprite 16x32, dua varian (tertutup/terbuka) untuk tile gerbang 'G' |
 
 Bila berkas sprite di atas dihapus, game otomatis kembali memakai penyihir

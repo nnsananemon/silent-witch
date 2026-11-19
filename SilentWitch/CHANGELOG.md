@@ -4,6 +4,76 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.4] - 2026-11-19
+
+### Changed
+
+- **Penggantian Sprite NPC Stage 2 (Aula Manor) dengan Lembar Sprite Sage Istana Gothic:**
+  - `elder_front.png`, `elder_left.png`, `elder_back.png`, `elder_right.png`
+    diganti penuh dari lembar sprite baru `Lembar Sprite Sage Istana Gothic.png`
+    (1536x1024, 4 figur: depan, kanan, belakang, kiri).
+  - **Pipeline Pemotongan & Penajaman Pixel Art:**
+    - Flood-fill latar hitam dari tepi sel menjadi transparan tanpa merusak outline
+      gelap dan lipatan jubah di dalam tubuh.
+    - Penyelarasan batas Y (264..803, tinggi 540 px) agar posisi kepala dan kaki
+      presisi dan sejajar sempurna di keempat arah saat menoleh.
+    - Downscale area-weighted box filter presisi subpixel setinggi **28 px**
+      (seimbang 1:1 dengan tinggi aktif Dark Knight).
+    - Penajaman kontras outline, tongkat sihir/arsip, jubah gothic, dan detail
+      wajah/janggut agar tampil tajam dan atmosferik di Aula Manor.
+  - **Animasi Menoleh Interaktif (`lookAt`, `triggerTalkAnimation`, `goHome`):**
+    - Saat pemain mengajak bicara dengan tombol 'E', Sage langsung menoleh
+      menghadap pemain (arah kiri, kanan, atas, atau bawah sesuai posisi pemain)
+      disertai efek hop/anggukan (*bob*).
+    - Selama dialog berlangsung, ia tetap fokus menatap pemain.
+    - Setelah dialog selesai atau pemain menjauh, Sage otomatis berputar kembali
+      menghadap ke arah depan/bawah (`DIR_DOWN`).
+  - Terverifikasi lewat test integrasi `TestSageManorHall`, `TestNpcTalkIntegration`,
+    serta kompilasi penuh Processing CLI.
+
+- **Penyesuaian Skala & Remaster Sprite NPC Prolog (Ashen Village) agar Jernih dan Proporsional:**
+  - **Skala proporsional 25 px:** disesuaikan agar lebih ramping dan lebih pendek
+    dari karakter utama (Dark Knight yang setinggi 28 px dan lebar 22-26 px
+    berzirah tebal). Sprite cowok berukuran 13x25 px dan cewek 14x25 px.
+  - **Pemindahan Saksi Desa (`SaksiDesa`) ke sebelah kiri Sumur Tua:**
+    - Posisi dipindahkan dari (416, 128) ke (312, 86) di samping kiri sumur tua (330, 76).
+    - Menghadap kanan (`DIR_RIGHT`) ke arah sumur saat berdiam, dan kembali
+      menghadap sumur (`goHome()`) setelah selesai diajak bicara.
+    - Menghaluskan radius interaksi menjadi 20 px agar spot interaksi Papan Pengumuman
+      (296, 88), Saksi Desa (312, 86), dan Sumur Tua (330, 76) terpisah jelas
+      dan nyaman diakses pemain.
+    - Tilemap `ASHEN_VILLAGE` baris 5 kolom 19 diubah dari 'N' menjadi 'g'
+      (rumput yang dapat dilewati) di antara papan pengumuman dan sumur.
+    - Teks narasi dialog awal diperbarui dari *"di depan rumahnya"* menjadi
+      *"di dekat sumur tua"*.
+  - `boy_*` dan `girl_*` (8 arah) di-build ulang dari lembar sprite
+    "Lembar Sprite Petualang Desa Bergaya Pixel" (1536x1024: 2 baris
+    cowok/cewek x 4 kolom arah hadap) dengan pipeline penajaman pixel art:
+    - **Menghilangkan color grading gelap/kusam** yang sebelumnya membuat warna
+      menjadi cokelat lumpur dan menenggelamkan mata. Warna asli yang cerah
+      (kulit peach hangat, kemeja putih linen, rambut kastanye kaya, mata gelap
+      tegas) dipertahankan dengan rasio kontras melonjak dari 6.8x ke 94.5x.
+    - **Filter area-weighted (box filter) presisi subpixel + penajaman kontras:**
+      garis tepi dan mata hitam tetap tegas (bukan blur/smudge), sedangkan warna
+      kulit dan pakaian bersih tanpa halo abu-abu.
+  - **Dukungan resolusi dinamis pada `Art.drawAnimatedNpc()`:**
+    tinggi render kini otomatis membaca tinggi native sprite (`sprites[0].height`),
+    sehingga setiap piksel sprite digambar 1:1 tanpa ada scanline yang terbuang
+    atau terdistorsi.
+  - **Menambahkan 6 sprite arah baru:** `boy_left.png`, `boy_back.png`,
+    `boy_right.png`, `girl_left.png`, `girl_back.png`, dan `girl_right.png`
+    ke `data/art/`.
+  - Seluruh rangkaian pengujian (unit, integrasi, regresi directional render,
+    dan verifikasi in-game) berstatus **PASS**.
+
+### Added
+
+- **Util build sprite sheet `SheetTool.java`:** memotong lembar sprite 4 kolom x
+  2 baris menjadi 8 sprite NPC 4-arah (`boy_*`/`girl_*`): mode `probe` (analisa
+  warna & skala pixel art), `crop` (verifikasi arah hadap), dan `build`
+  (flood-fill latar, trim sejajar, downscale pixel-art presisi area-weighted
+  setinggi target yang diinginkan, penajaman outline/mata).
+
 ## [1.4.3] - 2026-11-19
 
 ### Added

@@ -73,16 +73,19 @@ public class TestNpcTalkIntegration {
             throw new AssertionError("Boy should return to DIR_DOWN");
         }
 
-        SaksiDesa girl = new SaksiDesa(280f, 130f);
-        girl.lookAt(300f, 130f); // player right
-        girl.update(SaksiDesa.TURN_DURATION);
+        SaksiDesa girl = new SaksiDesa(312f, 86f); // default homeDir facing right towards the well
         if (girl.dir() != SaksiDesa.DIR_RIGHT) {
-            throw new AssertionError("Girl should face DIR_RIGHT");
+            throw new AssertionError("Girl default direction should be DIR_RIGHT facing the well");
+        }
+        girl.lookAt(290f, 86f); // player left
+        girl.update(SaksiDesa.TURN_DURATION);
+        if (girl.dir() != SaksiDesa.DIR_LEFT) {
+            throw new AssertionError("Girl should face DIR_LEFT when player is to the left");
         }
         girl.goHome();
         girl.update(SaksiDesa.TURN_DURATION);
-        if (girl.dir() != SaksiDesa.DIR_DOWN) {
-            throw new AssertionError("Girl should return to DIR_DOWN");
+        if (girl.dir() != SaksiDesa.DIR_RIGHT) {
+            throw new AssertionError("Girl should return to DIR_RIGHT (facing well)");
         }
         System.out.println("[PASS] 2. Villager boy and girl turning logic validated");
 
