@@ -25,8 +25,17 @@ public final class GameManager {
 
     private float lastTime = -1f;
 
+    /** Nama tokoh utama; pemain boleh menggantinya lewat menu awal. */
+    public static final String HERO_NAME_DEFAULT = "SILENT VERDICT";
+
+    /** Nama tokoh yang diisi pemain di menu awal; dipakai HUD dan save. */
+    private String playerName = HERO_NAME_DEFAULT;
+
     public GameManager(PApplet app, SaveManager saveManager) {
         this.app = app;
+        // Beri Art tahu lokasi folder sketch: Processing IDE menjalankan game
+        // dari folder build sementara tanpa folder data/.
+        Art.attach(app);
         this.canvas = app.createGraphics(VIRTUAL_W, VIRTUAL_H);
         this.canvas.noSmooth();
         this.scenes = new SceneManager(this);
@@ -55,6 +64,19 @@ public final class GameManager {
 
     public SaveManager saveManager() {
         return saveManager;
+    }
+
+    public String playerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            playerName = HERO_NAME_DEFAULT;
+            return;
+        }
+        String clean = name.trim();
+        playerName = clean.length() > 14 ? clean.substring(0, 14) : clean;
     }
 
     public void showMenu() {
@@ -134,10 +156,15 @@ public final class GameManager {
     }
 
     public void mousePressed(float screenX, float screenY) {
+        int button = (app != null) ? app.mouseButton : processing.core.PConstants.LEFT;
+        mousePressed(screenX, screenY, button);
+    }
+
+    public void mousePressed(float screenX, float screenY, int button) {
         if (!insideCanvas(screenX, screenY)) {
             return;
         }
-        scenes.mousePressed(toVirtualX(screenX), toVirtualY(screenY));
+        scenes.mousePressed(toVirtualX(screenX), toVirtualY(screenY), button);
     }
 
     public void mouseMoved(float screenX, float screenY) {

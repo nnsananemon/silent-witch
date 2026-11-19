@@ -4,6 +4,292 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.3] - 2026-11-19
+
+### Added
+
+- **Integrasi & Rebuild Sprite NPC dari `npc_talk` (`NpcSpriteBuilder.java`):**
+  - Membuat utilitas build `NpcSpriteBuilder` untuk memproses seluruh sprite sumber (`boy_front.png`, `girl_front.png`, `elder_front.png`, `elder_left.png`, `elder_back.png`, `elder_right.png`) menjadi sprite pixel art tajam 1:1 tanpa efek buram/halo subpixel.
+  - **Penyelarasan Warna (Color Grading) agar Menyatu dengan Latar Belakang:**
+    - **Kakek Pustakawan (Aula Manor):** Rambut dan janggut di-grading menjadi perak kelabu sarjana bernuansa temaram lilin (menghilangkan putih neon siang hari), jubah diselaraskan ke beludru indigo/navy tua gothic aula manor, sulaman emas kusam antik, serta naskah kulit tua. Bagian bawah tubuh diberi gradasi falloff bayangan lantai.
+    - **Warga Desa Pemuda & Gadis (Ashen Village):** Pakaian putih/linen (kemeja, celemek, tudung) di-grade menjadi linen tenun kusam malam berkabut, rompi dan gaun cokelat tanah pedesaan yang alami, serta kontur gelap yang serasi dengan paving batu dan palet Dark Knight.
+  - Mengimplementasikan sistem animasi menoleh dinamis 4-arah (`lookAt`), efek lompat kecil (`bob`), serta logika mirror untuk sprite hadap samping pada `Art.drawAnimatedNpc()`.
+  - Menambahkan saklar `Art.NPC_SPRITES = true` untuk rendering sprite NPC baru dengan fallback prosedural berkualitas bila aset tidak tersedia.
+  - Menambahkan test suite regresi `TestNpcTalkIntegration.java` untuk memverifikasi arah 4-arah, timing animasi hop, serta alur interaksi bicara & kembali menghadap depan (`goHome()`).
+
+### Changed
+
+- **Penggantian NPC Manor Hall menjadi Kakek Pustakawan:**
+  - NPC aula manor (`Npc.java`) diganti dari sosok penjaga upacara bersenjata menjadi Kakek Pustakawan (`"KAKEK PUSTAKAWAN"`).
+  - Pustakawan secara otomatis menoleh ke arah pemain (bawah, kiri, atas, kanan) dengan animasi hop saat diajak bicara atau saat pemain menekan tombol `E`.
+  - Saat dialog selesai atau pemain menutup dialog, pustakawan kembali menghadap depan secara natural.
+- **Penggantian NPC Prolog Ashen Village:**
+  - Tetua desa (`TetuaDesa.java`) kini menggunakan sprite pemuda warga desa (`boy_front.png`) dengan animasi responsif mirror dan hop saat diajak bicara.
+  - Saksi desa (`SaksiDesa.java`) kini menggunakan sprite gadis warga desa (`girl_front.png`) dengan animasi responsif mirror dan hop saat diajak bicara.
+
+## [1.4.2] - 2026-11-19
+
+### Changed
+
+- **Pemisahan jalur masuk gerbang Sayap Timur dan kotak pembuka (kait).**
+  - Gerbang Sayap Timur berada di tangga kanan aula (baris 10-11, y = 176),
+    lurus ke kanan dari area tengah tempat karakter berdiri.
+  - Kotak pembuka (KotakBesi / kait pengunci) tetap di posisinya di kanan
+    bawah (y = 212), terpisah dari pintu masuk.
+  - Gambar latar Aula Manor (`bg_manor_hall.png`) tampil bersih tanpa sprite
+    pintu overlay (`setDrawDoors(false)`), sehingga tidak ada kotak hitam
+    atau pagar yang menutupi tangga dan dinding.
+  - Setelah puzzle kotak selesai, pemain cukup berjalan lurus ke kanan
+    menaiki tangga (x >= 388, y = 155..195) untuk masuk ke stage berikutnya.
+
+### Removed
+
+- Sprite gerbang besi / lorong gelap (`door_iron_open.png`) di sisi kiri
+  peta Hollow Woods. Jalur keluar-masuk kini berupa jalan setapak tanah alami
+  (`F`) tanpa bingkai pintu buatan.
+- Penanda glow kuning di atas kait pengunci setelah puzzle selesai
+  (`KotakBesi.draw`). Objek kait kini hanya menangani interaksi.
+
+## [1.4.1] - 2026-11-18
+
+### Added
+
+- **Sprite pintu besi antar-area** (`data/art/door_iron.png` dan
+  `door_iron_open.png`, 16x32) yang dibuat lewat util baru `DoorBuilder`.
+  - Bergaya gotik gelap: lengkung batu, teralis besi vertikal, palang
+    horizontal, dan plat kunci besi di tengah (tanpa zamrud, supaya tidak
+    bentrok dengan kait pengunci Aula Manor).
+  - Dua varian: tertutup (teralis utuh) dan terbuka (lorong gelap).
+  - Bila berkasnya dihapus, gerbang kembali tanpa gambar tambahan (tidak
+    error) karena pemuatan aset mengembalikan null.
+
+### Changed
+
+- **Masuk dari Aula Manor (stage 2) ke Hollow Woods (stage 3) kini lewat
+  pintu besi.** Tile gerbang 'G' digambar memakai sprite baru; saat gerbang
+  masih terkunci memakai `door_iron.png`, setelah kait pengunci terbuka
+  berganti ke `door_iron_open.png`.
+- Sprite pintu digambar terpisah lewat `TileMap.drawGates()` setelah seluruh
+  tile selesai, supaya sprite setinggi 2 tile tidak tertimpa baris di bawahnya
+  (termasuk saat peta memakai gambar latar).
+- Ashen Village mematikan gambar pintu (`setDrawDoors(false)`) karena gambar
+  latarnya sudah memuat lengkung gerbang sendiri.
+
+### Removed
+
+- **Aset gerbang prosedural lama** (tiang batu, batang terali, palang
+  horizontal, dan gembok ungu `0xFF8E7CC3`) dihapus dari
+  `TileMap.drawGate`. Tile gerbang sekarang hanya menggambar alas lantai
+  sesuai area; bentuk gerbangnya berasal dari sprite pintu besi.
+
+## [1.4.0] - 2026-11-14
+
+### Changed
+
+- **Latar Ashen Village (area awal game) memakai gambar sungguhan.**
+  - `data/art/bg_ashen_village.png` (640x256) dibangun dari render besar 1983x793
+    lewat util baru BackgroundBuilder (penyalinan rata-rata area supaya
+    detail tetap terbaca sebagai pixel art).
+  - `TileMap` sekarang mendukung gambar latar penuh peta: kalau ada, gambar itu
+    menggantikan render tile lantai/dinding (rumput, jalan, bangunan) dan hanya
+    tile objek yang digambar di atasnya. Interior objek interaktif
+    (papan pengumuman, sumur, pintu) tetap interaktif seperti sebelumnya.
+  - Fallback aman: bila berkasnya hilang, peta kembali ke renderer tile
+    prosedural.
+  - Util `BackgroundBuilder` (CLI) ditambahkan di root sketch untuk menyiapkan
+    latar area berikutnya.
+- **Batas collision Ashen Village digambar ulang mengikuti gambar baru.**
+  - Bangunan atas dan bawah kini solid penuh (tidak bisa dimasuki), mengikuti
+    kaki bangunan pada gambar; hanya pintu yang bisa dimasuki.
+  - Lubang/lintasan di bawah gerbang kanan (kol 37-39, baris 6-9) dibuat bisa
+    dilalui, jadi pintu masuk manor terlihat seperti Candi lewat lengkung
+    gerbang, bukan tembok.
+  - Gerbang desa (tile 'G') sekarang terkunci sampai prologue selesai (papan
+    pengumuman dibaca + bicara dengan tetua desa). Setelah terbuka, pemain
+    bisa berjalan ke dalam lengkung dan otomatis masuk ke Aula Manor.
+  - Posisi objek interaktif digeser mengikuti gambar: papan pengumuman (296,88),
+    gerbang (568,128), sumur (330,76), pintu rumah warga (104,68).
+- **Latar Aula Manor (The Silent Manor Hall) memakai gambar sungguhan.**
+  - `data/art/bg_manor_hall.png` (416x256) dibangun dari render "Aula Kastel
+    dengan Tuas Rantai" (webp 1024x572, dikonversi ke PNG) lewat util baru
+    `PixelScaler`.
+  - `PixelScaler` memotong sumber ke rasio aspek peta dulu (supaya gambar tidak
+    gepeng) lalu menurunkan ukuran dengan mode-color per blok, sehingga
+    pixel art tetap tajam dan tidak memburam seperti penskalaan rata-rata.
+  - Layout collision disesuaikan: dinding atas 5 baris solid, dua rak buku
+    solid, area karpet/lantai terbuka, gerbang turun ke kanan bawah
+    (tempat kait rantai pengunci pintu pada gambar).
+  - Petunjuk/interaktif disesuaikan dengan gambar baru: RAK BUKU (rak kiri),
+    PUING JENDELA (kaca pecah di tengah), KAIT RANTAI (kait di kanan bawah).
+    NPC penjaga dan Kait Pengunci digeser ke posisi yang bisa dijangkau.
+- **Aset gerbang & kotak besi Aula Manor dihapus, diganti aset gambar.**
+  - Aset gerbang prosedural (terali besi + cahaya kuning) dihapus dari
+    `TileMap.drawGate` dan `GerbangTimur.draw()`; gerbang kini memakai rantai
+    dan tangga di ujung kanan gambar latar. Flag `overlayGate` dihapus.
+  - Aset peti besi prosedural di `KotakBesi.draw()` dihapus; objeknya memakai
+    kait pengunci beruas zamrud di ujung kanan bawah gambar (hanya kilau emas
+    penanda saat sudah terbuka).
+  - Kode internal "Kotak Besi" diubah jadi "Kait Pengunci" (dialog, prompt,
+    judul puzzle, quest objective, dan teks penutup).
+  - Menzez puzzle Kait Pengunci kini otomatis membuka gerbang sayap timur.
+- **Perbaikan navigasi & collision Aula Manor.**
+  - Rak buku kini menutup sampai baris 8 (tidak bisa dimasuki/dilewati).
+  - Lorong kanan (kol 24) hanya bisa dilewati lewat baris gerbang 13-14.
+  - Gerbang pindah ke ujung kanan bawah (kol 24) dan trigger transisi
+    disesuaikan ke `x >= 388`.
+  - Pesan transisi kembali dari Hollow Woods dan Sayap Timur diseragamkan
+    menjadi "KEMBALI KE AULA MANOR".
+
+---
+
+## [1.3.0] - 2026-11-12
+
+### Changed
+
+- **Tokoh utama memakai paket "Dark Knight" (`knight_game_assets`).** Seluruh
+  aset tokoh dari paket itu sekarang dipakai di game:
+  - Sheet badan `data/art/hero_knight_body.png` (9 pose: idle/walk/run ×
+    down/up/samping) dibangun dari folder `player/` paket lewat
+    `SpriteSheetBuilder` (tinggi 28 px, skala 0,174).
+  - **Arah hadap diperbaiki:** art `_left` dan `_right` pada paket ternyata sama
+    sama menghadap kiri, sehingga tokoh terlihat "jalan mundur" saat bergerak
+    ke kanan. Sekarang hanya art samping menghadap kiri yang dipakai
+    dan dicerminkan otomatis saat pemain menghadap kanan (sama seperti
+    pendekatan Golden Knight sebelumnya).
+  - Sheet tebasan `data/art/hero_knight_attack.png` (5 frame) dibangun dari
+    folder `attack/` (tinggi 26 px supaya ukuran tokohnya sama dengan sheet
+    badan). Frame tebasan pada paket menghadap kiri, jadi dicerminkan otomatis
+    saat pemain menghadap kanan.
+  - Potret `data/art/hero_knight_portrait.png` dipakai di pause menu, di sebelah
+    nama tokoh.
+  - Paket ini menyediakan 1 pose per arah, jadi gerakan hidup disiasati dengan
+    lift 1 piksel seperti contoh implementasi pada paket aslinya.
+  - Busur tebasan prosedural (`Art.drawSwordSlash`) dihapus karena frame tebasan
+    sudah membawa efek sabit; sheet Golden Knight lama (`hero_walk.png`,
+    `hero_sword.png`) dan `knight_idle.png`/`knight_walk.png` yang tidak terpakai
+    ikut dibersihkan.
+  - Durasi tebasan `Player.ATTACK_DURATION` dinaikkan dari 0,18 s ke 0,24 s agar
+    5 frame tebasan terbaca; hitbox tetap dihitung saat tebasan dimulai.
+  - **Kaki tidak lagi melayang:** sel sprite punya 2 piksel bantalan bawah, jadi
+    sprite digambar 1 piksel lebih bawah supaya alas kaki benar-benar menyentuh
+    garis tanah (sebelumnya ada celah 1 piksel). Bayangan dipersempit dari 18
+    ke 16 piksel agar tidak terbaca sebagai panggung gelap.
+  - **Langkah kaki saat berjalan:** paket hanya menyediakan 1 pose per arah,
+    jadi dibuat gait 2 frame sendiri - pose "jalan" dan "lari" selang-seling
+    (8 langkah/detik) dengan badan terangkat 1 piksel saat kaki melewati.
+    Percobaan menggeser baris kaki sprite secara horizontal dibatalkan karena
+    membuat kaki terlihat gemuk dan bagian bawah art rusak.
+  - **Arah tebasan dikunci:** animasi tebasan sekarang memakai arah saat F/J
+    ditekan (`Player.attackFacing`), bukan arah badan saat ini. Sebelumnya
+    visual ikut berputar saat pemain belok sehingga tebasan terlihat seperti
+    memukul ke belakang/samping padahal hitbox tetap di arah awal.
+  - **Efek tebasan selalu di depan tokoh:** art tebasan pada paket menyimpan
+    jejak sabit di sisi berlawanan dengan arah tubuh, jadi efek utama (busur
+    sabit) digambar sendiri secara prosedural di sisi depan sesuai arah
+    tebasan (kanan/kiri/atas/bawah). Jejak bawaan paket tetap dipakai sebagai
+    efek ekor ayunan.
+  - `background/dungeon_scene.png` dari paket belum dipakai (bukan aset tokoh).
+
+---
+
+## [1.2.0] - 2026-11-12
+
+### Changed
+
+- **Tokoh utama dinamai "SILENT VERDICT".** Nama baku tokoh memakai konstanta
+  `GameManager.HERO_NAME_DEFAULT` dan dipakai di menu awal (nama bawaan saat
+  pemain tidak mengetik apa pun), HUD/pause menu, serta fallback file save.
+  Nama yang diketik pemain tetap disimpan dan ditampilkan sebagai
+  "SILENT VERDICT: <nama>" (save lama bertuliskan "PENYIHIR" tetap terbaca).
+- **Pedang pindah ke belakang punggung saat tidak menyerang.**
+  - Sprite badan sekarang tanpa pedang (`data/art/hero_walk.png`, 18 frame, dari
+    folder "Golden Knight walk"), sheet lama `hero_idle.png` (dengan pedang) dihapus.
+  - Pedang diekstrak terpisah dari frame "stand with sword idle" menjadi
+    `data/art/hero_sword.png` (1 frame) lalu digambar di belakang badan saat
+    idle/jalan, sehingga gagang dan bilahnya terlihat di sisi belakang.
+  - Saat F/J/klik kanan ditekan, pedang diayunkan di depan tubuh mengikuti busur
+    tebasan dan arah hadap (kanan/kiri/atas/bawah), dengan progres ayunan 0..1
+    selama 0,18 detik.
+  - Efek tebasan sabit tetap dipertahankan dan sekarang searah dengan ayunan pedang.
+
+### Fixed
+
+- Sheet badan dan sprite pedang memakai jangkar yang sama sehingga karakter
+  tidak melompat horizontal saat berpindah antara idle, jalan, dan menyerang.
+
+---
+
+## [1.1.2] - 2026-11-12
+
+### Fixed
+
+- **Sprite Golden Knight kini muncul saat game dijalankan dari Processing IDE.**
+  Penyebabnya: Processing IDE mengompilasi dan menjalankan sketch dari folder build
+  sementara di `%TEMP%\processing\...` yang **tidak** memuat folder `data/`, sedangkan
+  `Art` mencari `data/art` relatif terhadap folder kerja. Akibatnya sheet karakter
+  utama gagal dimuat dan pemain jatuh ke sprite penyihir prosedural.
+  - `Art.attach(PApplet)` baru: lokasi folder sketch diambil dari `app.sketchPath()`
+    (Processing menerimanya lewat argumen `--sketch-path`), lalu `Art.dataRoot()`
+    mencari aset dengan urutan: folder sketch -> properti `sketch.path` -> folder kerja
+    beserta induknya -> folder tempat class berada beserta induknya.
+  - Dipanggil dari `setup()` pada `SilentWitch.pde` dan dari konstruktor `GameManager`,
+    sebelum scene pertama digambar.
+  - Tetap aman: bila sheet tidak ditemukan, pemain kembali ke penyihir prosedural.
+
+---
+
+## [1.1.1] - 2026-11-11
+
+### Changed
+
+- **Karakter utama memakai sprite Golden Knight (paket "Asset Terbaru"):**
+  - Sheet baru `data/art/hero_idle.png` (12 frame) dan `hero_walk.png` (18 frame) dibangun ulang dari render 900x500 lewat `SpriteSheetBuilder`.
+  - Sheet lama `knight_idle.png`/`knight_walk.png` tidak dipakai lagi: sel 48x32 membuat pedang terpotong tepat di batas sel (x=47).
+  - Tinggi karakter dinormalkan ke 24 px (setara NPC/penyihir lama), badan dipusatkan, kaki menempel di dasar sel, jadi tidak ada lagi kesan "gumpalan cahaya kuning".
+  - Arah hadap: kanan = default, kiri = dicerminkan, atas = digelapkan sebagai punggung.
+  - Busur tebasan diganti sabit melingkar yang mengikuti 4 arah hadap (sebelumnya batang kuning datar) dan ikon pedang tambahan dihapus karena spritenya sudah memegang pedang.
+
+### Fixed
+
+- Lapisan tile berbasis gambar (`Art.ENABLED`) dimatikan. Lantai dan dinding sebelumnya memakai potongan tekstur yang sama, sehingga latar desa/hutan jadi bintik dan kapel/arsip jadi tembok penuh. Latar kembali ke renderer prosedural yang kontrasnya jelas.
+- `Art.drawHero` tidak lagi bergantung pada `erodaxia.png`; sprite karakter utama dimuat terpisah lewat saklar `Art.HERO_SPRITE`.
+
+---
+
+## [1.1.0] - 2026-11-07
+
+### Added
+
+- **Sistem Pertarungan Real-Time 2D & Senjata Saku Pemain:**
+  - Pemain selalu membawa senjata saku ("Tongkat Perak Saku") di saku mantelnya dengan indikator visual prosedural pixel art.
+  - Serangan tebasan sihir sabit 4 arah via **Klik Kanan Mouse** atau tombol keyboard alternatif **F** / **J**.
+  - Hitbox serangan akurat sesuai arah hadap (UP, DOWN, LEFT, RIGHT) dengan efek kilau busur sihir violet-putih dan percikan energi emas.
+  - Status pertarungan pemain pada `Player.java`: `hp` (6 HP / 3 hati gothic), cooldown serang, i-frames (invulnerability blink pasca-kena serang), dan peluruhan knockback halus.
+- **Hierarki Kelas Musuh & Finite State Machine (`Enemy.java`):**
+  - Mesin status: `PATROL` -> `CHASE` -> `TELEGRAPH` -> `ATTACK` -> `RECOVERY` -> `HURT` -> `DEFEATED`.
+  - Indikator telegraf visual bahaya pada lantai arena sebelum serangan aktif untuk memberi sinyal bahaya yang adil dan terbaca.
+  - Jeda rentan (recovery) saat senjata/cakar musuh tertancap di tanah untuk memberikan kesempatan pemain melakukan serangan balasan.
+- **Musuh Reguler Hollow Woods (`BayanganHutan.java`):**
+  - Monster kabut bayangan berpatroli dengan 3 HP, mengejar pemain, dan menebaskan cakar bayangan bertelegraf merah.
+- **Mini-Boss Hollow Woods (`PenjagaJejak.java`):**
+  - Penjaga jalur lembah berstatus bos dengan 10 HP, siluet tudung berpelat besi kuno, dan sabit bayangan raksasa.
+  - Memiliki 2 Fase:
+    - *Fase 1 (HP > 5):* Serangan sapuan sabit bayangan lebar (Cleave) dengan jeda pemulihan 0.85s.
+    - *Fase 2 (HP <= 5):* Murka bayangan dengan aura ungu membara, damage meningkat, serta kombinasi berseling antara sapuan sabit dan terjangan lurus (Lunge).
+- **Progres Deterministik Tanpa RNG:**
+  - Mengalahkan Penjaga Jejak memberikan **Sigil Jejak** secara pasti dan otomatis membuyarkan kabut tebal Gerbang Timur Hutan (`GerbangHutan`) menuju Lembah.
+- **Proteksi Modal Menyeluruh:**
+  - Serangan dan interaksi pertempuran terkunci saat dialog NPC, buku kasus, teka-teki kotak besi, altar deduksi, atau pause menu aktif.
+- **Mekanik Kalah & Respawn Aman:**
+  - Pemain yang kehabisan HP mengalami transisi kabut dan terbangun kembali di titik awal area dengan HP penuh, tanpa kehilangan bukti (clue), quest, atau status gerbang yang telah terbuka.
+- **HUD Pertarungan & Bar Bos:**
+  - Tampilan 3 hati gothic di bawah header kiri bersama status kesiapan senjata saku `[R-Click/F]`.
+  - Bar HP bos orisinal di bagian atas tengah layar saat bertarung melawan Penjaga Jejak di Hollow Woods.
+- **Suite Pengujian Otomatis Pertarungan (`CombatSystemTest.java`):**
+  - Memverifikasi 7 aspek pertempuran: senjata saku & hitbox 4 arah, siklus FSM musuh, 2 fase bos & hadiah Sigil Jejak, damage & i-frames, proteksi modal, respawn tanpa data loss, dan serialisasi save/load status pertempuran ke disk.
+
+---
+
 ## [1.0.0] - 2026-11-02
 
 ### Added

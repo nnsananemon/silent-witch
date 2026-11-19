@@ -96,7 +96,7 @@ public final class PuzzleSystem {
             for (int i = 0; i < sol.length && i < dials.length; i++) {
                 dials[i] = sol[i];
             }
-            feedbackMessage = "KOTAK BESI SUDAH TERBUKA: " + puzzle.explanation();
+            feedbackMessage = "KAIT PENGUNCI SUDAH TERBUKA: " + puzzle.explanation();
             lastResultSuccess = true;
             isError = false;
         } else {
@@ -116,7 +116,7 @@ public final class PuzzleSystem {
         }
 
         if (puzzle.isSolved()) {
-            feedbackMessage = "KOTAK BESI SUDAH TERBUKA: " + puzzle.explanation();
+            feedbackMessage = "KAIT PENGUNCI SUDAH TERBUKA: " + puzzle.explanation();
             lastResultSuccess = true;
             isError = false;
             return;
@@ -345,7 +345,7 @@ public final class PuzzleSystem {
         g.rect(inX, inY, 1, inH);
         g.rect(inX + inW - 1, inY, 1, inH);
 
-        PixelUI.text(g, "PETUNJUK PLAKAT KOTAK BESI [TOTAL DIGIT = 15]:", inX + 6, inY + 4, Palette.ACCENT);
+        PixelUI.text(g, "PETUNJUK PLAKAT KAIT PENGUNCI [TOTAL DIGIT = 15]:", inX + 6, inY + 4, Palette.ACCENT);
         PixelUI.text(g, "1. DIGIT I   : PRIMA GENAP TERKECIL", inX + 12, inY + 13, Palette.TEXT_DIM);
         PixelUI.text(g, "2. DIGIT II  : DUA KALI LIPAT DIGIT I", inX + 12, inY + 21, Palette.TEXT_DIM);
         PixelUI.text(g, "3. DIGIT III : KUADRAT DARI ANGKA 3 (3X3)", inX + 12, inY + 29, Palette.TEXT_DIM);
@@ -426,3 +426,4 @@ public final class PuzzleSystem {
         PixelFont.drawWrapped(g, msg, fbX + 6, fbY + 4, fbW - 12, 1, textColor);
     }
 }
+

@@ -42,4 +42,4 @@ Sudah ada:
 
 ## Lisensi aset
 
-Stage 07 tidak memakai aset eksternal. Seluruh visual (tileset, sprite pemain, NPC, kotak besi, gerbang, altar, memorial, modal, toast, dan font bitmap 5x7) dibuat secara murni prosedural. Lihat [`SilentWitch/data/licenses/ASSET_CREDITS.md`](SilentWitch/data/licenses/ASSET_CREDITS.md).
+Hampir seluruh visual (tileset, NPC, musuh, kotak besi, gerbang, altar, memorial, modal, toast, dan font bitmap 5x7) dibuat secara murni prosedural. Satu-satunya aset gambar eksternal adalah sprite karakter utama (`data/art/hero_knight_body.png`, `hero_knight_attack.png`, `hero_knight_portrait.png`) dari paket "Dark Knight" (`knight_game_assets`); status lisensinya **belum terverifikasi**. Bila berkas itu dihapus, game otomatis kembali ke penyihir prosedural. Lihat [`SilentWitch/data/licenses/ASSET_CREDITS.md`](SilentWitch/data/licenses/ASSET_CREDITS.md).

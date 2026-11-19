@@ -19,6 +19,9 @@ void settings() {
 
 void setup() {
   surface.setTitle("Silent Witch - Stage 07 (v1.0.0)");
+  // Daftarkan folder sketch ke Art supaya data/art tetap ditemukan walau
+  // Processing menjalankan game dari folder build sementara.
+  Art.attach(this);
   game = new GameManager(this);
   game.start();
 }
@@ -47,7 +50,7 @@ void focusLost() {
 }
 
 void mousePressed() {
-  game.mousePressed(mouseX, mouseY);
+  game.mousePressed(mouseX, mouseY, mouseButton);
 }
 
 void mouseMoved() {

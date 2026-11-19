@@ -70,12 +70,49 @@ public final class PixelUI {
         PixelFont.drawCentered(g, label, x + w / 2f + (selected ? 1 : 0), textY, 1, color);
     }
 
+    /**
+     * Bentuk pil (rounded rect) bergaya pixel: sudut dipotong satu piksel.
+     * Dipakai untuk kolom nama dan tombol menu bergaya modern.
+     */
+    public static void pill(PGraphics g, float x, float y, float w, float h,
+                            int fill, int border) {
+        g.noStroke();
+        if (fill != 0) {
+            g.fill(fill);
+            g.rect(x + 2, y, w - 4, h);
+            g.rect(x + 1, y + 1, w - 2, h - 2);
+            g.rect(x, y + 2, w, h - 4);
+        }
+        if (border != 0) {
+            g.fill(border);
+            g.rect(x + 2, y, w - 4, 1);
+            g.rect(x + 2, y + h - 1, w - 4, 1);
+            g.rect(x, y + 2, 1, h - 4);
+            g.rect(x + w - 1, y + 2, 1, h - 4);
+            g.rect(x + 1, y + 1, 1, 1);
+            g.rect(x + w - 2, y + 1, 1, 1);
+            g.rect(x + 1, y + h - 2, 1, 1);
+            g.rect(x + w - 2, y + h - 2, 1, 1);
+        }
+    }
+
     public static void text(PGraphics g, String text, float x, float y, int color) {
         PixelFont.draw(g, text, x, y, 1, color);
     }
 
     public static void text(PGraphics g, String text, float x, float y, int scale, int color) {
         PixelFont.draw(g, text, x, y, scale, color);
+    }
+
+    /** Teks dengan jarak antarhuruf tambahan agar terasa lebih bersih. */
+    public static void textSpaced(PGraphics g, String text, float x, float y,
+                                  int spacing, int color) {
+        PixelFont.drawSpaced(g, text, x, y, 1, spacing, color);
+    }
+
+    public static void textSpaced(PGraphics g, String text, float x, float y, int scale,
+                                  int spacing, int color) {
+        PixelFont.drawSpaced(g, text, x, y, scale, spacing, color);
     }
 
     public static void centered(PGraphics g, String text, float cx, float y,

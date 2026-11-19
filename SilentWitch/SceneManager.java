@@ -56,8 +56,12 @@ public final class SceneManager {
     }
 
     public void mousePressed(float x, float y) {
+        mousePressed(x, y, processing.core.PConstants.LEFT);
+    }
+
+    public void mousePressed(float x, float y, int button) {
         if (current != null) {
-            current.mousePressed(x, y);
+            current.mousePressed(x, y, button);
         }
     }
 

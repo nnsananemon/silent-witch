@@ -3,8 +3,8 @@ import processing.core.PGraphics;
 /**
  * Objek interaktif Gerbang Sayap Timur (Stage 05).
  *
- * Terkunci rapat sebelum puzzle kotak besi aula diselesaikan (AC-06).
- * Setelah kotak besi terbuka, interaksi dengan gerbang ini akan melepaskan
+ * Terkunci rapat sebelum puzzle kait pengunci aula diselesaikan (AC-06).
+ * Setelah kait pengunci terbuka, interaksi dengan gerbang ini akan melepaskan
  * kunci, mengubah tile map menjadi terbuka, menghapus rintangan gerak pemain,
  * dan menandai tujuan quest selesai.
  */
@@ -94,22 +94,22 @@ public final class GerbangTimur implements Interactable {
     public Dialogue createDialogue() {
         if (map.isGateOpen()) {
             return new Dialogue("GERBANG SAYAP TIMUR",
-                    "Gerbang besi telah terbuka penuh.",
+                    "Rantai penahannya sudah mengendur ke lantai.",
                     "Lengkungan batu kuno kini membuka jalan bebas menuju Sayap Timur The Silent Manor.");
         }
 
         if (puzzle.isSolved()) {
             unlock();
             return new Dialogue("GERBANG SAYAP TIMUR",
-                    "Kait mekanis dari Kotak Besi Aula telah terlepas!",
-                    "Terali besi terangkat perlahan ke atas dinding batu.",
+                    "Kait pengunci dari ujung aula telah terlepas!",
+                    "Rantai turun perlahan ke lantai batu.",
                     "Akses menuju Sayap Timur aula kini terbuka bebas!");
         }
 
         return new Dialogue("GERBANG SAYAP TIMUR",
-                "Gerbang besi kokoh menuju Sayap Timur terkunci rapat oleh palang rantai tebal.",
-                "Kait penguncinya terhubung lewat kabel baja ke mekanisme Kotak Besi di sudut timur laut aula.",
-                "Pecahkan teka-teki kotak besi untuk melepaskan pengait gerbang.");
+                "Gerbang menuju Sayap Timur terkunci rapat oleh rantai yang membentang dari kait di ujung aula.",
+                "Kait penguncinya terpasang kuat pada rantai baja.",
+                "Pecahkan mekanisme angka pada kait untuk melepas gerbang.");
     }
 
     @Override
@@ -119,14 +119,9 @@ public final class GerbangTimur implements Interactable {
 
     @Override
     public void draw(PGraphics g, int cameraX, int cameraY) {
-        // Tile gerbang sudah digambar prosedural oleh TileMap.
-        // Kita tambahkan kilau lentera jika gerbang sudah terbuka.
-        if (map.isGateOpen()) {
-            int px = Math.round(x - cameraX);
-            int py = Math.round(y - cameraY);
-            g.noStroke();
-            g.fill(Palette.alpha(Palette.WARM, 35));
-            g.ellipse(px + 4, py, 26, 32);
-        }
+        // Asset gerbang prosedural sudah dihapus: gambar latar Aula Manor sudah
+        // memuat pintu berantai di ujung kanan bawah, jadi tidak ada gambar
+        // tambahan di sini.
     }
 }
+

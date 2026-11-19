@@ -38,6 +38,81 @@ public final class Palette {
     public static final int STONE_3 = 0xFF101119;
     public static final int RUG = 0xFF341823;
 
+    // Hollow Woods (Bab 2)
+    public static final int TREE_BARK = 0xFF2A1B14;
+    public static final int TREE_BARK_LIGHT = 0xFF3D2B1F;
+    public static final int LEAVES_DARK = 0xFF0F1E12;
+    public static final int LEAVES = 0xFF1A3420;
+    public static final int LEAVES_LIGHT = 0xFF254A2E;
+    public static final int GRASS = 0xFF1A2A1A;
+    public static final int GRASS_LIGHT = 0xFF253525;
+    public static final int MOSS = 0xFF2A3A22;
+    public static final int FOG_LIGHT = 0xFF8A9AAE;
+    public static final int FOREST_PATH = 0xFF2B221A;
+    public static final int FOREST_PATH_LIGHT = 0xFF3A3025;
+    public static final int SYMBOL_GLOW = 0xFF7B68B8;
+
+    // Lembah Berkabut (Bab 3)
+    public static final int CLIFF = 0xFF1C1A22;
+    public static final int CLIFF_LIGHT = 0xFF2A2730;
+    public static final int CLIFF_DARK = 0xFF100F15;
+    public static final int DIRT = 0xFF26201A;
+    public static final int DIRT_LIGHT = 0xFF342C22;
+    public static final int DIRT_DARK = 0xFF1A160F;
+    public static final int SHALLOW_WATER = 0xFF141E2A;
+    public static final int SHALLOW_WATER_LIGHT = 0xFF1E2E3E;
+    public static final int SHALLOW_WATER_SURFACE = 0xFF2A4058;
+    public static final int VINE = 0xFF1E3818;
+    public static final int VINE_LIGHT = 0xFF2A4A22;
+    public static final int RUINS = 0xFF201C28;
+    public static final int RUINS_LIGHT = 0xFF302A38;
+    public static final int RUINS_DARK = 0xFF141220;
+    public static final int RUINS_MOSS = 0xFF1E2E1A;
+    public static final int REST_GLOW = 0xFFB8A060;
+    public static final int LOCKED_STONE = 0xFF2A1E30;
+    public static final int LOCKED_SIGIL = 0xFF6E4A8A;
+
+    // Ashen Village (Prolog)
+    public static final int VILLAGE_ROAD = 0xFF282428;
+    public static final int VILLAGE_ROAD_LIGHT = 0xFF343034;
+    public static final int VILLAGE_WALL = 0xFF2A2220;
+    public static final int VILLAGE_WALL_LIGHT = 0xFF3A322E;
+    public static final int VILLAGE_DOOR = 0xFF3A2A1E;
+    public static final int VILLAGE_LAMP = 0xFFD8C888;
+    public static final int VILLAGE_LAMP_POST = 0xFF484048;
+    public static final int NOTICE_BOARD = 0xFF3A3028;
+    public static final int NOTICE_PAPER = 0xFFD0C8B0;
+
+    // Chapel of Whispers (Bab 4)
+    public static final int CHAPEL_STONE = 0xFF1E1A24;
+    public static final int CHAPEL_STONE_LIGHT = 0xFF2C2634;
+    public static final int CHAPEL_STONE_DARK = 0xFF12101A;
+    public static final int CHAPEL_FLOOR = 0xFF221E28;
+    public static final int CHAPEL_FLOOR_LIGHT = 0xFF2E2A36;
+    public static final int CHAPEL_MOSS = 0xFF1C2E1A;
+    public static final int PEW_WOOD = 0xFF2A1E16;
+    public static final int PEW_WOOD_LIGHT = 0xFF3A2C22;
+    public static final int ALTAR_STONE = 0xFF28223A;
+    public static final int ALTAR_GLOW = 0xFF8A7AB8;
+    public static final int STAINED_GLASS_R = 0xFF6A2838;
+    public static final int STAINED_GLASS_B = 0xFF283868;
+    public static final int STAINED_GLASS_G = 0xFF285038;
+
+    // Underground Archive (Bab 5)
+    public static final int ARCHIVE_WALL = 0xFF161220;
+    public static final int ARCHIVE_WALL_LIGHT = 0xFF221C2E;
+    public static final int ARCHIVE_FLOOR = 0xFF1A1824;
+    public static final int ARCHIVE_FLOOR_LIGHT = 0xFF24222E;
+    public static final int ARCHIVE_SHELF = 0xFF2C2218;
+    public static final int ARCHIVE_SHELF_LIGHT = 0xFF3C3024;
+    public static final int ARCHIVE_BOOK_1 = 0xFF6A2828;
+    public static final int ARCHIVE_BOOK_2 = 0xFF28426A;
+    public static final int ARCHIVE_BOOK_3 = 0xFF2A6A3A;
+    public static final int ARCHIVE_TABLE = 0xFF2A221E;
+    public static final int ARCHIVE_PAPER = 0xFFD8D0BA;
+    public static final int MECHANISM = 0xFF383040;
+    public static final int MECHANISM_LIGHT = 0xFF4A4258;
+
     private Palette() {
         // Kelas konstanta.
     }

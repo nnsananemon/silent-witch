@@ -53,8 +53,9 @@ Untuk hanya memeriksa kompilasi:
 | Menu Utama | `Enter` / `Spasi` / klik mouse | Konfirmasi item |
 | Menu Utama | `Esc` | Menutup panel Kontrol atau membatalkan pesan |
 | Gameplay | `W` / `A` / `S` / `D` atau tombol panah | Bergerak empat arah |
+| Gameplay | `Klik Kanan` / `F` / `J` | Serang dengan Senjata Saku ("Tongkat Perak Saku") |
 | Gameplay | `E` / `Enter` / `Spasi` | Interaksi dengan NPC, periksa objek, buka kotak besi, atau masuk gerbang |
-| Gameplay | `C` / `Tab` / `J` | Buka/tutup Detective Casebook (Buku Kasus) |
+| Gameplay | `C` / `Tab` | Buka/tutup Detective Casebook (Buku Kasus) |
 | Gameplay | `Esc` | Membuka Pause Menu (Jeda) |
 | Pause Menu | `W` / `S` atau panah atas/bawah | Pilih opsi jeda (Lanjutkan / Pengaturan Tampilan / Menu Utama) |
 | Pause Menu | `Enter` / `Spasi` / klik mouse | Pilih opsi jeda aktif |
@@ -95,7 +96,12 @@ SilentWitch/
 ├── GameplayScene.java       # gameplay multi-area (Aula & Sayap Timur), kamera, NPC, bukti, casebook, pause, deduksi
 ├── EndingScene.java         # layar hasil investigasi deduksi (The Truth, Unfinished Case, False Accusation)
 ├── TileMap.java             # data tile 26x16 Aula & Sayap Timur, collision, render prosedural altar/memorial/gate
-├── Player.java              # gerakan, collision tile + blocker dinamis, multi-map switcher, sprite prosedural
+├── Player.java              # gerakan, combat senjata saku ("Tongkat Perak"), HP, i-frames, sprite prosedural
+├── Enemy.java               # basis kelas musuh: FSM (Patrol, Chase, Telegraph, Attack, Recovery)
+├── BayanganHutan.java       # musuh reguler kabut Hollow Woods dengan telegraf cakar bayangan
+├── PenjagaJejak.java        # mini-boss Hollow Woods: 2 fase, telegraf lantai merah, hadiah Sigil Jejak
+├── CombatSystemTest.java    # automated test suite lengkap sistem pertarungan real-time 2D
+├── StoryProgressionTest.java# automated test suite transisi multi-area, boundary, dan save/load
 ├── Interactable.java        # kontrak objek interaktif + integrasi investigasi
 ├── Npc.java                 # NPC penjaga aula, sprite, radius bicara, dialog awal & pengingat
 ├── ExamineSpot.java         # titik periksa objek dunia dengan integrasi clue & multi-dialog
@@ -118,9 +124,16 @@ SilentWitch/
 ├── PixelFont.java           # font bitmap 5x7 bawaan (dengan glyph '^', '>', 'X')
 ├── PixelUI.java             # panel, tombol, divider, vignette, modal overlay
 ├── Palette.java             # palet warna dan util warna
+├── Art.java                 # lapisan gambar opsional (tile/properti) + sprite karakter utama
+├── SpriteSheetBuilder.java  # util CLI: render frame besar -> sprite sheet pixel-art
+├── BackgroundBuilder.java   # util CLI: render latar besar -> ukuran peta (area average)
+├── NpcSpriteBuilder.java    # util CLI: build & grade sprite NPC agar menyatu dengan latar
+├── AssetExport.java         # util CLI: ekspor seluruh visual ke PNG referensi
+├── MenuPreview.java         # util CLI: render menu utama ke PNG
 ├── README.md
 ├── CHANGELOG.md
 └── data/
+    ├── art/                 # sprite karakter utama + latar peta (bg_*.png)
     └── licenses/
         └── ASSET_CREDITS.md
 ```
@@ -131,7 +144,52 @@ SilentWitch/
 - Jendela: **960 x 540** (skala integer 3x).
 - Semua scene menggambar ke `PGraphics` 320x180, lalu hasilnya diperbesar ke jendela dengan integer nearest-neighbor tanpa blur.
 - Teks memakai font bitmap 5x7 buatan sendiri (`PixelFont.java`), bebas dari dependensi font sistem.
-- Seluruh visual dibuat murni secara prosedural (tanpa file gambar eksternal).
+- Latar, NPC, musuh, dan properti dibuat murni secara prosedural (tanpa file gambar eksternal),
+  kecuali **Ashen Village** yang memakai gambar latar penuh
+  (`data/art/bg_ashen_village.png`, 640x256). Peta yang punya gambar latar
+  menggambar gambar itu sebagai lapisan dasar dan hanya tile objek (gerbang)
+  yang digambar di atasnya; kalau berkasnya hilang, peta kembali ke tile prosedural.
+- Karakter utama memakai sprite dari paket "Dark Knight" (`knight_game_assets`):
+  `data/art/hero_knight_body.png` (12 pose idle/walk/run × 4 arah),
+  `data/art/hero_knight_attack.png` (5 frame tebasan), dan
+  `data/art/hero_knight_portrait.png` (potret di pause menu) dengan saklar
+  `Art.HERO_SPRITE`. Bila sheet tidak ditemukan, pemain otomatis kembali ke
+  penyihir prosedural.
+- Lokasi aset tidak bergantung pada folder kerja: `Art.attach(PApplet)` membaca
+  `app.sketchPath()` (Processing menerimanya lewat `--sketch-path`), lalu `Art.dataRoot()`
+  mencari `data/art` dari folder sketch, folder kerja, dan folder build class.
+  Ini penting karena Processing IDE menjalankan sketch dari folder sementara di
+  `%TEMP%` yang tidak memuat folder `data/`.
+
+### Membangun ulang sprite karakter utama
+
+Sheet dibuat dari paket "Dark Knight" (`knight_game_assets`) memakai
+`SpriteSheetBuilder`, yang menormalkan tinggi karakter, memusatkan badan, dan
+menempelkan kaki di dasar sel. Urutan frame pada sheet mengikuti urutan nama
+file di folder masukan, jadi diberi nomor urut:
+
+```powershell
+# Badan: 00_idle_down, 01_idle_up, 02_idle_left,
+#        03_walk_down, 04_walk_up, 05_walk_left,
+#        06_run_down,  07_run_up,  08_run_left  -> 9 pose
+java -cp . SpriteSheetBuilder "<folderFrameBadan>" "data/art/hero_knight_body.png" 28
+
+# Tebasan: 01..05 -> 5 frame (tinggi 26 supaya sama dengan badan)
+java -cp . SpriteSheetBuilder "<folderFrameTebasan>" "data/art/hero_knight_attack.png" 26
+
+# Potret pause menu
+java -cp . SpriteSheetBuilder "<folderPotret>" "data/art/hero_knight_portrait.png" 20
+```
+
+Angka `28`/`26`/`20` adalah tinggi sprite dalam piksel dunia. Jangkar gambar
+selalu `(lebarSel / 2, tinggiSel)`, jadi sel boleh berbeda ukuran antar animasi.
+
+**Catatan arah hadap:** paket "Dark Knight" hanya menyediakan satu art samping
+yang menghadap kiri — berkas `knight_*_right.png` di paket itu juga menghadap
+kiri (tokoh akan terlihat "jalan mundur" saat bergerak ke kanan). Karena itu
+sheet badan hanya memakai pose `down/up/left`, dan art samping dicerminkan
+otomatis di `Art.drawHero` saat pemain menghadap kanan.
+
 
 ## Konten Kanonis & Deduksi (Stage 07)
 
@@ -180,6 +238,12 @@ Sesuai dokumen resmi `Silent_Witch_Canon.md`:
 
 ## Lisensi aset
 
-Stage 07 tidak memakai aset eksternal. Seluruh visual (tileset placeholder, sprite
-pemain, sprite NPC, kotak besi, gerbang, altar, memorial, panel dialog, modal Casebook, modal teka-teki,
-modal deduksi, layar ending, pause menu, notifikasi toast, dan font 5x7) dibuat secara prosedural di kode. Lihat [`data/licenses/ASSET_CREDITS.md`](data/licenses/ASSET_CREDITS.md).
+Seluruh visual (tileset placeholder, sprite NPC, musuh, kotak besi, gerbang, altar,
+memorial, panel dialog, modal Casebook, modal teka-teki, modal deduksi, layar ending,
+pause menu, notifikasi toast, dan font 5x7) dibuat secara prosedural di kode.
+
+Satu-satunya aset gambar eksternal adalah sprite karakter utama
+(`data/art/hero_knight_body.png`, `hero_knight_attack.png`, `hero_knight_portrait.png`)
+dari paket "Dark Knight" (`knight_game_assets`). Status lisensi paket tersebut
+**belum terverifikasi** dan wajib dicek sebelum rilis publik. Lihat
+[`data/licenses/ASSET_CREDITS.md`](data/licenses/ASSET_CREDITS.md).

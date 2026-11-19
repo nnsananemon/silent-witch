@@ -43,6 +43,10 @@ public abstract class Scene {
         // Opsional.
     }
 
+    public void mousePressed(float x, float y, int button) {
+        mousePressed(x, y);
+    }
+
     public void mouseMoved(float x, float y) {
         // Opsional.
     }

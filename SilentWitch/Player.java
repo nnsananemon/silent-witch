@@ -18,9 +18,15 @@ public final class Player {
     }
 
     public static final float SPEED = 54f;
+    public static final int MAX_HP = 6;
     private static final float HITBOX_W = 10f;
     private static final float HITBOX_H = 6f;
     private static final float MAX_STEP = 4f;
+
+    /** Durasi animasi tebasan (5 frame dari paket Dark Knight). */
+    public static final float ATTACK_DURATION = 0.24f;
+    public static final float ATTACK_COOLDOWN = 0.32f;
+    public static final float INVULNERABLE_DURATION = 1.0f;
 
     private TileMap map;
     private final List<float[]> blockers = new ArrayList<float[]>();
@@ -29,6 +35,17 @@ public final class Player {
     private Facing facing = Facing.DOWN;
     private boolean moving = false;
     private float animTime = 0f;
+
+    // --- Status Pertarungan & Senjata Saku ---
+    private int hp = MAX_HP;
+    private float invulnerableTimer = 0f;
+    private float attackTimer = 0f;
+    private float attackCooldown = 0f;
+    private Facing attackFacing = Facing.DOWN;
+    private float knockbackVx = 0f;
+    private float knockbackVy = 0f;
+    private final String weaponName = "Tongkat Perak Saku";
+    private int attackDamage = 1;
 
     public Player(TileMap map, float startX, float startY) {
         if (map == null) {
@@ -110,6 +127,177 @@ public final class Player {
         return moving;
     }
 
+    // --- Getter & Setter Status Pertarungan ---
+    public int hp() {
+        return hp;
+    }
+
+    public int maxHp() {
+        return MAX_HP;
+    }
+
+    public void setHp(int hp) {
+        this.hp = Math.max(0, Math.min(MAX_HP, hp));
+    }
+
+    public boolean isAlive() {
+        return hp > 0;
+    }
+
+    public boolean isDead() {
+        return hp <= 0;
+    }
+
+    public boolean isAttacking() {
+        return attackTimer > 0f;
+    }
+
+    public boolean isInvulnerable() {
+        return invulnerableTimer > 0f;
+    }
+
+    public float attackCooldown() {
+        return attackCooldown;
+    }
+
+    public String weaponName() {
+        return weaponName;
+    }
+
+    public int attackDamage() {
+        return attackDamage;
+    }
+
+    public Facing attackFacing() {
+        return attackFacing;
+    }
+
+    /**
+     * Memulai serangan sihir/tebasan dengan senjata saku (Tongkat Perak).
+     * @return true jika serangan berhasil diluncurkan.
+     */
+    public boolean attack() {
+        if (hp <= 0 || attackCooldown > 0f) {
+            return false;
+        }
+        attackCooldown = ATTACK_COOLDOWN;
+        attackTimer = ATTACK_DURATION;
+        attackFacing = facing;
+        return true;
+    }
+
+    /**
+     * Memperbarui hitungan cooldown, durasi serang, i-frame, dan knockback.
+     */
+    public void updateCombat(float dt) {
+        if (dt <= 0f) {
+            return;
+        }
+        if (attackTimer > 0f) {
+            attackTimer -= dt;
+            if (attackTimer < 0f) {
+                attackTimer = 0f;
+            }
+        }
+        if (attackCooldown > 0f) {
+            attackCooldown -= dt;
+            if (attackCooldown < 0f) {
+                attackCooldown = 0f;
+            }
+        }
+        if (invulnerableTimer > 0f) {
+            invulnerableTimer -= dt;
+            if (invulnerableTimer < 0f) {
+                invulnerableTimer = 0f;
+            }
+        }
+        if (knockbackVx != 0f || knockbackVy != 0f) {
+            moveAxis(knockbackVx * dt, true);
+            moveAxis(knockbackVy * dt, false);
+            knockbackVx *= Math.max(0f, 1f - 12f * dt);
+            knockbackVy *= Math.max(0f, 1f - 12f * dt);
+            if (Math.abs(knockbackVx) < 1f) {
+                knockbackVx = 0f;
+            }
+            if (Math.abs(knockbackVy) < 1f) {
+                knockbackVy = 0f;
+            }
+        }
+    }
+
+    /**
+     * Menerima damage dari sumber musuh, memberikan i-frame dan dorongan knockback.
+     * @return true jika pemain berhasil dikenai damage.
+     */
+    public boolean takeDamage(int amount, float sourceX, float sourceY) {
+        if (hp <= 0 || invulnerableTimer > 0f || amount <= 0) {
+            return false;
+        }
+        hp = Math.max(0, hp - amount);
+        invulnerableTimer = INVULNERABLE_DURATION;
+
+        float dx = x - sourceX;
+        float dy = y - sourceY;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len > 0.001f) {
+            knockbackVx = (dx / len) * 85f;
+            knockbackVy = (dy / len) * 85f;
+        } else {
+            knockbackVx = 0f;
+            knockbackVy = -85f;
+        }
+        return true;
+    }
+
+    public void heal(int amount) {
+        if (amount > 0 && hp > 0) {
+            hp = Math.min(MAX_HP, hp + amount);
+        }
+    }
+
+    /**
+     * Memulihkan pemain saat kalah di checkpoint aman terdekat.
+     */
+    public void respawn(float spawnX, float spawnY) {
+        this.x = spawnX;
+        this.y = spawnY;
+        this.hp = MAX_HP;
+        this.invulnerableTimer = 1.5f;
+        this.attackTimer = 0f;
+        this.attackCooldown = 0f;
+        this.knockbackVx = 0f;
+        this.knockbackVy = 0f;
+        this.moving = false;
+    }
+
+    /**
+     * Mengembalikan kotak collision fisik pemain: [left, top, width, height].
+     */
+    public float[] getHitbox() {
+        return new float[]{ x - HITBOX_W / 2f, y - HITBOX_H / 2f, HITBOX_W, HITBOX_H };
+    }
+
+    /**
+     * Mengembalikan kotak jangkauan serangan aktif pemain berdasarkan arah hadap serang.
+     * Mengembalikan null jika pemain sedang tidak mengayunkan senjata saku.
+     */
+    public float[] getAttackHitbox() {
+        if (attackTimer <= 0f) {
+            return null;
+        }
+        switch (attackFacing) {
+            case LEFT:
+                return new float[]{ x - 18f, y - 9f, 16f, 16f };
+            case RIGHT:
+                return new float[]{ x + 2f, y - 9f, 16f, 16f };
+            case UP:
+                return new float[]{ x - 9f, y - 20f, 18f, 16f };
+            case DOWN:
+            default:
+                return new float[]{ x - 9f, y + 2f, 18f, 16f };
+        }
+    }
+
     /**
      * Memperbarui pemain berdasarkan arah input (-1, 0, 1). Diagonal
      * dinormalisasi agar kecepatan tidak bertambah.
@@ -118,6 +306,8 @@ public final class Player {
         if (dt <= 0f) {
             return;
         }
+        updateCombat(dt);
+
         float dirX = clampDirection(inputX);
         float dirY = clampDirection(inputY);
         moving = dirX != 0f || dirY != 0f;
@@ -192,6 +382,37 @@ public final class Player {
     public void draw(PGraphics g, int cameraX, int cameraY) {
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
+
+        if (Art.heroSpriteReady() || Art.ENABLED) {
+            int alpha = 255;
+            if (invulnerableTimer > 0f) {
+                int blink = (int) (invulnerableTimer * 20f);
+                if ((blink & 1) == 0) {
+                    alpha = 110;
+                }
+            }
+            float swing = attackTimer > 0f
+                    ? 1f - attackTimer / ATTACK_DURATION
+                    : 0f;
+            // Saat menebas, arah gambar dikunci ke arah tebasan supaya animasi
+            // dan hitbox selalu searah (tidak ikut berputar saat pemain belok).
+            Facing drawFacing = attackTimer > 0f ? attackFacing : facing;
+            Art.drawHero(g, px, py, drawFacing, moving, animTime, attackTimer > 0f, swing, alpha);
+            return;
+        }
+
+        // Efek kedip i-frame saat terkena serangan
+        if (invulnerableTimer > 0f) {
+            int blink = (int) (invulnerableTimer * 20f);
+            if ((blink & 1) == 0) {
+                // Bayangan samar tetap digambar saat berkedip
+                g.noStroke();
+                g.fill(Palette.alpha(0x000000, 40));
+                g.rect(px - 5, py - 1, 10, 2);
+                return;
+            }
+        }
+
         int bob = moving && ((int) (animTime * 8f) & 1) == 0 ? 1 : 0;
         int feetY = py - bob;
         int stride = moving && ((int) (animTime * 8f) & 1) == 0 ? 1 : 0;
@@ -210,6 +431,18 @@ public final class Player {
         g.rect(px - 5, feetY - 5, 10, 1);
         g.fill(0xFF221B2E);
         g.rect(px - 3, feetY - 9, 1, 4);
+
+        // Saku jubah dan Tongkat Sihir Saku (selalu dibawa di saku)
+        int pocketSide = (facing == Facing.LEFT) ? (px - 5) : (px + 3);
+        g.fill(0xFF1E1728);
+        g.rect(pocketSide, feetY - 8, 2, 3);
+        if (attackTimer <= 0f) {
+            // Tongkat Perak Saku terselip di saku: gagang perak + kristal ungu
+            g.fill(0xFFDEE2EC);
+            g.rect(pocketSide, feetY - 10, 1, 3);
+            g.fill(Palette.MAGIC);
+            g.rect(pocketSide, feetY - 11, 1, 1);
+        }
 
         // Sepatu.
         g.fill(0xFF15121C);
@@ -256,5 +489,96 @@ public final class Player {
         g.rect(px - 4, feetY - 19, 9, 1);
         g.fill(Palette.alpha(Palette.MAGIC, 140));
         g.rect(px, feetY - 23, 1, 1);
+
+        // Visual Serangan: Tongkat Perak ditarik dari saku dan menebaskan sihir
+        if (attackTimer > 0f) {
+            drawAttackVisual(g, px, feetY);
+        }
+    }
+
+    private void drawAttackVisual(PGraphics g, int px, int feetY) {
+        g.noStroke();
+        switch (attackFacing) {
+            case RIGHT:
+                // Tangan & Tongkat Perak diayunkan ke kanan
+                g.fill(0xFFD9CFC0);
+                g.rect(px + 4, feetY - 8, 2, 2);
+                g.fill(0xFFDEE2EC);
+                g.rect(px + 6, feetY - 8, 4, 1);
+                g.fill(Palette.MAGIC);
+                g.rect(px + 10, feetY - 8, 1, 1);
+
+                // Busur tebasan sihir sabit
+                g.fill(Palette.alpha(Palette.MAGIC, 190));
+                g.rect(px + 10, feetY - 15, 2, 12);
+                g.rect(px + 12, feetY - 13, 2, 8);
+                g.fill(0xFFFFFFFF);
+                g.rect(px + 9, feetY - 14, 2, 10);
+                g.fill(Palette.ACCENT);
+                g.rect(px + 13, feetY - 16, 1, 1);
+                g.rect(px + 14, feetY - 8, 1, 1);
+                break;
+
+            case LEFT:
+                // Tangan & Tongkat Perak diayunkan ke kiri
+                g.fill(0xFFD9CFC0);
+                g.rect(px - 6, feetY - 8, 2, 2);
+                g.fill(0xFFDEE2EC);
+                g.rect(px - 10, feetY - 8, 4, 1);
+                g.fill(Palette.MAGIC);
+                g.rect(px - 11, feetY - 8, 1, 1);
+
+                // Busur tebasan sihir sabit
+                g.fill(Palette.alpha(Palette.MAGIC, 190));
+                g.rect(px - 12, feetY - 15, 2, 12);
+                g.rect(px - 14, feetY - 13, 2, 8);
+                g.fill(0xFFFFFFFF);
+                g.rect(px - 11, feetY - 14, 2, 10);
+                g.fill(Palette.ACCENT);
+                g.rect(px - 14, feetY - 16, 1, 1);
+                g.rect(px - 15, feetY - 8, 1, 1);
+                break;
+
+            case UP:
+                // Tangan & Tongkat Perak diayunkan ke atas
+                g.fill(0xFFD9CFC0);
+                g.rect(px - 1, feetY - 14, 2, 2);
+                g.fill(0xFFDEE2EC);
+                g.rect(px, feetY - 18, 1, 4);
+                g.fill(Palette.MAGIC);
+                g.rect(px, feetY - 19, 1, 1);
+
+                // Busur tebasan sihir sabit horizontal atas
+                g.fill(Palette.alpha(Palette.MAGIC, 190));
+                g.rect(px - 7, feetY - 21, 14, 2);
+                g.rect(px - 5, feetY - 23, 10, 2);
+                g.fill(0xFFFFFFFF);
+                g.rect(px - 6, feetY - 20, 12, 1);
+                g.fill(Palette.ACCENT);
+                g.rect(px - 8, feetY - 22, 1, 1);
+                g.rect(px + 7, feetY - 22, 1, 1);
+                break;
+
+            case DOWN:
+            default:
+                // Tangan & Tongkat Perak diayunkan ke bawah
+                g.fill(0xFFD9CFC0);
+                g.rect(px - 1, feetY - 6, 2, 2);
+                g.fill(0xFFDEE2EC);
+                g.rect(px, feetY - 4, 1, 4);
+                g.fill(Palette.MAGIC);
+                g.rect(px, feetY, 1, 1);
+
+                // Busur tebasan sihir sabit horizontal bawah
+                g.fill(Palette.alpha(Palette.MAGIC, 190));
+                g.rect(px - 7, feetY + 3, 14, 2);
+                g.rect(px - 5, feetY + 5, 10, 2);
+                g.fill(0xFFFFFFFF);
+                g.rect(px - 6, feetY + 2, 12, 1);
+                g.fill(Palette.ACCENT);
+                g.rect(px - 8, feetY + 4, 1, 1);
+                g.rect(px + 7, feetY + 4, 1, 1);
+                break;
+        }
     }
 }

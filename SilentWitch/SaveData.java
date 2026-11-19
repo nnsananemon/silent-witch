@@ -202,12 +202,22 @@ public final class SaveData {
     private final List<QuestSave> quests;
     private final List<PuzzleSave> puzzles;
     private final Map<String, Boolean> worldFlags;
+    private final String playerName;
 
     public SaveData(int schemaVersion, long timestamp, String areaId,
                     float playerX, float playerY, Player.Facing playerFacing,
                     List<String> discoveredClueIds, String activeQuestId,
                     List<QuestSave> quests, List<PuzzleSave> puzzles,
                     Map<String, Boolean> worldFlags) {
+        this(schemaVersion, timestamp, areaId, playerX, playerY, playerFacing,
+                discoveredClueIds, activeQuestId, quests, puzzles, worldFlags, null);
+    }
+
+    public SaveData(int schemaVersion, long timestamp, String areaId,
+                    float playerX, float playerY, Player.Facing playerFacing,
+                    List<String> discoveredClueIds, String activeQuestId,
+                    List<QuestSave> quests, List<PuzzleSave> puzzles,
+                    Map<String, Boolean> worldFlags, String playerName) {
         if (schemaVersion <= 0) {
             throw new IllegalArgumentException("Versi skema harus lebih besar dari nol.");
         }
@@ -246,6 +256,13 @@ public final class SaveData {
         if (worldFlags != null) {
             this.worldFlags.putAll(worldFlags);
         }
+
+        String cleanName = (playerName == null) ? "" : playerName.trim();
+        this.playerName = cleanName.isEmpty() ? GameManager.HERO_NAME_DEFAULT : cleanName;
+    }
+
+    public String playerName() {
+        return playerName;
     }
 
     public int schemaVersion() {
@@ -336,6 +353,7 @@ public final class SaveData {
         playerObj.setFloat("x", playerX);
         playerObj.setFloat("y", playerY);
         playerObj.setString("facing", playerFacing.name());
+        playerObj.setString("name", playerName);
         root.setJSONObject("player", playerObj);
 
         JSONArray cluesArr = new JSONArray();
@@ -399,6 +417,7 @@ public final class SaveData {
         }
         float playerX = playerObj.getFloat("x");
         float playerY = playerObj.getFloat("y");
+        String playerName = playerObj.getString("name", null);
         String facingStr = playerObj.getString("facing", "DOWN");
         Player.Facing facing;
         try {
@@ -447,6 +466,6 @@ public final class SaveData {
             }
         }
 
-        return new SaveData(version, timestamp, areaId, playerX, playerY, facing, clues, activeQuestId, quests, puzzles, flags);
+        return new SaveData(version, timestamp, areaId, playerX, playerY, facing, clues, activeQuestId, quests, puzzles, flags, playerName);
     }
 }

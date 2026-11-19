@@ -128,7 +128,7 @@ public final class EndingScene extends Scene {
         PixelUI.text(g, "RANGKUMAN INVESTIGASI KASUS:", panelX + 16, boxY + 4, Palette.ACCENT);
 
         String statLine1 = "BUKTI: " + discoveredCluesCount + "/" + totalCluesCount
-                + "   KOTAK BESI: " + (puzzleSolved ? "TERPECAHKAN" : "TERKUNCI")
+                + "   KAIT PENGUNCI: " + (puzzleSolved ? "TERPECAHKAN" : "TERKUNCI")
                 + "   QUEST: LENGKAP";
         PixelUI.text(g, statLine1, panelX + 16, boxY + 14, Palette.TEXT);
 
@@ -221,3 +221,4 @@ public final class EndingScene extends Scene {
         }
     }
 }
+

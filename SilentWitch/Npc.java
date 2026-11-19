@@ -1,15 +1,22 @@
 import processing.core.PGraphics;
 
 /**
- * NPC sederhana yang dapat diajak bicara.
+ * NPC Kakek Pustakawan di Manor Hall.
  *
- * Sprite penjaga digambar secara prosedural (tanpa aset eksternal). Tubuh NPC
- * juga menjadi penghalang agar pemain tidak berjalan menembusnya.
+ * Menampilkan animasi menoleh 4-arah (bawah/depan, kiri, atas/belakang, kanan)
+ * dengan efek hop (bob) dan logika mirror bila diajak bicara atau saat menekan E.
+ * Tubuh NPC juga menjadi penghalang agar pemain tidak berjalan menembusnya.
  *
  * Menyimpan dialog awal (yang memberikan kesaksian/clue) dan dialog pengingat
  * bila kesaksian telah dicatat ke dalam buku kasus.
  */
 public final class Npc implements Interactable {
+
+    public static final int DIR_DOWN = 0;
+    public static final int DIR_LEFT = 1;
+    public static final int DIR_UP = 2;
+    public static final int DIR_RIGHT = 3;
+    public static final float TURN_DURATION = 0.22f;
 
     public static final float INTERACT_RADIUS = 22f;
     public static final float BLOCK_W = 12f;
@@ -21,6 +28,10 @@ public final class Npc implements Interactable {
     private final Clue clue;
     private final Dialogue dialogue;
     private final Dialogue repeatDialogue;
+
+    private int dir = DIR_DOWN;
+    private int targetDir = DIR_DOWN;
+    private float turnTimer = 0f;
 
     public Npc(float x, float y, String name, Dialogue dialogue) {
         this(x, y, name, null, dialogue, null);
@@ -58,7 +69,7 @@ public final class Npc implements Interactable {
 
     @Override
     public String prompt() {
-        return "BICARA";
+        return "BICARA DENGAN " + name;
     }
 
     public String name() {
@@ -91,6 +102,82 @@ public final class Npc implements Interactable {
         return dialogue;
     }
 
+    /** Menghitung arah ke titik (targetX, targetY) dan memulai animasi menoleh bila arah berbeda. */
+    public void lookAt(float targetX, float targetY) {
+        float dx = targetX - x;
+        float dy = targetY - y;
+        int d;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            d = dx > 0 ? DIR_RIGHT : DIR_LEFT;
+        } else {
+            d = dy > 0 ? DIR_DOWN : DIR_UP;
+        }
+        if (d != dir && turnTimer <= 0f) {
+            targetDir = d;
+            turnTimer = TURN_DURATION;
+        }
+    }
+
+    /** Memulai animasi menoleh ke arah pemain saat diajak bicara atau saat menekan E. */
+    public void triggerTalkAnimation(float targetX, float targetY) {
+        float dx = targetX - x;
+        float dy = targetY - y;
+        int d;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            d = dx > 0 ? DIR_RIGHT : DIR_LEFT;
+        } else {
+            d = dy > 0 ? DIR_DOWN : DIR_UP;
+        }
+        targetDir = d;
+        turnTimer = TURN_DURATION;
+    }
+
+    /** Kembali menghadap depan setelah selesai berbicara. */
+    public void goHome() {
+        if (dir != DIR_DOWN && turnTimer <= 0f) {
+            targetDir = DIR_DOWN;
+            turnTimer = TURN_DURATION;
+        }
+    }
+
+    /** Memperbarui timer animasi menoleh. */
+    public void update(float dt) {
+        if (turnTimer > 0f) {
+            float half = TURN_DURATION / 2f;
+            boolean beforeHalf = turnTimer > half;
+            turnTimer -= dt;
+            if (beforeHalf && turnTimer <= half) {
+                dir = targetDir;
+            }
+            if (turnTimer < 0f) {
+                turnTimer = 0f;
+            }
+        }
+    }
+
+    /** Lompatan kecil (bob) saat menoleh, bernilai negatif (ke atas). */
+    public float bob() {
+        if (turnTimer > 0f) {
+            float progress = (TURN_DURATION - turnTimer) / TURN_DURATION;
+            return -(float) Math.sin(progress * Math.PI) * 2.5f;
+        }
+        return 0f;
+    }
+
+    public int dir() {
+        return dir;
+    }
+
+    public void setDir(int dir) {
+        this.dir = dir;
+        this.targetDir = dir;
+        this.turnTimer = 0f;
+    }
+
+    public boolean isTurning() {
+        return turnTimer > 0f;
+    }
+
     /** Kotak penghalang pada koordinat dunia, sejajar dengan kaki NPC. */
     public boolean blocks(float left, float top, float width, float height) {
         float bx = x - BLOCK_W / 2f;
@@ -104,54 +191,57 @@ public final class Npc implements Interactable {
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
 
+        if (Art.NPC_SPRITES || Art.ENABLED) {
+            Art.drawAnimatedNpc(g, px, py, "librarian", dir, bob());
+            return;
+        }
+
         g.noStroke();
 
-        // Bayangan.
+        // Bayangan di tanah
         g.fill(Palette.alpha(0x000000, 100));
-        g.rect(px - 5, py - 1, 10, 2);
+        g.rect(px - 6, py - 1, 12, 3);
 
-        // Mantel panjang.
-        g.fill(0xFF242A36);
-        g.rect(px - 4, py - 14, 8, 11);
-        g.fill(0xFF2F3746);
-        g.rect(px - 5, py - 7, 10, 5);
-        g.fill(0xFF1A1F29);
-        g.rect(px - 3, py - 10, 1, 8);
+        int renderY = py + Math.round(bob());
 
-        // Ikat pinggang.
+        // Jubah kakek pustakawan (biru tua akademisi)
+        g.fill(0xFF28344A);
+        g.rect(px - 5, renderY - 16, 10, 14);
+        g.fill(0xFF1E2838);
+        g.rect(px - 4, renderY - 8, 8, 7);
+
+        // Kerah dan lis jubah emas pudar
+        g.fill(0xFFD4B870);
+        g.rect(px - 2, renderY - 16, 4, 3);
+        g.rect(px - 1, renderY - 13, 2, 7);
+
+        // Sepatu
         g.fill(0xFF141820);
-        g.rect(px - 5, py - 7, 10, 2);
-        g.fill(Palette.ACCENT_DIM);
-        g.rect(px - 1, py - 7, 2, 1);
+        g.rect(px - 4, renderY - 2, 3, 2);
+        g.rect(px + 1, renderY - 2, 3, 2);
 
-        // Sepatu.
-        g.fill(0xFF10141B);
-        g.rect(px - 4, py - 3, 3, 2);
-        g.rect(px + 1, py - 3, 3, 2);
+        // Kepala dan wajah tua
+        g.fill(0xFFD6C6B0);
+        g.rect(px - 3, renderY - 22, 6, 6);
 
-        // Kepala dan tudung.
-        g.fill(0xFFC6BCAC);
-        g.rect(px - 3, py - 19, 6, 5);
-        g.fill(0xFFA79D8E);
-        g.rect(px - 3, py - 15, 6, 1);
-        g.fill(0xFF1C222E);
-        g.rect(px - 4, py - 20, 8, 2);
-        g.rect(px - 4, py - 18, 1, 4);
-        g.rect(px + 3, py - 18, 1, 4);
+        // Rambut dan janggut putih keperakan
+        g.fill(0xFFE0E4E8);
+        g.rect(px - 4, renderY - 24, 8, 3);
+        g.rect(px - 4, renderY - 21, 1, 4);
+        g.rect(px + 3, renderY - 21, 1, 4);
+        // Janggut
+        g.rect(px - 2, renderY - 17, 4, 3);
+        g.rect(px - 1, renderY - 14, 2, 2);
 
-        // Mata.
-        g.fill(0xFF121722);
-        g.rect(px - 2, py - 17, 1, 2);
-        g.rect(px + 1, py - 17, 1, 2);
+        // Kacamata / mata bijak
+        g.fill(0xFF4A4030);
+        g.rect(px - 2, renderY - 20, 1, 1);
+        g.rect(px + 1, renderY - 20, 1, 1);
 
-        // Lentera kecil di sisi kanan.
-        g.fill(0xFF2B2119);
-        g.rect(px + 5, py - 12, 1, 5);
-        g.fill(Palette.WARM_DIM);
-        g.rect(px + 4, py - 8, 4, 4);
-        g.fill(Palette.WARM);
-        g.rect(px + 5, py - 7, 2, 2);
-        g.fill(Palette.alpha(Palette.WARM, 28));
-        g.rect(px + 2, py - 10, 8, 8);
+        // Buku naskah tua di tangan
+        g.fill(0xFF8B4513);
+        g.rect(px + 3, renderY - 12, 4, 5);
+        g.fill(0xFFE8DCC0);
+        g.rect(px + 4, renderY - 11, 2, 3);
     }
 }

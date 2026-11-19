@@ -7,7 +7,7 @@ import java.util.Map;
  * Font bitmap 5x7 bawaan proyek.
  *
  * Tidak memakai font sistem atau aset eksternal agar hasil teks tetap tajam
- * pada resolusi internal 320x180. Huruf kecil dipetakan ke huruf kapital.
+ * pada resolusi internal 320x180. Mendukung huruf kapital dan huruf kecil.
  */
 public final class PixelFont {
 
@@ -94,12 +94,37 @@ public final class PixelFont {
         glyph('|', "00100", "00100", "00100", "00100", "00100", "00100", "00100");
         glyph('^', "00100", "01010", "10001", "00000", "00000", "00000", "00000");
         glyph('\u00b0', "01110", "01010", "01110", "00000", "00000", "00000", "00000");
+
+        // Huruf kecil: tinggi-x 5 baris (baris 2-6), ascender memakai baris 0-1.
+        glyph('a', "00000", "00000", "01110", "00001", "01111", "10001", "01111");
+        glyph('b', "10000", "10000", "10110", "11001", "10001", "10001", "11110");
+        glyph('c', "00000", "00000", "01110", "10001", "10000", "10001", "01110");
+        glyph('d', "00001", "00001", "01101", "10011", "10001", "10001", "01111");
+        glyph('e', "00000", "00000", "01110", "10001", "11111", "10000", "01110");
+        glyph('f', "00110", "01000", "11100", "01000", "01000", "01000", "01000");
+        glyph('g', "00000", "00000", "01111", "10001", "01111", "00001", "01110");
+        glyph('h', "10000", "10000", "10110", "11001", "10001", "10001", "10001");
+        glyph('i', "00100", "00000", "01100", "00100", "00100", "00100", "01110");
+        glyph('j', "00010", "00000", "00110", "00010", "00010", "10010", "01100");
+        glyph('k', "10000", "10000", "10010", "10100", "11000", "10100", "10010");
+        glyph('l', "01100", "00100", "00100", "00100", "00100", "00100", "01110");
+        glyph('m', "00000", "00000", "11010", "10101", "10101", "10101", "10101");
+        glyph('n', "00000", "00000", "10110", "11001", "10001", "10001", "10001");
+        glyph('o', "00000", "00000", "01110", "10001", "10001", "10001", "01110");
+        glyph('p', "00000", "00000", "11110", "10001", "11110", "10000", "10000");
+        glyph('q', "00000", "00000", "01111", "10001", "01111", "00001", "00001");
+        glyph('r', "00000", "00000", "10110", "11001", "10000", "10000", "10000");
+        glyph('s', "00000", "00000", "01111", "10000", "01110", "00001", "11110");
+        glyph('t', "01000", "01000", "11100", "01000", "01000", "01001", "00110");
+        glyph('u', "00000", "00000", "10001", "10001", "10001", "10011", "01101");
+        glyph('v', "00000", "00000", "10001", "10001", "10001", "01010", "00100");
+        glyph('w', "00000", "00000", "10001", "10001", "10101", "10101", "01010");
+        glyph('x', "00000", "00000", "10001", "01010", "00100", "01010", "10001");
+        glyph('y', "00000", "00000", "10001", "10001", "01111", "00001", "01110");
+        glyph('z', "00000", "00000", "11111", "00010", "00100", "01000", "11111");
     }
 
     private static char normalize(char c) {
-        if (c >= 'a' && c <= 'z') {
-            return Character.toUpperCase(c);
-        }
         switch (c) {
             case '\u2014':
             case '\u2013':
@@ -182,6 +207,66 @@ public final class PixelFont {
                 }
             }
             cx += (GLYPH_W + TRACKING) * scale;
+        }
+    }
+
+    /** Lebar satu baris dengan jarak antarhuruf tambahan (piksel virtual). */
+    public static int measureLineSpaced(String text, int scale, int spacing) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+        scale = Math.max(1, scale);
+        spacing = Math.max(0, spacing);
+        int chars = text.length();
+        return chars * (GLYPH_W + TRACKING) * scale + (chars - 1) * spacing - TRACKING * scale;
+    }
+
+    /**
+     * Seperti draw(), tetapi dengan jarak antarhuruf tambahan. Dipakai pada
+     * tampilan yang butuh kesan lebih lapang dan bersih (menu utama).
+     */
+    public static void drawSpaced(PGraphics g, String text, float x, float y, int scale,
+                                  int spacing, int color) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        scale = Math.max(1, scale);
+        spacing = Math.max(0, spacing);
+        g.noStroke();
+        g.fill(color);
+
+        float originX = Math.round(x);
+        float cx = originX;
+        float cy = Math.round(y);
+        int line = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char raw = text.charAt(i);
+            if (raw == '\n') {
+                line++;
+                cx = originX;
+                continue;
+            }
+            char c = normalize(raw);
+            if (c == ' ') {
+                cx += (GLYPH_W + TRACKING) * scale + spacing;
+                continue;
+            }
+            String[] rows = GLYPHS.get(c);
+            if (rows == null) {
+                rows = GLYPHS.get('?');
+            }
+            for (int row = 0; row < GLYPH_H; row++) {
+                String bits = rows[row];
+                for (int col = 0; col < GLYPH_W; col++) {
+                    if (bits.charAt(col) == '1') {
+                        g.rect(cx + col * scale,
+                                cy + (line * (GLYPH_H + LINE_GAP) + row) * scale,
+                                scale, scale);
+                    }
+                }
+            }
+            cx += (GLYPH_W + TRACKING) * scale + spacing;
         }
     }
 
