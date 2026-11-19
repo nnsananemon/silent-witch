@@ -97,20 +97,22 @@ public final class TileMap {
     //   'E' penanda keluar timur       'X' batu simbol (solid)
     private static final String[] HOLLOW_WOODS = {
             // 40 kolom x 16 baris = 640x256 piksel
+            // Batu-batu dan reruntuhan pilar di background diberi tile solid ('r', 't', 'l')
+            // agar pemain dan musuh tidak bisa menembusnya.
             "llllllllllllllllllllllllllllllllllllllll",
-            "ltttllltttllllltttlllltttlllltttlllltttl",
-            "lggggggggggggggggggggggggggggggggggggggl",
-            "lggggggggFFFFFggggggggggggFFgggggggggggl",
-            "FSFFFFFFFFFFFFFFFFFFFgFFFFFFFFFFF~~E~~gl",
-            "lgggggggggggggggggggggggggggggggggg~gggl",
-            "lgggggggggggrrgggggggggggggggggggggggggl",
-            "llltttllgggggrrgggggggggggggggggggg~gggl",
-            "lllgggllgg~ggggg~ggg~gggg~ggggg~gggg~ggl",
-            "lggggggggg~ggXgg~gggg~ggg~~ggggg~ggggggl",
-            "lggggggggg~gggg~ggggggggg~gggggggggggggl",
-            "lggggggggggggggggggggggggggggggggggggggl",
-            "lggggggggggggggggggggggggggggggggggggggl",
-            "ltttllltttllllltttlllltttlllltttlllltttl",
+            "tttttttttttttttttttttttttttttttttttttttt",
+            "tttttttttttttttttttttttttttttttttttttttt",
+            "lllgggggggggggggggggggggggggggggggggglll",
+            "FSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF~~E",
+            "lllgggggggggggggggggggggggggggggggggglll",
+            "lllggggggggrrgggggggggggggggggggggggglll",
+            "lllgrrggggrgggggrggrrggggrgggggggggrrlll",
+            "lllgggggggrrggggrggrrrgggrrgggrrgggrrlll",
+            "lllgggggggrggXgrrggggggggrgggggrrgggglll",
+            "lllgggggggrgggggggggggggggggggggggggglll",
+            "tttttttttttttttttttttttttttttttttttttttt",
+            "tttttttttttttttttttttttttttttttttttttttt",
+            "tttttttttttttttttttttttttttttttttttttttt",
             "llllllllllllllllllllllllllllllllllllllll",
             "llllllllllllllllllllllllllllllllllllllll"
     };
@@ -215,8 +217,8 @@ public final class TileMap {
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
-            "VVVVVVVVVVVVVVVVVVVVXXVVVVVVVVVVVVVVVVVV",
-            "VVVVVVVVVVVVVVVVVVVVXXVVVVVVVVVVVVVVVVVV",
+            "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
+            "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "ggggggggggggggggggNggggggggggggggggggggg",
             "gggLggggggLggggggggggggggLgggggggggggggg",
             "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
@@ -323,6 +325,8 @@ public final class TileMap {
 
     public static TileMap hollowWoods() {
         TileMap woods = themed(new TileMap(HOLLOW_WOODS), Art.Theme.FOREST);
+        woods.setBackground(Art.loadBackground("bg_hollow_woods.png"));
+        // Latar hutan sudah memuat batang pohon, kanopi, gerbang, dan batu simbol
         woods.setGateOpen(true);
         woods.setDrawDoors(false);
         return woods;
@@ -553,7 +557,7 @@ public final class TileMap {
      * memakai rantai di ujung kanan gambar, bukan aset gerbang prosedural.
      */
     private boolean isOverlayTile(char ch) {
-        return ch == 'K';
+        return ch == 'K' || ch == 'X' || ch == 'E';
     }
 
     private void drawTile(PGraphics g, char ch, int col, int row, int camX, int camY) {
@@ -621,19 +625,7 @@ public final class TileMap {
                 drawFog(g, x, y, col, row);
                 break;
             case 'X':
-                if (isValleyTile(col + 1, row) || isValleyTile(col - 1, row)
-                        || isValleyTile(col, row + 1) || isValleyTile(col, row - 1)) {
-                    drawDirtGround(g, x, y, col, row);
-                } else if (isChapelTile(col + 1, row) || isChapelTile(col - 1, row)) {
-                    drawChapelFloor(g, x, y, col, row);
-                } else if (isArchiveTile(col + 1, row) || isArchiveTile(col - 1, row)) {
-                    drawArchiveFloor(g, x, y, col, row);
-                } else if (isVillageTile(col + 1, row) || isVillageTile(col - 1, row)) {
-                    drawVillageRoad(g, x, y, col, row);
-                } else {
-                    drawGrass(g, x, y, col, row);
-                }
-                drawSymbolStone(g, x, y, col, row);
+                drawRuneStone(g, x, y);
                 break;
             case 'v':
                 drawVine(g, x, y, col, row);
@@ -1169,29 +1161,31 @@ public final class TileMap {
         }
     }
 
-    private void drawSymbolStone(PGraphics g, int x, int y, int col, int row) {
+    private void drawRuneStone(PGraphics g, int x, int y) {
         g.noStroke();
 
-        // Bayangan batu
-        g.fill(Palette.alpha(0x000000, 100));
-        g.rect(x + 1, y + 5, 14, 11);
+        // Bayangan batu di atas tanah
+        g.fill(Palette.alpha(0x000000, 90));
+        g.rect(x + 2, y + 13, 12, 2);
 
-        // Badan batu simbol
-        g.fill(0xFF2A2C36);
-        g.rect(x + 2, y + 2, 12, 12);
-        g.fill(0xFF353842);
-        g.rect(x + 3, y + 3, 10, 3);
-        g.fill(0xFF1E2028);
-        g.rect(x + 3, y + 10, 10, 3);
+        // Badan batu rune berlumut gothic
+        g.fill(0xFF252E34);
+        g.rect(x + 3, y + 3, 10, 11);
+        g.fill(0xFF1A2229);
+        g.rect(x + 4, y + 2, 8, 1);
+        g.fill(0xFF34424B);
+        g.rect(x + 4, y + 4, 2, 8);
+        g.fill(0xFF141B21);
+        g.rect(x + 11, y + 4, 1, 9);
 
-        // Simbol ukiran rune
-        g.fill(Palette.alpha(Palette.SYMBOL_GLOW, 90));
-        g.rect(x + 6, y + 4, 4, 1);
-        g.rect(x + 5, y + 6, 1, 3);
-        g.rect(x + 10, y + 6, 1, 3);
-        g.rect(x + 7, y + 9, 2, 1);
-        g.fill(Palette.alpha(Palette.SYMBOL_GLOW, 60));
-        g.rect(x + 7, y + 6, 2, 2);
+        // Ukirkan rune cyan menyala lembut
+        g.fill(Palette.alpha(Palette.SYMBOL_GLOW, 210));
+        g.rect(x + 7, y + 4, 2, 1);
+        g.rect(x + 6, y + 5, 1, 3);
+        g.rect(x + 9, y + 5, 1, 3);
+        g.rect(x + 7, y + 8, 2, 1);
+        g.fill(Palette.alpha(Palette.SYMBOL_GLOW, 65));
+        g.rect(x + 6, y + 3, 4, 7);
     }
 
     private void drawCliffWall(PGraphics g, int x, int y, int col, int row) {

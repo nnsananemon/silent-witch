@@ -585,7 +585,7 @@ public final class Art {
     private static int baseColor(Theme theme) {
         switch (theme) {
             case FOREST:
-                return 0xFF16200F;
+                return 0xFF0E1822;
             case VILLAGE:
                 return 0xFF3A3220;
             case CAVE:

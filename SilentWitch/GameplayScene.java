@@ -1383,6 +1383,10 @@ public final class GameplayScene extends Scene {
         drawEntities(g, camX, camY);
         drawDust(g);
 
+        if ("hollow_woods".equals(currentAreaId)) {
+            drawMovingFog(g, camX, camY);
+        }
+
         PixelUI.vignette(g);
         drawPrompt(g, camX, camY);
         drawHeader(g);
@@ -1531,10 +1535,73 @@ public final class GameplayScene extends Scene {
         float px = player.x() - camX;
         float py = player.y() - camY - 10;
         g.noStroke();
-        g.fill(Palette.alpha(Palette.MAGIC, 6));
-        g.ellipse(px, py, 54, 48);
-        g.fill(Palette.alpha(Palette.MAGIC, 5));
-        g.ellipse(px, py, 30, 28);
+        if ("hollow_woods".equals(currentAreaId)) {
+            // Aura perak-teal bulan hutan berongga
+            g.fill(Palette.alpha(0x5DE0D2, 10));
+            g.ellipse(px, py, 58, 50);
+            g.fill(Palette.alpha(0x98CED6, 12));
+            g.ellipse(px, py, 32, 28);
+        } else {
+            g.fill(Palette.alpha(Palette.MAGIC, 6));
+            g.ellipse(px, py, 54, 48);
+            g.fill(Palette.alpha(Palette.MAGIC, 5));
+            g.ellipse(px, py, 30, 28);
+        }
+    }
+
+    /**
+     * Efek kabut bergerak berlapis di Hollow Woods (Stage 3).
+     * Terdiri dari pita kabut tanah yang mengalir dan gumpalan kabut atmosferik
+     * dengan paralaks kamera, menciptakan kedalaman hutan gotik berkabut.
+     */
+    private void drawMovingFog(PGraphics g, int camX, int camY) {
+        g.noStroke();
+        int screenW = GameManager.VIRTUAL_W;
+        int screenH = GameManager.VIRTUAL_H;
+
+        // 1. Lapisan pita kabut rendah menyusuri lantai hutan (paralaks 0.75x)
+        for (int i = 0; i < 5; i++) {
+            float speed = 11f + i * 4f;
+            float worldOffset = (time * speed + i * 85f);
+            float screenOffset = (worldOffset - camX * 0.75f);
+            float fx = ((screenOffset % (screenW + 140f)) + (screenW + 140f)) % (screenW + 140f) - 70f;
+            float fy = 110f + i * 20f + (float) Math.sin(time * 0.85f + i * 1.4f) * 4f - (camY * 0.2f);
+            int mistW = 96 + (i % 3) * 32;
+            int mistH = 12 + (i % 2) * 6;
+
+            g.fill(Palette.alpha(0x284D58, 14));
+            g.rect(fx - mistW / 2f, fy - mistH / 2f, mistW, mistH);
+            g.fill(Palette.alpha(0x5DA8B5, 11));
+            g.rect(fx - mistW * 0.32f, fy - 2, mistW * 0.64f, 4);
+        }
+
+        // 2. Lapisan gumpalan kabut atmosferik lembut di udara (paralaks 0.4x)
+        for (int i = 0; i < 4; i++) {
+            float speed = 6.5f + i * 3f;
+            float worldOffset = (time * speed + i * 115f);
+            float screenOffset = (worldOffset - camX * 0.4f);
+            float rawX = ((screenOffset % (screenW + 180f)) + (screenW + 180f)) % (screenW + 180f) - 90f;
+            float waveY = 50f + i * 30f + (float) Math.cos(time * 0.6f + i * 1.8f) * 6f;
+            float radX = 80f + (i % 2) * 35f;
+            float radY = 20f + (i % 3) * 6f;
+
+            g.fill(Palette.alpha(0x356673, 11));
+            g.ellipse(rawX, waveY, radX * 1.25f, radY * 1.25f);
+            g.fill(Palette.alpha(0x85CFDC, 9));
+            g.ellipse(rawX, waveY, radX * 0.75f, radY * 0.65f);
+        }
+
+        // 3. Kabut melayang cepat di latar depan (foreground wisps, paralaks 1.2f)
+        for (int i = 0; i < 3; i++) {
+            float speed = 16f + i * 5f;
+            float worldOffset = (time * speed + i * 140f);
+            float screenOffset = (worldOffset - camX * 1.2f);
+            float rawX = ((screenOffset % (screenW + 160f)) + (screenW + 160f)) % (screenW + 160f) - 80f;
+            float waveY = 30f + i * 55f + (float) Math.sin(time * 1.1f + i * 2.1f) * 5f;
+
+            g.fill(Palette.alpha(0x72BFCB, 8));
+            g.ellipse(rawX, waveY, 110, 16);
+        }
     }
 
     private void drawDust(PGraphics g) {

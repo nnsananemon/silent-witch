@@ -38,19 +38,19 @@ public final class Palette {
     public static final int STONE_3 = 0xFF101119;
     public static final int RUG = 0xFF341823;
 
-    // Hollow Woods (Bab 2)
-    public static final int TREE_BARK = 0xFF2A1B14;
-    public static final int TREE_BARK_LIGHT = 0xFF3D2B1F;
-    public static final int LEAVES_DARK = 0xFF0F1E12;
-    public static final int LEAVES = 0xFF1A3420;
-    public static final int LEAVES_LIGHT = 0xFF254A2E;
-    public static final int GRASS = 0xFF1A2A1A;
-    public static final int GRASS_LIGHT = 0xFF253525;
-    public static final int MOSS = 0xFF2A3A22;
-    public static final int FOG_LIGHT = 0xFF8A9AAE;
-    public static final int FOREST_PATH = 0xFF2B221A;
-    public static final int FOREST_PATH_LIGHT = 0xFF3A3025;
-    public static final int SYMBOL_GLOW = 0xFF7B68B8;
+    // Hollow Woods (Bab 2) — Ebony Teal Gothic Forest
+    public static final int TREE_BARK = 0xFF162024;
+    public static final int TREE_BARK_LIGHT = 0xFF243038;
+    public static final int LEAVES_DARK = 0xFF0A1318;
+    public static final int LEAVES = 0xFF152630;
+    public static final int LEAVES_LIGHT = 0xFF233A44;
+    public static final int GRASS = 0xFF14232C;
+    public static final int GRASS_LIGHT = 0xFF21323A;
+    public static final int MOSS = 0xFF203A38;
+    public static final int FOG_LIGHT = 0xFF98CED6;
+    public static final int FOREST_PATH = 0xFF1C2A2E;
+    public static final int FOREST_PATH_LIGHT = 0xFF2C3D42;
+    public static final int SYMBOL_GLOW = 0xFF5DE0D2;
 
     // Lembah Berkabut (Bab 3)
     public static final int CLIFF = 0xFF1C1A22;

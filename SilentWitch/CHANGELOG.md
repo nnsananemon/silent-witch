@@ -4,6 +4,44 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.5] - 2026-11-19
+
+### Added
+
+- **Sistem Kabut Bergerak Dinamis (Moving Layered Fog) di Stage 3 Hollow Woods:**
+  - 3 lapisan kabut mengalir dengan kecepatan dan paralaks kamera berbeda:
+    1. Pita kabut tanah (*ground mist drift*, paralaks 0.75x) yang bergelombang dan mengalir lembut menyusuri lantai hutan.
+    2. Gumpalan kabut atmosferik (*atmospheric wisp clouds*, paralaks 0.4x) yang melayang di udara.
+    3. Kabut melayang cepat di latar depan (*foreground wisps*, paralaks 1.2x).
+  - Memberikan kedalaman visual 2.5D gotik yang hidup tanpa menghalangi pandangan pertempuran atau telegraf serangan musuh.
+
+### Fixed
+
+- **Artefak Balok Rune Mengambang di Atas Sumur Tua Stage 1 (`TileMap.java`):**
+  - Menghapus tile `'X'` (batu simbol rune) yang sempat tertimpa di koordinat sumur desa (kolom 20-21, baris 3-4) pada peta `ASHEN_VILLAGE` dan menggantinya dengan struktur padat `'V'`.
+  - Sumur tua kini tampil bersih dan alami sesuai gambar latar `bg_ashen_village.png` tanpa artefak balok bercahaya, serta interaksi investigasi (`[E] PERIKSA`) dan batas fisik tetap berfungsi sempurna.
+- **Pergerakan Musuh Pertama Bayangan Hutan (`BayanganHutan.java`):**
+  - Menghilangkan bug osilasi maju-mundur / getar bolak-balik (*jitter oscillation*) akibat tumpang tindih orientasi hadap pemain dan batas patroli.
+  - Musuh pertama kini berdiam bersiaga tenang di pos kabutnya (`State.PATROL` di titik anchor) tanpa mondar-mandir terus-menerus, dan baru akan maju melesat mengejar ketika karakter Dark Knight sudah mendekat.
+
+### Changed
+
+- **Penambahan Blok Kolisi Solid pada Batu-Batu & Reruntuhan Latar (`TileMap.java`):**
+  - Seluruh formasi batu dan reruntuhan di Hollow Woods (`bg_hollow_woods.png`) kini dipetakan dengan tile solid (`'r'`, `'t'`, `'l'`), meliputi pagar kayu kiri, tangga batu datar, pilar batu kuno barat, pilar batu timur, bongkahan batu tengah, monumen salib gotik, tangga batu berundak, dan reruntuhan batu timur.
+  - Karakter pemain maupun musuh tidak dapat lagi menembus formasi batu latar ("tidak tembus"), namun jalan utama di sepanjang panggung dan koridor menuju Batu Simbol tetap terbuka dan lancar.
+- **Batasan Wilayah & Jarak Agresi Musuh Stage 3 (`BayanganHutan.java`, `PenjagaJejak.java`):**
+  - **Maju Saat Karakter Sudah Dekat:** Musuh kini bersiaga di pos jaganya masing-masing dan hanya mulai maju menerjang (`State.CHASE`) apabila karakter pemain telah mendekat ke dalam perimeter kewaspadaannya (`alertRadius`), mencegah musuh mengejar dari kejauhan sebelum pemain tiba di area mereka.
+  - **Batasan Wilayah (*Territory Leash Boundary*):** Apabila pemain mundur atau kabur melampaui batas wilayah pos jaga, musuh akan melepaskan kejaran dan kembali dengan tenang ke pos masing-masing tanpa mengejar tanpa batas.
+  - **Deteksi Kolisi Musuh:** Gerakan musuh kini memeriksa tabrakan tile padat (`map.rectCollides`), memastikan musuh juga tidak menembus formasi batu saat mengejar maupun saat melakukan terjangan sabit (*lunge attack*).
+- **Pembaruan Latar Penuh Stage 3 Hollow Woods (`bg_hollow_woods.png`, 640x256):**
+  - Di-downscale secara presisi menggunakan `BackgroundBuilder` dengan filter rata-rata area subpixel dari gambar sumber gothic hutan berkabut (1986x792).
+  - Menghilangkan artefak grid prosedural lama, menyatukan lengkungan batu barat, kanopi pohon pinus gotik, dan reruntuhan gerbang timur.
+- **Penyelarasan Visual Musuh & Karakter dengan Background Baru:**
+  - **Penjaga Jejak (`PenjagaJejak.java`):** Palet diselaraskan ke jubah ebony-teal gothic (`0xFF0E1822`, `0xFF182833`), zirah berkarat kuno (`0xFF253B47`), mata cyan mistis (`0xFF6BF7E8`), dan sabit bayangan raksasa. Efek fase murka (Phase 2) menampilkan kobaran api bayangan crimson-teal.
+  - **Bayangan Hutan (`BayanganHutan.java`):** Diperbarui menjadi Forest Mist Wraith dengan siluet tudung kabut gelap dan mata cyan tajam yang serasi dengan nuansa Hollow Woods.
+  - **Karakter Utama (Dark Knight):** Ditambahkan aura pendaran bulan perak-teal (`drawPlayerGlow`) saat berada di Hollow Woods sehingga siluet zirah ksatria tetap tegas dan atmosferik di tengah pepohonan gelap.
+  - **Batu Simbol (`SymbolStone.java`):** Tekstur dan pendaran rune diselaraskan ke nuansa batu slate berlumut dengan ukiran rune bercahaya cyan.
+
 ## [1.4.4] - 2026-11-19
 
 ### Changed

@@ -9,14 +9,16 @@ import processing.core.PGraphics;
  */
 public final class BayanganHutan extends Enemy {
 
-    private final float patrolCenterX;
-    private final float patrolRange = 28f;
+    private final float anchorX;
+    private final float anchorY;
+    private final float leashRadius = 75f;
     private float animTime = 0f;
 
     public BayanganHutan(float x, float y) {
         super("Bayangan Hutan", x, y, 3, 1, 32f, 14f, 12f);
-        this.patrolCenterX = x;
-        this.alertRadius = 65f;
+        this.anchorX = x;
+        this.anchorY = y;
+        this.alertRadius = 60f;
         this.attackRadius = 24f;
         this.telegraphDuration = 0.65f;
         this.attackDuration = 0.20f;
@@ -49,22 +51,26 @@ public final class BayanganHutan extends Enemy {
         float dy = player.y() - y;
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        if (dx != 0f) {
-            facingDir = dx < 0 ? -1 : 1;
-        }
-
         switch (state) {
             case IDLE:
             case PATROL:
                 if (dist <= alertRadius && player.isAlive()) {
+                    // Baru maju mengejar jika karakter pemain sudah dekat
+                    facingDir = dx < 0 ? -1 : 1;
                     state = State.CHASE;
                     break;
                 }
-                // Patroli perlahan bolak-balik
-                x += facingDir * (speed * 0.5f) * dt;
-                if (Math.abs(x - patrolCenterX) > patrolRange) {
-                    facingDir = -facingDir;
-                    x = patrolCenterX + facingDir * patrolRange;
+                // Jika berada di luar pos jaganya, kembali melayang ke anchor dengan tenang
+                float toAnchor = anchorX - x;
+                if (Math.abs(toAnchor) > 2f) {
+                    facingDir = toAnchor < 0 ? -1 : 1;
+                    moveWithCollision(facingDir * (speed * 0.4f) * dt, 0f, map);
+                } else {
+                    // Berdiam di pos jaga, tidak bergerak maju-mundur
+                    x = anchorX;
+                    if (dx != 0f) {
+                        facingDir = dx < 0 ? -1 : 1;
+                    }
                 }
                 break;
 
@@ -73,29 +79,31 @@ public final class BayanganHutan extends Enemy {
                     state = State.PATROL;
                     break;
                 }
+                facingDir = dx < 0 ? -1 : 1;
                 if (dist <= attackRadius) {
                     state = State.TELEGRAPH;
                     stateTimer = telegraphDuration;
                     break;
                 }
-                if (dist > alertRadius * 1.5f) {
+                // Batasan wilayah: jika pemain menjauh atau musuh keluar dari batas leash, lepaskan kejaran
+                if (dist > alertRadius * 1.35f || Math.abs(x - anchorX) > leashRadius) {
                     state = State.PATROL;
                     break;
                 }
-                // Kejar pemain
+                // Maju mengejar pemain dengan deteksi halangan batu/pohon
                 float dirX = dx / dist;
                 float dirY = dy / dist;
-                x += dirX * speed * dt;
-                y += dirY * speed * dt;
+                moveWithCollision(dirX * speed * dt, dirY * speed * dt, map);
                 break;
 
             case TELEGRAPH:
+                facingDir = dx < 0 ? -1 : 1;
                 stateTimer -= dt;
                 if (stateTimer <= 0f) {
                     state = State.ATTACK;
                     stateTimer = attackDuration;
-                    // Lunge sedikit ke arah hadap
-                    x += facingDir * 6f;
+                    // Lunge sedikit ke arah hadap dengan deteksi tabrakan
+                    moveWithCollision(facingDir * 6f, 0f, map);
                 }
                 break;
 
@@ -124,6 +132,32 @@ public final class BayanganHutan extends Enemy {
 
             case DEFEATED:
                 break;
+        }
+    }
+
+    /**
+     * Memindahkan musuh dengan memeriksa tabrakan tile padat (batu/pohon),
+     * sehingga musuh tidak tembus batu di latar.
+     */
+    private void moveWithCollision(float vx, float vy, TileMap map) {
+        if (map == null) {
+            x += vx;
+            y += vy;
+            return;
+        }
+        float halfW = hitboxW / 2f;
+        float halfH = hitboxH / 2f;
+        if (vx != 0f) {
+            float nextX = x + vx;
+            if (!map.rectCollides(nextX - halfW, y - halfH, hitboxW, hitboxH)) {
+                x = nextX;
+            }
+        }
+        if (vy != 0f) {
+            float nextY = y + vy;
+            if (!map.rectCollides(x - halfW, nextY - halfH, hitboxW, hitboxH)) {
+                y = nextY;
+            }
         }
     }
 
@@ -172,7 +206,7 @@ public final class BayanganHutan extends Enemy {
         if (Art.ENABLED) {
             int bob = ((int) (animTime * 6f) & 1);
             int alpha = defeated ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255) : 255;
-            Art.drawEnemy(g, px, py + bob, "slime", hurtTimer > 0f, alpha, facingDir > 0, animTime);
+            drawForestWraith(g, px, py + bob, alpha, hurtTimer > 0f, animTime);
             return;
         }
 
@@ -181,43 +215,15 @@ public final class BayanganHutan extends Enemy {
         g.noStroke();
 
         if (defeated) {
-            // Efek asap bayangan lenyap
-            g.fill(Palette.alpha(0x281B34, (int) (defeatedTimer * 255)));
+            // Efek pembubaran kabut bayangan teal
+            g.fill(Palette.alpha(0x12242C, (int) (defeatedTimer * 255)));
             g.rect(px - 6, py - 6, 12, 10);
-            g.fill(Palette.alpha(0x6E4A8A, (int) (defeatedTimer * 180)));
+            g.fill(Palette.alpha(0x5DE0D2, (int) (defeatedTimer * 180)));
             g.rect(px - 4, py - 10, 8, 4);
             return;
         }
 
-        // Bayangan di tanah
-        g.fill(Palette.alpha(0x000000, 70));
-        g.rect(px - 6, py + 4, 12, 3);
-
-        // Tubuh bayangan
-        int bodyColor = (hurtTimer > 0f) ? 0xFFFFFFFF : 0xFF1D1426;
-        g.fill(bodyColor);
-        g.rect(px - 6, py - 8 + bob, 12, 10);
-        g.rect(px - 5, py - 11 + bob, 10, 3);
-
-        // Detail bulu/kabut bayangan
-        g.fill(0xFF2C1F3A);
-        g.rect(px - 4, py - 6 + bob, 8, 6);
-        g.rect(px - 7, py - 3 + bob, 2, 4);
-        g.rect(px + 5, py - 3 + bob, 2, 4);
-
-        // Mata membara merah
-        if (state == State.TELEGRAPH) {
-            // Mata menyala tajam saat telegraf
-            g.fill(0xFFFF2222);
-            int eyeX = facingDir < 0 ? (px - 5) : (px + 2);
-            g.rect(eyeX, py - 9 + bob, 3, 2);
-            g.fill(0xFFFFAAAA);
-            g.rect(eyeX + (facingDir < 0 ? 0 : 1), py - 9 + bob, 1, 1);
-        } else {
-            g.fill(0xFFD42C2C);
-            int eyeX = facingDir < 0 ? (px - 4) : (px + 2);
-            g.rect(eyeX, py - 9 + bob, 2, 2);
-        }
+        drawForestWraith(g, px, py + bob, 255, hurtTimer > 0f, animTime);
 
         // Cakar saat menyerang
         if (state == State.ATTACK) {
@@ -226,6 +232,48 @@ public final class BayanganHutan extends Enemy {
             g.rect(clawX, py - 6, 6, 2);
             g.rect(clawX + 2, py - 3, 6, 2);
             g.rect(clawX, py, 6, 2);
+        }
+    }
+
+    /** Menggambar hantu kabut hutan (Forest Mist Wraith) dengan mata cyan menyala. */
+    private void drawForestWraith(PGraphics g, int px, int py, int alpha, boolean hurt, float anim) {
+        g.noStroke();
+
+        // Bayangan tipis di tanah
+        g.fill(0, 0, 0, (int) (70 * (alpha / 255f)));
+        g.rect(px - 6, py + 4, 12, 3);
+
+        // Gerigi kabut berputar di sekeliling kaki
+        int wispOffset = (int) (anim * 8f) & 3;
+        g.fill(Palette.alpha(0x2A4852, (int) (100 * (alpha / 255f))));
+        g.rect(px - 7 + wispOffset, py + 1, 2, 2);
+        g.rect(px + 5 - wispOffset, py + 2, 2, 2);
+
+        // Tubuh bayangan kabut ebony-teal
+        int bodyCol = hurt ? 0xFFFFFFFF : 0xFF0E1822;
+        g.fill(Palette.alpha(bodyCol, alpha));
+        g.rect(px - 6, py - 8, 12, 10);
+        g.rect(px - 5, py - 11, 10, 4);
+        g.rect(px - 4, py + 2, 3, 2);
+        g.rect(px + 1, py + 2, 3, 2);
+
+        // Tudung kabut tebal
+        g.fill(Palette.alpha(hurt ? 0xFFFFFFFF : 0xFF182B36, alpha));
+        g.rect(px - 4, py - 7, 8, 6);
+        g.rect(px - 7, py - 3, 2, 4);
+        g.rect(px + 5, py - 3, 2, 4);
+
+        // Mata membara cyan gothic
+        if (state == State.TELEGRAPH) {
+            g.fill(0xFFFF4D5E);
+            int eyeX = facingDir < 0 ? (px - 5) : (px + 2);
+            g.rect(eyeX, py - 9, 3, 2);
+            g.fill(0xFFFFC2CC);
+            g.rect(eyeX + (facingDir < 0 ? 0 : 1), py - 9, 1, 1);
+        } else {
+            g.fill(Palette.alpha(0xFF77F0E4, alpha));
+            int eyeX = facingDir < 0 ? (px - 4) : (px + 2);
+            g.rect(eyeX, py - 9, 2, 2);
         }
     }
 }

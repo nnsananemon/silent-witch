@@ -103,12 +103,25 @@ public final class SymbolStone implements Interactable {
 
         if (Art.ENABLED) {
             g.noStroke();
-            g.fill(0, 0, 0, 100);
-            g.rect(px - 8, py + 3, 16, 4);
-            Art.drawIcon(g, "upg_shield", px - 8, py - 14, 16, 18);
+            // Bayangan lembut di tanah
+            g.fill(0, 0, 0, 95);
+            g.rect(px - 7, py + 4, 14, 3);
+            // Batu rune berlumut slat
+            g.fill(0xFF252E34);
+            g.rect(px - 6, py - 8, 12, 13);
+            g.fill(0xFF34424B);
+            g.rect(px - 5, py - 7, 2, 10);
+            g.fill(0xFF141B21);
+            g.rect(px + 4, py - 7, 2, 12);
+            // Ukiran rune
+            g.fill(Palette.alpha(Palette.SYMBOL_GLOW, examined ? 230 : 140));
+            g.rect(px - 1, py - 6, 2, 1);
+            g.rect(px - 2, py - 5, 1, 3);
+            g.rect(px + 1, py - 5, 1, 3);
+            g.rect(px - 1, py - 2, 2, 1);
             if (examined) {
-                g.fill(120, 220, 210, 60);
-                g.rect(px - 5, py - 10, 10, 2);
+                g.fill(Palette.alpha(Palette.SYMBOL_GLOW, 65));
+                g.rect(px - 5, py - 7, 10, 9);
             }
             return;
         }
@@ -143,7 +156,7 @@ public final class SymbolStone implements Interactable {
             g.rect(px + 2, py - 2, 1, 3);
             g.rect(px - 1, py + 1, 2, 1);
             // Titik pusat bercahaya
-            g.fill(0xFFAA99DD);
+            g.fill(0xFFBBFFF4);
             g.rect(px - 1, py - 2, 2, 2);
         } else {
             // Simbol redup belum aktif
