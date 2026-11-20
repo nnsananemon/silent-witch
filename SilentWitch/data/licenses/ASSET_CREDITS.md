@@ -6,18 +6,26 @@ Sebagian besar visual digambar langsung oleh kode Java: tileset 16x16, sprite
 NPC, musuh, properti, panel dialog, modal Detective Casebook, notifikasi toast
 bukti, dan font bitmap 5x7 yang dibuat manual untuk proyek ini.
 
-Satu-satunya aset gambar eksternal adalah sprite karakter utama
-(`data/art/hero_knight_body.png`, `hero_knight_attack.png`, dan
-`hero_knight_portrait.png`), yang diturunkan dari paket "Dark Knight"
-(`knight_game_assets`, dari pengguna), sprite NPC warga desa
-(`data/art/boy_front.png`, `boy_left.png`, `boy_back.png`, `boy_right.png`,
-`girl_front.png`, `girl_left.png`, `girl_back.png`, dan `girl_right.png`), yang
-diturunkan dari lembar sprite "Lembar Sprite Petualang Desa Bergaya Pixel"
-(1536x1024, dari pengguna), latar penuh Ashen Village
-(`data/art/bg_ashen_village.png`, render dari pengguna), serta latar penuh
-Aula Manor (`data/art/bg_manor_hall.png`, dari gambar pengguna).
-Status lisensi paket/lembar tersebut **belum terverifikasi** dan wajib dicek sebelum
-rilis publik.
+Aset gambar eksternal yang sudah dipakai:
+
+- Sprite karakter utama (`data/art/hero_knight_body.png`,
+  `hero_knight_attack.png`, dan `hero_knight_portrait.png`), diturunkan dari
+  paket "Dark Knight" (`knight_game_assets`, dari pengguna).
+- Sprite NPC warga desa (`data/art/boy_front.png`, `boy_left.png`,
+  `boy_back.png`, `boy_right.png`, `girl_front.png`, `girl_left.png`,
+  `girl_back.png`, dan `girl_right.png`), diturunkan dari lembar sprite
+  "Lembar Sprite Petualang Desa Bergaya Pixel" (1536x1024, dari pengguna).
+- Latar penuh Ashen Village (`data/art/bg_ashen_village.png`, render dari
+  pengguna), Aula Manor (`data/art/bg_manor_hall.png`, dari gambar pengguna),
+  dan Hollow Woods (`data/art/bg_hollow_woods.png`, dari gambar pengguna).
+- Sprite penyihir gothic (`data/art/wizard.png`) dan flameling
+  (`data/art/flamelings.png`) untuk musuh Stage 3.
+
+Status lisensi paket Dark Knight, lembar NPC desa, latar buatan pengguna, dan
+flamelings **belum terverifikasi** dan wajib dicek sebelum rilis publik.
+Paket **Gothicvania Church** karya Luis Zuno (@ansimuz) yang menjadi sumber
+sprite `wizard.png` berlisensi **public domain** sesuai `public-license.txt`
+paket tersebut (kredit tidak wajib, tetapi dicantumkan sebagai apresiasi).
 
 Sprite `data/art/door_iron.png` dan `door_iron_open.png` bukan aset eksternal:
 keduanya digambar oleh kode proyek lewat util `DoorBuilder`.
@@ -41,6 +49,8 @@ lisensi pada halaman resmi sumber. Jangan menghapus atribusi yang diwajibkan.
 | `boy_front/left/back/right.png`, `girl_front/left/back/right.png` (sprite NPC warga desa) | belum diketahui | lembar sprite "Lembar Sprite Petualang Desa Bergaya Pixel" (1536x1024, dari pengguna) | **belum terverifikasi** | 2026-11-19 | Dipotong 4 kolom x 2 baris (baris cowok/cewek, tiap kolom satu arah hadap), latar hitam di-flood-fill menjadi transparan, trim sejajar agar kepala/kaki konsisten antar arah, downscale area-weighted box filter pixel-art tinggi 25 px dengan kontras tajam |
 | `elder_front/left/back/right.png` (sprite Sage Istana Gothic di Aula Manor) | belum diketahui | lembar sprite "Lembar Sprite Sage Istana Gothic" (1536x1024, 1x4 kolom dari pengguna) | **belum terverifikasi** | 2026-11-19 | Dipotong 4 kolom (front, right, back, left), flood-fill latar hitam menjadi transparan, trim sejajar kepala dan kaki (y: 264..803), downscale area-weighted box filter tinggi 28 px dengan kontras tajam, mendukung animasi menoleh 4-arah |
 | `door_iron.png`, `door_iron_open.png` | proyek ini | dibuat oleh `DoorBuilder` (kode Java) | milik proyek | 2026-11-18 | Sprite 16x32, dua varian (tertutup/terbuka) untuk tile gerbang 'G' |
+| `wizard.png` | Luis Zuno (@ansimuz) | paket "Gothicvania Church" (dari pengguna) | **public domain** (`public-license.txt`) | 2026-11-20 | Sheet 1215x66, 15 frame: 5 idle + 10 cast/fire. Dipakai apa adanya sebagai sprite mini-boss Penjaga Jejak (81x66 per frame, tanpa perubahan piksel) |
+| `flamelings.png` | belum diketahui | dari pengguna (`flamelings_sprites.png`) | **belum terverifikasi** | 2026-11-20 | Sheet 384x128 berisi 3 wujud (kecil/sedang/besar). Latar biru rata dibuang saat runtime, lalu dipangkas. Dipakai Bayangan Hutan (wujud kecil→sedang→besar sesuai state) dan api Rest Point |
 
 Bila berkas sprite di atas dihapus, game otomatis kembali memakai penyihir
 prosedural (`Art.HERO_SPRITE` gagal dimuat) sehingga tidak ada aset eksternal

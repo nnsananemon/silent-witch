@@ -15,15 +15,35 @@ public final class BayanganHutan extends Enemy {
     private float animTime = 0f;
 
     public BayanganHutan(float x, float y) {
-        super("Bayangan Hutan", x, y, 3, 1, 32f, 14f, 12f);
+        super("Bayangan Hutan", x, y, 6, 2, 42f, 16f, 16f);
         this.anchorX = x;
         this.anchorY = y;
-        this.alertRadius = 60f;
-        this.attackRadius = 24f;
-        this.telegraphDuration = 0.65f;
+        this.alertRadius = 75f;
+        this.attackRadius = 28f;
+        this.telegraphDuration = 0.52f;
         this.attackDuration = 0.20f;
-        this.recoveryDuration = 0.60f;
+        this.recoveryDuration = 0.44f;
         this.state = State.PATROL;
+    }
+
+    /** True bila HP tersisa setengah (<= maxHp / 2) sehingga memicu wujud terakhirnya. */
+    public boolean isFinalForm() {
+        return hp <= maxHp / 2;
+    }
+
+    @Override
+    public int damage() {
+        // Normal menghasilkan 2 damage; Bentuk Terakhir sangat mematikan (3 damage, setengah HP pemain!)
+        return isFinalForm() ? 3 : 2;
+    }
+
+    @Override
+    public boolean takeDamage(int amount, float knockbackDirX, float knockbackDirY) {
+        if (isFinalForm()) {
+            // Bentuk terakhir berzirah magma tebal: poise tinggi, knockback berkurang 70%
+            return super.takeDamage(amount, knockbackDirX * 0.3f, knockbackDirY * 0.3f);
+        }
+        return super.takeDamage(amount, knockbackDirX, knockbackDirY);
     }
 
     @Override
@@ -82,7 +102,7 @@ public final class BayanganHutan extends Enemy {
                 facingDir = dx < 0 ? -1 : 1;
                 if (dist <= attackRadius) {
                     state = State.TELEGRAPH;
-                    stateTimer = telegraphDuration;
+                    stateTimer = isFinalForm() ? (telegraphDuration * 0.75f) : telegraphDuration;
                     break;
                 }
                 // Batasan wilayah: jika pemain menjauh atau musuh keluar dari batas leash, lepaskan kejaran
@@ -93,7 +113,8 @@ public final class BayanganHutan extends Enemy {
                 // Maju mengejar pemain dengan deteksi halangan batu/pohon
                 float dirX = dx / dist;
                 float dirY = dy / dist;
-                moveWithCollision(dirX * speed * dt, dirY * speed * dt, map);
+                float chaseSpeed = isFinalForm() ? (speed * 1.35f) : speed;
+                moveWithCollision(dirX * chaseSpeed * dt, dirY * chaseSpeed * dt, map);
                 break;
 
             case TELEGRAPH:
@@ -102,8 +123,9 @@ public final class BayanganHutan extends Enemy {
                 if (stateTimer <= 0f) {
                     state = State.ATTACK;
                     stateTimer = attackDuration;
-                    // Lunge sedikit ke arah hadap dengan deteksi tabrakan
-                    moveWithCollision(facingDir * 6f, 0f, map);
+                    // Terjangan lunge cepat ke arah pemain saat menyerang
+                    float lungeDist = isFinalForm() ? 18f : 8f;
+                    moveWithCollision(facingDir * lungeDist, 0f, map);
                 }
                 break;
 
@@ -111,7 +133,7 @@ public final class BayanganHutan extends Enemy {
                 stateTimer -= dt;
                 if (stateTimer <= 0f) {
                     state = State.RECOVERY;
-                    stateTimer = recoveryDuration;
+                    stateTimer = isFinalForm() ? (recoveryDuration * 0.65f) : recoveryDuration;
                 }
                 break;
 
@@ -166,8 +188,8 @@ public final class BayanganHutan extends Enemy {
         if (state != State.ATTACK) {
             return null;
         }
-        float hitW = 16f;
-        float hitH = 14f;
+        float hitW = isFinalForm() ? 32f : 20f;
+        float hitH = isFinalForm() ? 24f : 16f;
         float hitX = facingDir < 0 ? (x - hitW) : x;
         float hitY = y - hitH / 2f;
         return new float[]{ hitX, hitY, hitW, hitH };
@@ -184,15 +206,16 @@ public final class BayanganHutan extends Enemy {
 
         g.noStroke();
         // Area ancaman merah di tanah
-        g.fill(Palette.alpha(0xD93838, (int) (60 + progress * 100)));
-        int warnW = Math.round(18 * progress);
+        g.fill(Palette.alpha(0xD93838, (int) (70 + progress * 120)));
+        int baseW = isFinalForm() ? 32 : 20;
+        int warnW = Math.round(baseW * progress);
         int warnX = facingDir < 0 ? (px - warnW) : px;
-        g.rect(warnX, py - 4, warnW, 8);
+        g.rect(warnX, py - 4, warnW, isFinalForm() ? 12 : 8);
 
         // Tanda seru bahaya di atas musuh
-        g.fill(0xFFFF3333);
-        g.rect(px - 1, py - 18, 2, 4);
-        g.rect(px - 1, py - 13, 2, 2);
+        g.fill(0xFFFF2222);
+        g.rect(px - 1, py - (isFinalForm() ? 28 : 18), 2, isFinalForm() ? 6 : 4);
+        g.rect(px - 1, py - (isFinalForm() ? 21 : 13), 2, 2);
     }
 
     @Override
@@ -202,6 +225,55 @@ public final class BayanganHutan extends Enemy {
         }
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
+
+        // Sprite flameling: saat nyawa setengah, musuh mengeluarkan bentuk terakhirnya (Stage 2).
+        if (Art.flamelingSpriteReady()) {
+            int alpha = defeated
+                    ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255)
+                    : 255;
+            int stage;
+            if (defeated) {
+                stage = isFinalForm() ? 2 : 0;
+            } else if (isFinalForm()) {
+                // Bentuk terakhir aktif penuh saat nyawa mencapai setengah atau kurang!
+                stage = 2;
+            } else if (state == State.TELEGRAPH) {
+                stage = 1;
+            } else if (state == State.CHASE || state == State.ATTACK
+                    || state == State.RECOVERY || state == State.HURT) {
+                stage = 1;
+            } else {
+                stage = 0;
+            }
+
+            // Pendar aura api membara di sekeliling tubuh saat berada di bentuk terakhir
+            if (isFinalForm() && !defeated) {
+                int pulse = ((int) (animTime * 8f) & 1);
+                g.noStroke();
+                g.fill(255, 60, 20, (int) ((50 + pulse * 30) * (alpha / 255f)));
+                g.ellipse(px, py - 26, 52, 58);
+                g.fill(255, 180, 35, (int) (35 * (alpha / 255f)));
+                g.ellipse(px, py - 30, 34, 40);
+            }
+
+            Art.drawFlameling(g, px, py, stage, facingDir > 0, alpha,
+                    hurtTimer > 0f, animTime);
+
+            // Jejak cakar api / tebasan pedang lava saat menyerang, tetap searah hadap.
+            if (!defeated && state == State.ATTACK) {
+                g.noStroke();
+                int count = isFinalForm() ? 5 : 3;
+                int span = isFinalForm() ? 28 : 18;
+                for (int i = 0; i < count; i++) {
+                    int clawX = facingDir < 0 ? (px - span - i * 3) : (px + 8 + i * 3);
+                    g.fill(255, 90 + i * 35, 20, 225);
+                    g.rect(clawX, py - (isFinalForm() ? 18 : 10) + i * 4, isFinalForm() ? 12 : 7, isFinalForm() ? 3 : 2);
+                    g.fill(255, 240, 160, 240);
+                    g.rect(clawX + 1, py - (isFinalForm() ? 18 : 10) + i * 4, isFinalForm() ? 7 : 4, 1);
+                }
+            }
+            return;
+        }
 
         if (Art.ENABLED) {
             int bob = ((int) (animTime * 6f) & 1);

@@ -28,16 +28,17 @@ public final class PenjagaJejak extends Enemy {
     private int phase = 1;
 
     public PenjagaJejak(float x, float y) {
-        super("Penjaga Jejak", x, y, 10, 1, 24f, 18f, 24f);
+        super("Penjaga Jejak", x, y, 10, 1, 28f, 14f, 16f);
         this.anchorX = x;
         this.anchorY = y;
         this.boss = true;
-        this.alertRadius = 68f;
+        this.alertRadius = 70f;
         this.attackRadius = 34f;
-        this.telegraphDuration = 0.75f;
+        this.telegraphDuration = 0.70f;
         this.attackDuration = 0.22f;
-        this.recoveryDuration = 0.85f;
+        this.recoveryDuration = 0.75f;
         this.state = State.IDLE;
+        this.facingDir = -1; // Sikap siaga selalu menghadap ke samping kiri (ke arah jalan masuk pemain)
     }
 
     public int phase() {
@@ -51,12 +52,13 @@ public final class PenjagaJejak extends Enemy {
         }
         animTime += dt;
 
-        // Cek transisi fase saat HP <= 5
+        // Cek transisi fase saat HP <= 5 (Fase 2 lebih agresif & kuat)
         if (hp <= 5 && phase == 1) {
             phase = 2;
             damage = 2;
-            telegraphDuration = 0.62f;
-            recoveryDuration = 0.68f;
+            speed = 36f;
+            telegraphDuration = 0.55f;
+            recoveryDuration = 0.52f;
         }
 
         if (hurtTimer > 0f) {
@@ -93,8 +95,9 @@ public final class PenjagaJejak extends Enemy {
                     facingDir = toAnchorX < 0 ? -1 : 1;
                     moveWithCollision((toAnchorX / anchorDist) * (speed * 0.45f) * dt,
                             (toAnchorY / anchorDist) * (speed * 0.45f) * dt, map);
-                } else if (dx != 0f) {
-                    facingDir = dx < 0 ? -1 : 1;
+                } else {
+                    // Berjaga di pos: default selalu menghadap samping kiri ke arah datangnya pemain
+                    facingDir = dx < 0 ? -1 : (dx > 0 ? 1 : -1);
                 }
                 break;
 
@@ -260,6 +263,45 @@ public final class PenjagaJejak extends Enemy {
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
 
+        // Sprite wizard gothic: selalu menghadap ke samping (side profile, bukan ke depan layar).
+        if (Art.wizardSpriteReady()) {
+            int alpha = defeated
+                    ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255)
+                    : 255;
+
+            int frame;
+            if (defeated) {
+                frame = 14;
+            } else if (state == State.TELEGRAPH) {
+                float p = 1f - Math.max(0f, Math.min(1f, stateTimer / telegraphDuration));
+                frame = p < 0.45f ? 13 : 12; // 13: cincin percikan samping, 12: api membara samping
+            } else if (state == State.ATTACK) {
+                frame = 11; // 11: semburan api besar ke samping
+            } else if (state == State.RECOVERY) {
+                frame = 14; // jeda rentan menyamping
+            } else if (state == State.HURT) {
+                frame = 14;
+            } else {
+                frame = 14; // sikap siaga menyamping menghadap kiri
+            }
+
+            // Aura fase 2 digambar di belakang sprite (disesuaikan dengan skala tubuh penyihir).
+            if (phase == 2 && !defeated) {
+                int pulse = ((int) (animTime * 8f) & 1);
+                g.noStroke();
+                g.fill(Palette.alpha(0xDE2A40, 40 + pulse * 24));
+                g.ellipse(px, py - 16, 32, 42);
+                g.fill(Palette.alpha(0x5DE0D2, 28));
+                g.ellipse(px, py - 18, 22, 30);
+            }
+
+            // Frame 11-14 di sheet dasar sudah menghadap ke kiri.
+            // Jika facingDir > 0 (menghadap ke kanan), baru dibalik.
+            boolean flip = facingDir > 0;
+            Art.drawWizard(g, px, py, flip, frame, alpha, hurtTimer > 0f, animTime);
+            return;
+        }
+
         if (Art.ENABLED) {
             int bob = ((int) (animTime * 5f) & 1);
             int alpha = defeated ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255) : 255;
@@ -313,43 +355,42 @@ public final class PenjagaJejak extends Enemy {
             g.rect(px + 6 + auraPulse, py - 24, 4, 5);
         }
 
-        // Jubah Robek Penjaga (Ebony Teal Gothic)
+        // Jubah Robek Penjaga Menghadap Samping (Ebony Teal Gothic)
         int bodyColor = hurt ? 0xFFFFFFFF : 0xFF0E1822;
         g.fill(Palette.alpha(bodyColor, alpha));
-        g.rect(px - 8, py - 18, 16, 20);
-        g.rect(px - 9, py - 12, 18, 14);
+        // Badan profil samping
+        int bodyX = facingDir < 0 ? (px - 6) : (px - 4);
+        g.rect(bodyX, py - 18, 10, 20);
+        // Jubah menjuntai ke belakang
+        int capeX = facingDir < 0 ? px : (px - 9);
+        g.rect(capeX, py - 14, 9, 16);
 
-        // Lipatan jubah dalam
-        g.fill(Palette.alpha(hurt ? 0xFFFFFFFF : 0xFF182833, alpha));
-        g.rect(px - 6, py - 16, 12, 18);
-
-        // Plat Zirah Berkarat Kuno di Dada
+        // Plat Zirah Berkarat Kuno di Sisi Dada
         g.fill(Palette.alpha(hurt ? 0xFFFFFFFF : 0xFF283B46, alpha));
-        g.rect(px - 5, py - 14, 10, 9);
+        int armorX = facingDir < 0 ? (px - 5) : (px - 1);
+        g.rect(armorX, py - 14, 6, 8);
         g.fill(Palette.alpha(hurt ? 0xFFFFFFFF : 0xFF3D5866, alpha));
-        g.rect(px - 4, py - 12, 8, 2);
-        g.rect(px - 2, py - 9, 4, 3);
+        g.rect(armorX, py - 12, 5, 2);
 
-        // Tudung Kepala Robek
+        // Tudung Kepala Robek Menyamping
         g.fill(Palette.alpha(hurt ? 0xFFFFFFFF : 0xFF0A121A, alpha));
-        g.rect(px - 7, py - 24, 14, 9);
-        g.rect(px - 6, py - 26, 12, 3);
+        int hoodX = facingDir < 0 ? (px - 6) : (px - 3);
+        g.rect(hoodX, py - 25, 9, 10);
+        int peakX = facingDir < 0 ? (px - 2) : (px - 7);
+        g.rect(peakX, py - 27, 6, 3);
 
-        // Mata Membara di Dalam Tudung
+        // Satu Mata Menyamping di Dalam Tudung
+        int eyeX = facingDir < 0 ? (px - 5) : (px + 2);
         if (state == State.TELEGRAPH) {
             g.fill(0xFFFF1E2E);
-            int eyeX = facingDir < 0 ? (px - 5) : (px + 1);
             g.rect(eyeX, py - 21, 3, 2);
-            g.rect(eyeX + 3, py - 21, 2, 2);
             g.fill(0xFFFFB2BC);
-            g.rect(eyeX + 1, py - 21, 1, 1);
+            g.rect(eyeX, py - 21, 1, 1);
         } else {
             // Mata Cyan Kuno bercahaya
             int eyeCol = phase == 2 ? 0xFFFF3848 : 0xFF6BF7E8;
             g.fill(Palette.alpha(eyeCol, alpha));
-            int eyeX = facingDir < 0 ? (px - 4) : (px + 1);
-            g.rect(eyeX, py - 21, 2, 2);
-            g.rect(eyeX + 3, py - 21, 2, 2);
+            g.rect(eyeX, py - 21, 3, 2);
         }
 
         // Senjata: Sabit Bayangan Raksasa

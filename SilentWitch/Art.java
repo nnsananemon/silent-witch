@@ -41,11 +41,25 @@ public final class Art {
     /** Mengaktifkan sprite NPC dari data/art (Librarian Elder, Villager Boy, Villager Girl). */
     public static final boolean NPC_SPRITES = true;
 
+    /** Mengaktifkan sprite penyihir gothic untuk mini-boss Penjaga Jejak. */
+    public static final boolean WIZARD_SPRITE = true;
+
+    /** Mengaktifkan sprite flameling untuk musuh reguler Bayangan Hutan. */
+    public static final boolean FLAMELING_SPRITE = true;
+
     /** Jumlah pose badan (idle/walk/run x 3 arah: down/up/samping). */
     private static final int HERO_BODY_FRAMES = 9;
 
     /** Jumlah frame animasi tebasan. */
     private static final int HERO_ATTACK_FRAMES = 5;
+
+    /** Ukuran satu sel pada sheet wizard gothic (15 frame: 5 idle + 10 fire). */
+    private static final int WIZARD_FRAME_W = 81;
+    private static final int WIZARD_FRAME_H = 66;
+    private static final int WIZARD_IDLE_COUNT = 5;
+
+    /** Ukuran satu sel pada sheet flamelings (3 wujud: kecil, sedang, besar). */
+    private static final int FLAMELING_CELL = 128;
 
     public enum Theme {
         MANOR, FOREST, VILLAGE, CAVE, CHAPEL, ARCHIVE
@@ -61,6 +75,12 @@ public final class Art {
     private static PImage heroBodySheet;
     private static PImage heroAttackSheet;
     private static PImage heroPortrait;
+
+    private static PImage wizardSheet;
+    private static PImage[] wizardFrames;
+
+    /** Tiga wujud flameling (kecil, sedang, besar) setelah latar biru dibuang. */
+    private static PImage[] flamelingFrames;
 
     private static PImage[] heroBodyFrames;
     private static PImage[] heroAttackFrames;
@@ -134,13 +154,52 @@ public final class Art {
             }
         }
 
+        wizardSheet = load("wizard.png");
+        if (wizardSheet != null) {
+            int total = wizardSheet.width / WIZARD_FRAME_W;
+            wizardFrames = new PImage[total];
+            for (int i = 0; i < total; i++) {
+                wizardFrames[i] = cut(wizardSheet, i * WIZARD_FRAME_W, 0,
+                        WIZARD_FRAME_W, WIZARD_FRAME_H);
+            }
+        }
+
         if (flamelings != null) {
-            spiritFireFrames = new PImage[12];
-            shadowFlameFrames = new PImage[12];
-            for (int i = 0; i < 12; i++) {
-                PImage f = cut(flamelings, i * 32, 0, 32, 32);
-                spiritFireFrames[i] = f;
-                shadowFlameFrames[i] = shade(f, 0.72f);
+            // Sheet flamelings berisi tiga wujud terpisah (128x128 per sel) di atas
+            // latar biru rata. Buang latar per sel, lalu pangkas ruang kosongnya.
+            int count = Math.min(3, flamelings.width / FLAMELING_CELL);
+            flamelingFrames = new PImage[count];
+            for (int i = 0; i < count; i++) {
+                PImage region = flamelings.get(i * FLAMELING_CELL, 0,
+                        FLAMELING_CELL, FLAMELING_CELL);
+                region.loadPixels();
+                int bg = region.pixels.length > 0 ? region.pixels[0] : 0;
+                for (int p = 0; p < region.pixels.length; p++) {
+                    int c = region.pixels[p];
+                    if (((c >>> 24) & 0xFF) == 0) {
+                        continue;
+                    }
+                    int dr = Math.abs(((c >> 16) & 0xFF) - ((bg >> 16) & 0xFF));
+                    int dg = Math.abs(((c >> 8) & 0xFF) - ((bg >> 8) & 0xFF));
+                    int db = Math.abs((c & 0xFF) - (bg & 0xFF));
+                    if (dr < 14 && dg < 14 && db < 14) {
+                        region.pixels[p] = 0;
+                    }
+                }
+                region.updatePixels();
+                flamelingFrames[i] = trim(region);
+            }
+
+            if (flamelingFrames.length > 0) {
+                // Api di Rest Point memakai wujud kecil dengan variasi kecerahan
+                // sebagai pengganti animasi 12 frame lama.
+                PImage small = flamelingFrames[0];
+                spiritFireFrames = new PImage[]{
+                        small, shade(small, 0.86f), small, shade(small, 0.70f)
+                };
+                shadowFlameFrames = new PImage[]{
+                        shade(small, 0.82f), shade(small, 0.68f), shade(small, 0.90f)
+                };
             }
         }
 
@@ -296,7 +355,11 @@ public final class Art {
         addArtDirs(dirs, new File("").getAbsoluteFile());
         addArtDirs(dirs, fileFromProperty("user.dir"));
 
-        // 4. Folder tempat class berada (menutup build Processing IDE).
+        // 4. Folder instalasi project di Desktop (fallback absolut andal).
+        File desktopDir = new File(System.getProperty("user.home"), "Desktop/silent-witch/SilentWitch");
+        addArtDirs(dirs, desktopDir);
+
+        // 5. Folder tempat class berada (menutup build Processing IDE).
         addArtDirs(dirs, codeSourceDir());
 
         return dirs;
@@ -1019,6 +1082,150 @@ public final class Art {
     public static boolean heroSpriteReady() {
         ensureLoaded();
         return HERO_SPRITE && heroBodyFrames != null;
+    }
+
+    /** True bila sheet wizard gothic berhasil dimuat dan boleh dipakai. */
+    public static boolean wizardSpriteReady() {
+        ensureLoaded();
+        return WIZARD_SPRITE && wizardFrames != null && wizardFrames.length > 0;
+    }
+
+    /** True bila sheet flamelings berhasil dimuat dan boleh dipakai. */
+    public static boolean flamelingSpriteReady() {
+        ensureLoaded();
+        return FLAMELING_SPRITE && flamelingFrames != null && flamelingFrames.length > 0;
+    }
+
+    /**
+     * Menggambar penyihir gothic (mini-boss Penjaga Jejak).
+     *
+     * Selalu memakai sprite profil samping (frames 11-14) yang menghadap kiri,
+     * bukan menghadap ke depan layar.
+     *
+     * @param frameIndex indeks absolut pada sheet: 11-14 frame menyamping (side view).
+     * @param flip       cermin horizontal; art menyamping dasar sudah menghadap kiri.
+     */
+    public static void drawWizard(PGraphics g, int px, int py, boolean flip,
+                                  int frameIndex, int alpha, boolean hurt) {
+        drawWizard(g, px, py, flip, frameIndex, alpha, hurt, 0f);
+    }
+
+    public static void drawWizard(PGraphics g, int px, int py, boolean flip,
+                                  int frameIndex, int alpha, boolean hurt, float animTime) {
+        ensureLoaded();
+        if (wizardFrames == null || wizardFrames.length == 0) {
+            return;
+        }
+
+        // Pastikan hanya menggunakan frame profil samping (11-14), bukan badan hadap depan (0-10).
+        int idx = frameIndex;
+        if (idx < 11) {
+            idx = 14;
+        }
+        idx = Math.max(0, Math.min(idx, wizardFrames.length - 1));
+        PImage frame = wizardFrames[idx];
+        if (frame == null) {
+            return;
+        }
+
+        // Ukuran disesuaikan agar tinggi karakter proporsional dengan pemain (~30 px).
+        float drawH = 46f;
+        float drawW = (WIZARD_FRAME_W / (float) WIZARD_FRAME_H) * drawH; // ~56.45 px
+
+        // Efek melayang/hovering halus khas penyihir gelap
+        float bob = animTime > 0f ? (float) (Math.sin(animTime * 4f) * 1.5f) : 0f;
+        float topY = py - drawH + 1f + bob;
+
+        // Bayangan di tanah (tetap di permukaan lantai) dan aura magis ungu
+        g.noStroke();
+        g.fill(0, 0, 0, (int) (95 * (alpha / 255f)));
+        g.ellipse(px, py + 1, 18, 5);
+        g.fill(120, 40, 150, (int) (26 * (alpha / 255f)));
+        g.ellipse(px, py - 15 + bob * 0.5f, 26, 34);
+
+        g.noSmooth();
+        if (hurt) {
+            g.tint(255, 225, 235, alpha);
+        } else if (alpha < 255) {
+            g.tint(255, 255, 255, alpha);
+        }
+
+        if (flip) {
+            g.pushMatrix();
+            g.translate(px, 0);
+            g.scale(-1f, 1f);
+            g.image(frame, -drawW / 2f, topY, drawW, drawH);
+            g.popMatrix();
+        } else {
+            g.image(frame, px - drawW / 2f, topY, drawW, drawH);
+        }
+        g.noTint();
+    }
+
+    /**
+     * Menggambar flameling (musuh reguler Bayangan Hutan).
+     *
+     * @param stage 0 = wujud kecil (tenang), 1 = sedang (mengejar), 2 = besar (telegraf).
+     */
+    public static void drawFlameling(PGraphics g, int px, int py, int stage,
+                                     boolean flip, int alpha, boolean hurt, float animTime) {
+        drawFlameling(g, px, py, stage, flip, alpha, hurt, animTime, 0);
+    }
+
+    public static void drawFlameling(PGraphics g, int px, int py, int stage,
+                                     boolean flip, int alpha, boolean hurt,
+                                     float animTime, int extraBob) {
+        ensureLoaded();
+        if (flamelingFrames == null || flamelingFrames.length == 0) {
+            return;
+        }
+
+        stage = Math.max(0, Math.min(stage, flamelingFrames.length - 1));
+        PImage img = flamelingFrames[stage];
+        if (img == null) {
+            return;
+        }
+
+        // Tinggi target di dunia: kecil 30 px, sedang 48 px, besar 58 px.
+        float targetH = stage == 0 ? 30f : (stage == 1 ? 48f : 58f);
+        float scale = targetH / img.height;
+        float w = img.width * scale;
+
+        float pulse = 1f + 0.035f * (float) Math.sin(animTime * 9f + stage);
+        int bob = ((int) (animTime * 5f) & 1) + extraBob;
+
+        // Pendar api di belakang tubuh.
+        g.noStroke();
+        g.fill(255, 126, 28, (int) (20 * (alpha / 255f)));
+        g.ellipse(px, py - targetH * 0.45f + bob, w * 1.35f, targetH * 0.95f);
+        g.fill(255, 186, 70, (int) (16 * (alpha / 255f)));
+        g.ellipse(px, py - targetH * 0.35f + bob, w * 0.85f, targetH * 0.7f);
+
+        // Bayangan di tanah.
+        g.fill(0, 0, 0, (int) (85 * (alpha / 255f)));
+        g.rect(px - w * 0.32f, py - 1, w * 0.64f, 3);
+
+        g.noSmooth();
+        if (hurt) {
+            g.tint(255, 235, 235, alpha);
+        } else if (alpha < 255) {
+            g.tint(255, 255, 255, alpha);
+        }
+
+        float drawW = w * pulse;
+        float drawH = targetH * pulse;
+        float topY = py - drawH + bob;
+
+        if (flip) {
+            g.pushMatrix();
+            g.translate(px, 0);
+            g.scale(-1f, 1f);
+            g.image(img, -drawW / 2f, topY, drawW, drawH);
+            g.popMatrix();
+        } else {
+            g.image(img, px - drawW / 2f, topY, drawW, drawH);
+        }
+        g.noTint();
     }
 
     public static void drawHero(PGraphics g, int px, int py, Player.Facing facing,
