@@ -184,4 +184,11 @@ public abstract class Enemy {
     public void onDefeated(GameplayScene scene) {
         // Implementasi default kosong; dioverride oleh boss / penjaga
     }
+
+    /**
+     * Reset status pertempuran saat pemain respawn.
+     */
+    public void resetCombat() {
+        // Implementasi default kosong; dioverride oleh tiap jenis musuh
+    }
 }

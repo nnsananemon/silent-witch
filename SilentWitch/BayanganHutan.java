@@ -272,6 +272,7 @@ public final class BayanganHutan extends Enemy {
                     g.rect(clawX + 1, py - (isFinalForm() ? 18 : 10) + i * 4, isFinalForm() ? 7 : 4, 1);
                 }
             }
+            drawOverheadHealthBar(g, px, py);
             return;
         }
 
@@ -279,6 +280,7 @@ public final class BayanganHutan extends Enemy {
             int bob = ((int) (animTime * 6f) & 1);
             int alpha = defeated ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255) : 255;
             drawForestWraith(g, px, py + bob, alpha, hurtTimer > 0f, animTime);
+            drawOverheadHealthBar(g, px, py);
             return;
         }
 
@@ -304,6 +306,57 @@ public final class BayanganHutan extends Enemy {
             g.rect(clawX, py - 6, 6, 2);
             g.rect(clawX + 2, py - 3, 6, 2);
             g.rect(clawX, py, 6, 2);
+        }
+        drawOverheadHealthBar(g, px, py);
+    }
+
+    /** Bar nyawa melayang terpisah khusus musuh depan (Bayangan Hutan). */
+    private void drawOverheadHealthBar(PGraphics g, int px, int py) {
+        if (defeated || hp <= 0) {
+            return;
+        }
+        // Ditampilkan jika musuh pernah terluka atau aktif terlibat pertempuran
+        if (hp >= maxHp && state == State.PATROL) {
+            return;
+        }
+
+        int barW = 24;
+        int barH = 3;
+        int bx = px - barW / 2;
+        int by = py - (isFinalForm() ? 48 : 26);
+
+        g.noStroke();
+        g.fill(Palette.alpha(0x06080C, 210));
+        g.rect(bx - 1, by - 1, barW + 2, barH + 2);
+
+        int borderCol = isFinalForm() ? 0xFFFF7722 : 0xFF354550;
+        g.fill(borderCol);
+        g.rect(bx, by, barW, barH);
+
+        float frac = (float) hp / maxHp;
+        int fillW = Math.max(0, Math.round(barW * frac));
+        int fillCol = isFinalForm() ? 0xFFFF2400 : 0xFFE03828;
+        g.fill(0xFF140808);
+        g.rect(bx, by, barW, barH);
+        g.fill(fillCol);
+        g.rect(bx, by, fillW, barH);
+        g.fill(0xFFFF9988);
+        g.rect(bx, by, fillW, 1);
+
+        String label = isFinalForm() ? "BAYANGAN [MURKA]" : "BAYANGAN HUTAN";
+        PixelUI.centered(g, label, px, by - 6, isFinalForm() ? 0xFFFFB255 : 0xFFD2E0E6);
+    }
+
+    /** Reset posisi dan status musuh depan saat pemain respawn. */
+    public void resetCombat() {
+        if (!defeated) {
+            this.x = anchorX;
+            this.y = anchorY;
+            this.hp = this.maxHp;
+            this.state = State.PATROL;
+            this.stateTimer = 0f;
+            this.hurtTimer = 0f;
+            this.facingDir = -1;
         }
     }
 

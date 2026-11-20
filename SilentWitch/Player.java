@@ -46,6 +46,7 @@ public final class Player {
     private float knockbackVy = 0f;
     private final String weaponName = "Tongkat Perak Saku";
     private int attackDamage = 1;
+    private int swingId = 0;
 
     public Player(TileMap map, float startX, float startY) {
         if (map == null) {
@@ -168,6 +169,10 @@ public final class Player {
         return attackDamage;
     }
 
+    public int swingId() {
+        return swingId;
+    }
+
     public Facing attackFacing() {
         return attackFacing;
     }
@@ -183,6 +188,7 @@ public final class Player {
         attackCooldown = ATTACK_COOLDOWN;
         attackTimer = ATTACK_DURATION;
         attackFacing = facing;
+        swingId++;
         return true;
     }
 

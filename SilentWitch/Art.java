@@ -53,9 +53,10 @@ public final class Art {
     /** Jumlah frame animasi tebasan. */
     private static final int HERO_ATTACK_FRAMES = 5;
 
-    /** Ukuran satu sel pada sheet wizard gothic (15 frame: 5 idle + 10 fire). */
-    private static final int WIZARD_FRAME_W = 81;
-    private static final int WIZARD_FRAME_H = 66;
+    /** Ukuran satu sel pada sheet wizard gothic / purple wizard. */
+    private static int wizardFrameW = 160;
+    private static int wizardFrameH = 160;
+    private static boolean isPurpleWizard = false;
     private static final int WIZARD_IDLE_COUNT = 5;
 
     /** Ukuran satu sel pada sheet flamelings (3 wujud: kecil, sedang, besar). */
@@ -154,13 +155,29 @@ public final class Art {
             }
         }
 
-        wizardSheet = load("wizard.png");
+        wizardSheet = load("wizard_purple.png");
         if (wizardSheet != null) {
-            int total = wizardSheet.width / WIZARD_FRAME_W;
+            isPurpleWizard = true;
+            wizardFrameW = 160;
+            wizardFrameH = 160;
+            int total = wizardSheet.width / wizardFrameW;
             wizardFrames = new PImage[total];
             for (int i = 0; i < total; i++) {
-                wizardFrames[i] = cut(wizardSheet, i * WIZARD_FRAME_W, 0,
-                        WIZARD_FRAME_W, WIZARD_FRAME_H);
+                wizardFrames[i] = cut(wizardSheet, i * wizardFrameW, 0,
+                        wizardFrameW, wizardFrameH);
+            }
+        } else {
+            wizardSheet = load("wizard.png");
+            if (wizardSheet != null) {
+                isPurpleWizard = false;
+                wizardFrameW = 81;
+                wizardFrameH = 66;
+                int total = wizardSheet.width / wizardFrameW;
+                wizardFrames = new PImage[total];
+                for (int i = 0; i < total; i++) {
+                    wizardFrames[i] = cut(wizardSheet, i * wizardFrameW, 0,
+                            wizardFrameW, wizardFrameH);
+                }
             }
         }
 
@@ -1090,6 +1107,12 @@ public final class Art {
         return WIZARD_SPRITE && wizardFrames != null && wizardFrames.length > 0;
     }
 
+    /** True bila sheet yang aktif adalah sheet wizard ungu profil samping (160x160). */
+    public static boolean isPurpleWizardSprite() {
+        ensureLoaded();
+        return isPurpleWizard;
+    }
+
     /** True bila sheet flamelings berhasil dimuat dan boleh dipakai. */
     public static boolean flamelingSpriteReady() {
         ensureLoaded();
@@ -1117,9 +1140,10 @@ public final class Art {
             return;
         }
 
-        // Pastikan hanya menggunakan frame profil samping (11-14), bukan badan hadap depan (0-10).
+        // Frame selection: untuk sheet wizard ungu, seluruh 15 frame menghadap samping kiri.
+        // Jika memakai sheet lama, hanya frame 11-14 yang menghadap samping.
         int idx = frameIndex;
-        if (idx < 11) {
+        if (!isPurpleWizard && idx < 11) {
             idx = 14;
         }
         idx = Math.max(0, Math.min(idx, wizardFrames.length - 1));
@@ -1129,23 +1153,31 @@ public final class Art {
         }
 
         // Ukuran disesuaikan agar tinggi karakter proporsional dengan pemain (~30 px).
-        float drawH = 46f;
-        float drawW = (WIZARD_FRAME_W / (float) WIZARD_FRAME_H) * drawH; // ~56.45 px
-
-        // Efek melayang/hovering halus khas penyihir gelap
+        float drawW;
+        float drawH;
+        float topY;
         float bob = animTime > 0f ? (float) (Math.sin(animTime * 4f) * 1.5f) : 0f;
-        float topY = py - drawH + 1f + bob;
+
+        if (isPurpleWizard) {
+            drawW = 48f;
+            drawH = 48f;
+            topY = py - 46f + bob;
+        } else {
+            drawH = 46f;
+            drawW = (wizardFrameW / (float) wizardFrameH) * drawH; // ~56.45 px
+            topY = py - drawH + 1f + bob;
+        }
 
         // Bayangan di tanah (tetap di permukaan lantai) dan aura magis ungu
         g.noStroke();
         g.fill(0, 0, 0, (int) (95 * (alpha / 255f)));
-        g.ellipse(px, py + 1, 18, 5);
-        g.fill(120, 40, 150, (int) (26 * (alpha / 255f)));
-        g.ellipse(px, py - 15 + bob * 0.5f, 26, 34);
+        g.ellipse(px, py + 1, 20, 5);
+        g.fill(130, 45, 175, (int) (30 * (alpha / 255f)));
+        g.ellipse(px, py - 16 + bob * 0.5f, 28, 36);
 
         g.noSmooth();
         if (hurt) {
-            g.tint(255, 225, 235, alpha);
+            g.tint(255, 220, 235, alpha);
         } else if (alpha < 255) {
             g.tint(255, 255, 255, alpha);
         }

@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -92,6 +94,8 @@ public final class GameplayScene extends Scene {
     private float respawnTimer = 0f;
     private boolean respawnActive = false;
     private boolean sigilJejakObtained = false;
+    private int lastProcessedSwingId = -1;
+    private final Set<Enemy> hitEnemiesInCurrentSwing = new HashSet<Enemy>();
 
     private final float[] dustX = new float[DUST_COUNT];
     private final float[] dustY = new float[DUST_COUNT];
@@ -942,6 +946,8 @@ public final class GameplayScene extends Scene {
             this.sigilJejakObtained = val;
         } else if ("penjaga_jejak_defeated".equals(key) && penjagaJejak != null) {
             penjagaJejak.setDefeated(val);
+        } else if ("bayangan_hutan_defeated".equals(key) && bayanganHutan != null) {
+            bayanganHutan.setDefeated(val);
         }
     }
 
@@ -973,17 +979,41 @@ public final class GameplayScene extends Scene {
         if (ab == null) {
             return;
         }
+
+        int swingId = player.swingId();
+        if (swingId != lastProcessedSwingId) {
+            lastProcessedSwingId = swingId;
+            hitEnemiesInCurrentSwing.clear();
+        }
+
+        // Cari musuh terdekat yang belum terkena damage pada tebasan ayunan pedang ini
+        Enemy closestEnemy = null;
+        float closestDistSq = Float.MAX_VALUE;
+
         for (Enemy e : enemies) {
-            if (!e.isAlive()) {
+            if (!e.isAlive() || hitEnemiesInCurrentSwing.contains(e)) {
                 continue;
             }
             float[] eb = e.getHitbox();
             if (rectOverlap(ab[0], ab[1], ab[2], ab[3], eb[0], eb[1], eb[2], eb[3])) {
-                float knockX = (player.attackFacing() == Player.Facing.LEFT) ? -1f : (player.attackFacing() == Player.Facing.RIGHT ? 1f : 0f);
-                float knockY = (player.attackFacing() == Player.Facing.UP) ? -1f : (player.attackFacing() == Player.Facing.DOWN ? 1f : 0f);
-                boolean hit = e.takeDamage(player.attackDamage(), knockX, knockY);
-                if (hit && e.isDefeated()) {
-                    e.onDefeated(this);
+                float dx = e.x() - player.x();
+                float dy = e.y() - player.y();
+                float distSq = dx * dx + dy * dy;
+                if (distSq < closestDistSq) {
+                    closestDistSq = distSq;
+                    closestEnemy = e;
+                }
+            }
+        }
+
+        if (closestEnemy != null) {
+            float knockX = (player.attackFacing() == Player.Facing.LEFT) ? -1f : (player.attackFacing() == Player.Facing.RIGHT ? 1f : 0f);
+            float knockY = (player.attackFacing() == Player.Facing.UP) ? -1f : (player.attackFacing() == Player.Facing.DOWN ? 1f : 0f);
+            boolean hit = closestEnemy.takeDamage(player.attackDamage(), knockX, knockY);
+            if (hit) {
+                hitEnemiesInCurrentSwing.add(closestEnemy);
+                if (closestEnemy.isDefeated()) {
+                    closestEnemy.onDefeated(this);
                 }
             }
         }
@@ -1038,7 +1068,8 @@ public final class GameplayScene extends Scene {
         worldFlags.put("village_gate_open", gerbangDesa.canProceed());
         worldFlags.put("chapel_gate_unlocked", gerbangKapel.isUnlocked());
         worldFlags.put("expedition_completed", expeditionCompleted);
-        worldFlags.put("penjaga_jejak_defeated", penjagaJejak.isDefeated());
+        worldFlags.put("bayangan_hutan_defeated", bayanganHutan != null && bayanganHutan.isDefeated());
+        worldFlags.put("penjaga_jejak_defeated", penjagaJejak != null && penjagaJejak.isDefeated());
         worldFlags.put("sigil_jejak_obtained", sigilJejakObtained);
 
         return new SaveData(
@@ -1110,8 +1141,12 @@ public final class GameplayScene extends Scene {
         if (fogCleared) {
             gerbangHutan.clearFog();
         }
+        boolean bayanganDefeated = data.isWorldFlag("bayangan_hutan_defeated", false);
+        if (bayanganDefeated && bayanganHutan != null) {
+            bayanganHutan.setDefeated(true);
+        }
         boolean penjagaDefeated = data.isWorldFlag("penjaga_jejak_defeated", false);
-        if (penjagaDefeated) {
+        if (penjagaDefeated && penjagaJejak != null) {
             penjagaJejak.setDefeated(true);
         }
         boolean sigilObtained = data.isWorldFlag("sigil_jejak_obtained", false);
@@ -1238,6 +1273,12 @@ public final class GameplayScene extends Scene {
             if (respawnTimer <= 0f) {
                 respawnActive = false;
                 player.respawn(map.spawnX(), map.spawnY());
+                if (bayanganHutan != null) {
+                    bayanganHutan.resetCombat();
+                }
+                if (penjagaJejak != null) {
+                    penjagaJejak.resetCombat();
+                }
                 quest.setNotification("Bangkit kembali di titik aman.");
             }
             return;
@@ -1463,34 +1504,81 @@ public final class GameplayScene extends Scene {
     }
 
     private void drawBossBar(PGraphics g) {
-        if (penjagaJejak == null || !penjagaJejak.isAlive() || !"hollow_woods".equals(currentAreaId) || isModalOpen()) {
+        if (!"hollow_woods".equals(currentAreaId) || isModalOpen()) {
             return;
         }
-        int barW = 100;
-        int barH = 5;
-        int bx = (GameManager.VIRTUAL_W - barW) / 2;
+        if (bayanganHutan == null && penjagaJejak == null) {
+            return;
+        }
+        boolean bhAlive = bayanganHutan != null && bayanganHutan.isAlive();
+        boolean pjAlive = penjagaJejak != null && penjagaJejak.isAlive();
+        if (!bhAlive && !pjAlive) {
+            return;
+        }
+
+        int barW = 82;
+        int barH = 4;
         int by = HEADER_H + 4;
 
         g.noStroke();
-        // Latar & bingkai bos
-        g.fill(Palette.alpha(0x0C0E17, 210));
-        g.rect(bx - 2, by - 2, barW + 4, barH + 4);
-        g.fill(0xFF453F5C);
-        g.rect(bx - 1, by - 1, barW + 2, barH + 2);
 
-        // Isi bar HP Bos
-        float fillFrac = (float) penjagaJejak.hp() / penjagaJejak.maxHp();
-        int fillW = Math.round(barW * fillFrac);
-        g.fill(0xFF160E1A);
-        g.rect(bx, by, barW, barH);
-        g.fill(penjagaJejak.phase() == 2 ? 0xFFDE2A40 : 0xFFC9384E);
-        g.rect(bx, by, fillW, barH);
-        g.fill(0xFFFF8595);
-        g.rect(bx, by, fillW, 1);
+        // 1. Bar Nyawa Musuh Depan (Bayangan Hutan) di sebelah kiri
+        if (bayanganHutan != null) {
+            int bx = 68;
+            g.fill(Palette.alpha(0x0C0E17, 210));
+            g.rect(bx - 2, by - 2, barW + 4, barH + 4);
+            g.fill(bayanganHutan.isFinalForm() ? 0xFF8A3020 : 0xFF424A54);
+            g.rect(bx - 1, by - 1, barW + 2, barH + 2);
 
-        // Teks Judul Bos
-        String bossTitle = penjagaJejak.phase() == 2 ? "PENJAGA JEJAK [MURKA]" : "PENJAGA JEJAK";
-        PixelUI.centered(g, bossTitle, bx + barW / 2f, by - 8, Palette.TEXT);
+            g.fill(0xFF140C0E);
+            g.rect(bx, by, barW, barH);
+
+            float fillFrac = (float) bayanganHutan.hp() / bayanganHutan.maxHp();
+            int fillW = Math.max(0, Math.round(barW * fillFrac));
+            int fillCol = bayanganHutan.isFinalForm() ? 0xFFFF2818 : 0xFFE04422;
+            g.fill(fillCol);
+            g.rect(bx, by, fillW, barH);
+            g.fill(0xFFFF9988);
+            g.rect(bx, by, fillW, 1);
+
+            String title = bayanganHutan.isDefeated()
+                    ? "BAYANGAN [GUGUR]"
+                    : (bayanganHutan.isFinalForm() ? "BAYANGAN [MURKA]" : "BAYANGAN DEPAN");
+            int textCol = bayanganHutan.isDefeated()
+                    ? Palette.TEXT_MUTED
+                    : (bayanganHutan.isFinalForm() ? 0xFFFFB255 : Palette.TEXT);
+            PixelUI.centered(g, title + " " + bayanganHutan.hp() + "/" + bayanganHutan.maxHp(),
+                    bx + barW / 2f, by - 8, textCol);
+        }
+
+        // 2. Bar Nyawa Penyihir (Penjaga Jejak) di sebelah kanan
+        if (penjagaJejak != null) {
+            int bx = 170;
+            g.fill(Palette.alpha(0x0C0E17, 210));
+            g.rect(bx - 2, by - 2, barW + 4, barH + 4);
+            g.fill(penjagaJejak.phase() == 2 ? 0xFF8A2435 : 0xFF4D3866);
+            g.rect(bx - 1, by - 1, barW + 2, barH + 2);
+
+            g.fill(0xFF120818);
+            g.rect(bx, by, barW, barH);
+
+            float fillFrac = (float) penjagaJejak.hp() / penjagaJejak.maxHp();
+            int fillW = Math.max(0, Math.round(barW * fillFrac));
+            int fillCol = penjagaJejak.phase() == 2 ? 0xFFDE2A40 : 0xFF9836D6;
+            g.fill(fillCol);
+            g.rect(bx, by, fillW, barH);
+            g.fill(penjagaJejak.phase() == 2 ? 0xFFFF9999 : 0xFFDB88FF);
+            g.rect(bx, by, fillW, 1);
+
+            String title = penjagaJejak.isDefeated()
+                    ? "WIZARD [GUGUR]"
+                    : (penjagaJejak.phase() == 2 ? "WIZARD [MURKA]" : "PENJAGA WIZARD");
+            int textCol = penjagaJejak.isDefeated()
+                    ? Palette.TEXT_MUTED
+                    : (penjagaJejak.phase() == 2 ? 0xFFFF8595 : 0xFFE2C4FF);
+            PixelUI.centered(g, title + " " + penjagaJejak.hp() + "/" + penjagaJejak.maxHp(),
+                    bx + barW / 2f, by - 8, textCol);
+        }
     }
 
     private void drawDefeatOverlay(PGraphics g) {

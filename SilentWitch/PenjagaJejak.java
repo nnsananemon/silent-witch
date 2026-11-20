@@ -272,17 +272,41 @@ public final class PenjagaJejak extends Enemy {
             int frame;
             if (defeated) {
                 frame = 14;
-            } else if (state == State.TELEGRAPH) {
-                float p = 1f - Math.max(0f, Math.min(1f, stateTimer / telegraphDuration));
-                frame = p < 0.45f ? 13 : 12; // 13: cincin percikan samping, 12: api membara samping
-            } else if (state == State.ATTACK) {
-                frame = 11; // 11: semburan api besar ke samping
-            } else if (state == State.RECOVERY) {
-                frame = 14; // jeda rentan menyamping
-            } else if (state == State.HURT) {
-                frame = 14;
+            } else if (Art.isPurpleWizardSprite()) {
+                if (state == State.TELEGRAPH) {
+                    float p = 1f - Math.max(0f, Math.min(1f, stateTimer / telegraphDuration));
+                    if (p < 0.35f) {
+                        frame = 5; // percikan magis ungu
+                    } else if (p < 0.70f) {
+                        frame = 6; // angkat tongkat & kobaran sihir
+                    } else {
+                        frame = 8; // konsentrasi energi api puncak
+                    }
+                } else if (state == State.ATTACK) {
+                    float ap = 1f - Math.max(0f, Math.min(1f, stateTimer / attackDuration));
+                    frame = ap < 0.65f ? 9 : 10; // semburan sihir/bola api ke kiri
+                } else if (state == State.RECOVERY) {
+                    frame = 11; // pemulihan
+                } else if (state == State.HURT) {
+                    frame = 12; // terhentak
+                } else if (state == State.CHASE) {
+                    frame = (int) ((animTime * 6f) % 4); // gerak melayang cepat
+                } else {
+                    frame = (int) ((animTime * 3.5f) % 4); // siaga melayang (frame 0-3)
+                }
             } else {
-                frame = 14; // sikap siaga menyamping menghadap kiri
+                if (state == State.TELEGRAPH) {
+                    float p = 1f - Math.max(0f, Math.min(1f, stateTimer / telegraphDuration));
+                    frame = p < 0.45f ? 13 : 12; // 13: cincin percikan samping, 12: api membara samping
+                } else if (state == State.ATTACK) {
+                    frame = 11; // 11: semburan api besar ke samping
+                } else if (state == State.RECOVERY) {
+                    frame = 14; // jeda rentan menyamping
+                } else if (state == State.HURT) {
+                    frame = 14;
+                } else {
+                    frame = 14; // sikap siaga menyamping menghadap kiri
+                }
             }
 
             // Aura fase 2 digambar di belakang sprite (disesuaikan dengan skala tubuh penyihir).
@@ -296,9 +320,11 @@ public final class PenjagaJejak extends Enemy {
             }
 
             // Frame 11-14 di sheet dasar sudah menghadap ke kiri.
+            // Begitu juga seluruh frame wizard ungu sudah menghadap samping kiri.
             // Jika facingDir > 0 (menghadap ke kanan), baru dibalik.
             boolean flip = facingDir > 0;
             Art.drawWizard(g, px, py, flip, frame, alpha, hurtTimer > 0f, animTime);
+            drawOverheadHealthBar(g, px, py);
             return;
         }
 
@@ -306,6 +332,7 @@ public final class PenjagaJejak extends Enemy {
             int bob = ((int) (animTime * 5f) & 1);
             int alpha = defeated ? (int) (Math.max(0f, Math.min(1f, defeatedTimer)) * 255) : 255;
             drawShadowWarden(g, px, py + bob, alpha, hurtTimer > 0f, animTime);
+            drawOverheadHealthBar(g, px, py);
             return;
         }
 
@@ -325,6 +352,7 @@ public final class PenjagaJejak extends Enemy {
         }
 
         drawShadowWarden(g, px, py + bob, 255, hurtTimer > 0f, animTime);
+        drawOverheadHealthBar(g, px, py);
     }
 
     /** Menggambar Penjaga Jejak dalam wujud gothic shadow warden bersabit raksasa. */
@@ -422,6 +450,57 @@ public final class PenjagaJejak extends Enemy {
             g.rect(weaponX - (facingDir < 0 ? 5 : 0), py - 26, 7, 5);
             g.fill(Palette.alpha(0xFF6794A8, alpha));
             g.rect(weaponX - (facingDir < 0 ? 4 : -1), py - 25, 3, 2);
+        }
+    }
+
+    /** Bar nyawa melayang khusus mini-boss Penjaga Jejak di atas kepala tubuhnya. */
+    private void drawOverheadHealthBar(PGraphics g, int px, int py) {
+        if (defeated || hp <= 0) {
+            return;
+        }
+        // Muncul jika pernah terkena hit atau sedang dalam ritme pertempuran
+        if (hp >= maxHp && state == State.IDLE) {
+            return;
+        }
+
+        int barW = 28;
+        int barH = 3;
+        int bx = px - barW / 2;
+        int by = py - 38;
+
+        g.noStroke();
+        g.fill(Palette.alpha(0x06060E, 220));
+        g.rect(bx - 1, by - 1, barW + 2, barH + 2);
+
+        int borderCol = phase == 2 ? 0xFFFF3848 : 0xFF5D248C;
+        g.fill(borderCol);
+        g.rect(bx, by, barW, barH);
+
+        float frac = (float) hp / maxHp;
+        int fillW = Math.max(0, Math.round(barW * frac));
+        int fillCol = phase == 2 ? 0xFFDE2A40 : 0xFF9632DC;
+        g.fill(0xFF100818);
+        g.rect(bx, by, barW, barH);
+        g.fill(fillCol);
+        g.rect(bx, by, fillW, barH);
+        g.fill(phase == 2 ? 0xFFFF9999 : 0xFFDA88FF);
+        g.rect(bx, by, fillW, 1);
+
+        String label = phase == 2 ? "WIZARD [MURKA]" : "PENJAGA JEJAK";
+        PixelUI.centered(g, label, px, by - 6, phase == 2 ? 0xFFFF8595 : 0xFFE2C4FF);
+    }
+
+    /** Reset posisi dan status bertarung saat pemain respawn. */
+    public void resetCombat() {
+        if (!defeated) {
+            this.x = anchorX;
+            this.y = anchorY;
+            this.hp = this.maxHp;
+            this.state = State.IDLE;
+            this.phase = 1;
+            this.stateTimer = 0f;
+            this.hurtTimer = 0f;
+            this.facingDir = -1;
         }
     }
 
