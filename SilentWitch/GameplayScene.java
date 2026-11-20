@@ -594,6 +594,7 @@ public final class GameplayScene extends Scene {
             player.clearBlockers();
             player.addBlocker(tetuaDesa.x(), tetuaDesa.y() - TetuaDesa.BLOCK_H / 2f, TetuaDesa.BLOCK_W, TetuaDesa.BLOCK_H);
             player.addBlocker(saksiDesa.x(), saksiDesa.y() - SaksiDesa.BLOCK_H / 2f, SaksiDesa.BLOCK_W, SaksiDesa.BLOCK_H);
+            player.addBlocker(papanPengumuman.x() - 16f, papanPengumuman.y() - 16f, 32f, 32f);
             interactables.clear();
             interactables.addAll(villageInteractables);
         } else if ("the_silent_manor_east_wing".equals(areaId)) {
@@ -652,6 +653,7 @@ public final class GameplayScene extends Scene {
             player.setMap(mapHall);
             player.clearBlockers();
             player.addBlocker(npc.x(), npc.y() - Npc.BLOCK_H / 2f, Npc.BLOCK_W, Npc.BLOCK_H);
+            player.addBlocker(kotakBesi.x() - 14f, kotakBesi.y() - 14f, 28f, 28f);
             if (!gerbangTimur.isGateOpen()) {
                 player.addBlocker(gerbangTimur.x(), gerbangTimur.y(), 16f, 32f);
             }

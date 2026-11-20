@@ -1152,28 +1152,31 @@ public final class Art {
             return;
         }
 
-        // Ukuran disesuaikan agar tinggi karakter proporsional dengan pemain (~30 px).
+        // Ukuran disamakan dengan karakter utama (Dark Knight, tinggi terlihat
+        // ~28 px). Sel sheet ungu 160 px berisi art setinggi ~130 px, jadi sel
+        // gambar 35 px menghasilkan tinggi tubuh terlihat ~28 px.
         float drawW;
         float drawH;
         float topY;
         float bob = animTime > 0f ? (float) (Math.sin(animTime * 4f) * 1.5f) : 0f;
 
         if (isPurpleWizard) {
-            drawW = 48f;
-            drawH = 48f;
-            topY = py - 46f + bob;
+            drawW = 35f;
+            drawH = 35f;
+            // Kaki art berada di y=151/160 sel, jadi sel 35 px mendarat di py.
+            topY = py - 33f + bob;
         } else {
-            drawH = 46f;
-            drawW = (wizardFrameW / (float) wizardFrameH) * drawH; // ~56.45 px
+            drawH = 30f;
+            drawW = (wizardFrameW / (float) wizardFrameH) * drawH;
             topY = py - drawH + 1f + bob;
         }
 
-        // Bayangan di tanah (tetap di permukaan lantai) dan aura magis ungu
+        // Bayangan di tanah dan aura magis ungu, diskalakan mengikuti tubuh.
         g.noStroke();
         g.fill(0, 0, 0, (int) (95 * (alpha / 255f)));
-        g.ellipse(px, py + 1, 20, 5);
+        g.ellipse(px, py + 1, 14, 4);
         g.fill(130, 45, 175, (int) (30 * (alpha / 255f)));
-        g.ellipse(px, py - 16 + bob * 0.5f, 28, 36);
+        g.ellipse(px, py - 11 + bob * 0.5f, 19, 24);
 
         g.noSmooth();
         if (hurt) {

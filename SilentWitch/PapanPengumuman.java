@@ -40,7 +40,7 @@ public final class PapanPengumuman implements Interactable {
     }
 
     public PapanPengumuman(float x, float y) {
-        this(x, y, 26f);
+        this(x, y, 34f);
     }
 
     @Override

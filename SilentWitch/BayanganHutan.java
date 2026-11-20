@@ -256,7 +256,7 @@ public final class BayanganHutan extends Enemy {
                 g.ellipse(px, py - 30, 34, 40);
             }
 
-            Art.drawFlameling(g, px, py, stage, facingDir > 0, alpha,
+            Art.drawFlameling(g, px, py, stage, facingDir < 0, alpha,
                     hurtTimer > 0f, animTime);
 
             // Jejak cakar api / tebasan pedang lava saat menyerang, tetap searah hadap.

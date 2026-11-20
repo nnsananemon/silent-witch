@@ -249,10 +249,10 @@ public final class PenjagaJejak extends Enemy {
             g.rect(edgeX, py - 12, 1, 24);
         }
 
-        // Tanda peringatan bos di atas kepala
+        // Tanda peringatan bos di samping atas kepala
         g.fill(0xFFFF2222);
-        g.rect(px - 1, py - 28, 2, 6);
-        g.rect(px - 1, py - 20, 2, 2);
+        g.rect(px + 17, py - 34, 2, 6);
+        g.rect(px + 17, py - 27, 2, 2);
     }
 
     @Override
@@ -309,14 +309,14 @@ public final class PenjagaJejak extends Enemy {
                 }
             }
 
-            // Aura fase 2 digambar di belakang sprite (disesuaikan dengan skala tubuh penyihir).
+            // Aura fase 2 digambar di belakang sprite (diskalakan dengan tubuh wizard).
             if (phase == 2 && !defeated) {
                 int pulse = ((int) (animTime * 8f) & 1);
                 g.noStroke();
                 g.fill(Palette.alpha(0xDE2A40, 40 + pulse * 24));
-                g.ellipse(px, py - 16, 32, 42);
+                g.ellipse(px, py - 12, 21, 26);
                 g.fill(Palette.alpha(0x5DE0D2, 28));
-                g.ellipse(px, py - 18, 22, 30);
+                g.ellipse(px, py - 13, 15, 19);
             }
 
             // Frame 11-14 di sheet dasar sudah menghadap ke kiri.
@@ -466,7 +466,7 @@ public final class PenjagaJejak extends Enemy {
         int barW = 28;
         int barH = 3;
         int bx = px - barW / 2;
-        int by = py - 38;
+        int by = py - 33;
 
         g.noStroke();
         g.fill(Palette.alpha(0x06060E, 220));

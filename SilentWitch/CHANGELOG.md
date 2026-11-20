@@ -4,6 +4,28 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.6] - 2026-11-20
+
+### Changed
+
+- **Arah Hadap Monster Stage 2 (`BayanganHutan.java`):**
+  - Orientasi sprite `flamelings.png` (Bayangan Hutan) diselaraskan agar saat berpatroli/mengejar pemain ke arah kiri, sprite menghadap ke kiri (arah pemain datang).
+- **Skala Sprite Mini-Boss Penjaga Jejak (`Art.java`, `PenjagaJejak.java`):**
+  - Sprite `wizard_purple.png` di Hollow Woods (Bab 2) diperkecil dari sel gambar 48 px
+    menjadi 35 px, sehingga tinggi tubuh yang terlihat ~28 px dan sejajar dengan
+    karakter utama Dark Knight (~29 px).
+  - Bayangan tanah, aura ungu, aura Fase 2, tanda peringatan telegraf, dan posisi
+    bar nyawa di atas kepala ikut diskalakan agar tidak mengambang di atas sprite.
+
+### Fixed
+
+- **Blok Tabrakan Papan Pengumuman & Kotak Pembuka (`TileMap.java`, `GameplayScene.java`, `PapanPengumuman.java`):**
+  - Menambahkan tile solid (`'N'`) penuh 2 kolom x 2 baris (kolom 17–18, baris 5–6) dan dynamic blocker pada Papan Pengumuman Ashen Village sehingga pemain tidak dapat lagi menembus papan.
+  - Memperluas radius interaksi `PapanPengumuman` (26 px → 34 px) agar pemain tetap leluasa membaca pengumuman saat berdiri di depan/samping papan tanpa menembusnya.
+  - Menambahkan blocker fisik (28x28 px) dan tile solid dinding kastel pada tuas/kait kotak pembuka gerbang (`KotakBesi`) di Aula Manor agar pemain tidak bisa berjalan menembus kotak/mekanisme pembuka.
+  - Menghilangkan blok persegi kabut overlay `'E'` di pintu keluar Hollow Woods pada peta berlatar belakang.
+  - Menambahkan tile solid pagar kayu desa (`'f'`) pada deretan pagar di Ashen Village (baris 14).
+
 ## [1.4.5] - 2026-11-19
 
 ### Added

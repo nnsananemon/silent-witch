@@ -61,8 +61,8 @@ public final class TileMap {
             "#.......,,,,,,,,,,......G#",
             "#.......,,,,,,,,,,......G#",
             "#.......,,,,,,,,,,......##",
-            "#...........S...........##",
-            "#.......................##",
+            "#...........S..........###",
+            "#......................###",
             "##########################"
     };
 
@@ -212,15 +212,15 @@ public final class TileMap {
     // Legenda tambahan:
     //   'Y' jalan desa cobblestone (walkable) 'V' dinding bangunan desa (solid)
     //   'D' pintu bangunan (walkable)          'N' papan pengumuman (solid)
-    //   'L' tiang lampu (solid)
+    //   'L' tiang lampu (solid)                'f' pagar kayu desa (solid)
     private static final String[] ASHEN_VILLAGE = {
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
-            "ggggggggggggggggggNggggggggggggggggggggg",
-            "gggLggggggLggggggggggggggLgggggggggggggg",
+            "gggggggggggggggggNNggggggggggggggggggggg",
+            "gggLggggggLggggggNNggggggLgggggggggggggg",
             "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
             "YYSYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYGGYYY",
             "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
@@ -228,7 +228,7 @@ public final class TileMap {
             "VVVVVVVVggggggVVVVVVVgggggVVVggggggggVVV",
             "VVVVVVVVggggggVVVVVVVgggggVVVggggggggVVV",
             "VVVVVVVVggggggVVVVVVVgggggVVVggggggggVVV",
-            "VVVVVVVVggggggVVVVVVVgggggVVVggggggggVVV",
+            "VVVVVVVVgfffffVVVVVVVgffffVVVgffgggggVVV",
             "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV"
     };
 
@@ -463,7 +463,7 @@ public final class TileMap {
                 || ch == 't' || ch == 'l' || ch == 'r' || ch == 'X'
                 || ch == 'C' || ch == 'R'
                 || ch == 'H' || ch == 'n' || ch == 'a' || ch == 'i'
-                || ch == 'V' || ch == 'N' || ch == 'L'
+                || ch == 'V' || ch == 'N' || ch == 'L' || ch == 'f'
                 || ch == 'U' || ch == 'b' || ch == 'q' || ch == 'e';
     }
 
@@ -622,7 +622,18 @@ public final class TileMap {
                 drawForestPath(g, x, y, col, row);
                 break;
             case 'E':
-                drawFog(g, x, y, col, row);
+                // Peta yang memakai gambar latar (mis. Hollow Woods) sudah
+                // melukis jalur keluar di latar. Menggambar ulang sebagai kabut
+                // menghasilkan blok persegi yang menutupi latar, jadi lewati
+                // saat latar tersedia; tanpa latar tetap digambar sebagai kabut.
+                if (background == null) {
+                    drawFog(g, x, y, col, row);
+                }
+                break;
+            case 'f':
+                // Pagar kayu desa: digambar di gambar latar, di sini hanya
+                // menyediakan alas rumput bila peta digambar tanpa latar.
+                drawGrass(g, x, y, col, row);
                 break;
             case 'X':
                 drawRuneStone(g, x, y);
