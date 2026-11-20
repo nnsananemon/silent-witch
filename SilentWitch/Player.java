@@ -128,6 +128,11 @@ public final class Player {
         return moving;
     }
 
+    /** Waktu animasi lokal, dipakai agar aksesis (mis. obor) seirama dengan langkah. */
+    public float animTime() {
+        return animTime;
+    }
+
     // --- Getter & Setter Status Pertarungan ---
     public int hp() {
         return hp;
@@ -155,6 +160,10 @@ public final class Player {
 
     public boolean isInvulnerable() {
         return invulnerableTimer > 0f;
+    }
+
+    public float invulnerableTimer() {
+        return invulnerableTimer;
     }
 
     public float attackCooldown() {

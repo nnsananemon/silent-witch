@@ -4,7 +4,57 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.7] - 2026-11-21
+
+### Added
+
+- **Latar gambar penuh Jalur Tebing Lembah (`bg_valley_cliff.png`, `TileMap.java`):**
+  - Gambar reruntuhan bata batu berlantai tanah dengan tiga simbol cyan bercahaya
+    (1983x793, dari pengguna) di-downscale ke 640x256 memakai `BackgroundBuilder`
+    (rata-rata area) dan dipasang sebagai latar penuh area `valley_cliff_path`.
+  - Ketiga simbol pada latar sejajar persis dengan tile `'X'` dan tiga
+    `ExamineSpot` batu simbol di Jalur Tebing (kolom 19 baris 3, kolom 18 dan 24
+    baris 10), sehingga overlay batu rune prosedural tampak menyatu di dalam
+    portal cyan.
+  - Sprite pintu besi dimatikan di area ini (`setDrawDoors(false)`) karena latar
+    sudah memuat lengkung gerbang di kedua ujung peta.
+  - Bila berkas latar hilang, area kembali ke renderer tile prosedural seperti biasa.
+
+- **Mekanik Obor & Kegelapan Jalur Tebing (`Obor.java`, `Art.java`, `GameplayScene.java`):**
+  - Sprite obor genggam 16x16 beranimasi (6 frame) dari OpenGameArt karya
+    Natural_Privateer (CC0) disimpan sebagai `data/art/torch_anim.png` dan
+    dimuat lewat `Art.drawTorch`.
+  - Obor diletakkan di dekat pintu masuk Jalur Tebing (56, 72) sebagai objek
+    interaktif `[E] AMBIL OBOR`. Sebelum diambil, obor itu menjadi satu-satunya
+    titik cahaya di kegelapan.
+  - Setelah diambil, obor digenggam di samping tokoh (mengikuti arah hadap) dan
+    cahayanya mengikuti pemain, lengkap dengan kedipan api dan rona hangat.
+  - Lapisan gelap diterapkan langsung ke piksel kanvas 320x180 dengan topeng
+    radial lembut, sehingga hanya area di sekitar obor yang terang. Status
+    pengambilan obor tersimpan melalui world flag `torch_obtained` dan pulih
+    saat Load/Lanjutkan.
+
+### Changed
+
+- **Animasi obor di tangan (`Art.java`, `Player.java`, `GameplayScene.java`):**
+  - Obor yang digenggam tidak lagi berupa sprite tegak di samping tokoh.
+    Gagang miring digambar dari piksel mengikuti arah hadap, api memakai
+    potongan frame dari sheet, dan gauntlet kecil menutupi titik genggaman.
+  - Genggaman naik-turun mengikuti langkah (`Player.isMoving()` /
+    `Player.animTime()`) dan kedipan api melambat ke 7 frame/detik.
+  - Obor juga mengikuti kedipan i-frame saat pemain terkena serangan.
+
+### Fixed
+
+- **Area block Kait Pengunci Aula Manor terlalu lebar (`TileMap.java`, `GameplayScene.java`):**
+  - Blocker dinamis diperkecil dari 28x28 px menjadi 16x26 px dan digeser
+    tepat menutupi mekanisme yang terlihat di latar (x=372..388, y=209..235).
+  - Tile solid `###` di baris 13-14 kolom 23 dibuka menjadi lantai, sehingga
+    pemain bisa berdiri tepat di depan kait (sebelumnya berhenti ~10 px lebih
+    awal karena tembok tak terlihat). Dinding kolom 24-25 tetap solid.
+
 ## [1.4.6] - 2026-11-20
+
 
 ### Changed
 

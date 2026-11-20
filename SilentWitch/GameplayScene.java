@@ -9,6 +9,7 @@ import java.util.Set;
 
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PImage;
 
 /**
  * Scene gameplay Stage 07+: Konten, Polish, dan Validasi.
@@ -84,7 +85,12 @@ public final class GameplayScene extends Scene {
     private final GerbangKapel gerbangKapel;
     private final ExamineSpot altarKapel;
     private final GerbangArsip gerbangArsip;
+    private final Obor oborTebing;
     private boolean expeditionCompleted = false;
+    private boolean torchObtained = false;
+
+    /** Topeng cahaya obor (dibuat sekali, dipakai ulang). */
+    private PImage torchLightMask;
 
     // --- Musuh & Sistem Pertarungan Real-Time 2D ---
     private final List<Enemy> enemies = new ArrayList<Enemy>();
@@ -141,6 +147,8 @@ public final class GameplayScene extends Scene {
         this.mapArchive = TileMap.undergroundArchive();
         this.map = mapVillage;
         this.player = new Player(map, map.spawnX(), map.spawnY());
+        // Obor di pintu masuk Jalur Tebing — sumber cahaya satu-satunya di kegelapan.
+        this.oborTebing = new Obor(56f, 72f, 28f);
 
         // --- Pendaftaran Clue Aula (Kanonis) ---
         Clue clueRak = new Clue("clue_rak_harian",
@@ -411,6 +419,7 @@ public final class GameplayScene extends Scene {
         valleyCliffInteractables.add(tebingSimbol1);
         valleyCliffInteractables.add(tebingSimbol2);
         valleyCliffInteractables.add(tebingSimbol3);
+        valleyCliffInteractables.add(oborTebing);
         valleyCliffInteractables.add(gerbangTebing);
 
         // --- Objek Interaktif Valley — Dasar Lembah (Bab 3B) ---
@@ -653,7 +662,9 @@ public final class GameplayScene extends Scene {
             player.setMap(mapHall);
             player.clearBlockers();
             player.addBlocker(npc.x(), npc.y() - Npc.BLOCK_H / 2f, Npc.BLOCK_W, Npc.BLOCK_H);
-            player.addBlocker(kotakBesi.x() - 14f, kotakBesi.y() - 14f, 28f, 28f);
+            // Blocker fisik hanya seluas mekanisme kait yang terlihat di latar
+            // (sekitar x=372..388, y=209..235), bukan area di sekitarnya.
+            player.addBlocker(kotakBesi.x() + 4f, kotakBesi.y() + 10f, 16f, 26f);
             if (!gerbangTimur.isGateOpen()) {
                 player.addBlocker(gerbangTimur.x(), gerbangTimur.y(), 16f, 32f);
             }
@@ -1073,6 +1084,7 @@ public final class GameplayScene extends Scene {
         worldFlags.put("bayangan_hutan_defeated", bayanganHutan != null && bayanganHutan.isDefeated());
         worldFlags.put("penjaga_jejak_defeated", penjagaJejak != null && penjagaJejak.isDefeated());
         worldFlags.put("sigil_jejak_obtained", sigilJejakObtained);
+        worldFlags.put("torch_obtained", torchObtained);
 
         return new SaveData(
                 SaveData.CURRENT_SCHEMA_VERSION,
@@ -1156,6 +1168,8 @@ public final class GameplayScene extends Scene {
             sigilJejakObtained = true;
             gerbangHutan.clearFog();
         }
+        torchObtained = data.isWorldFlag("torch_obtained", false);
+        oborTebing.restorePickedUp(torchObtained);
 
         // 7. Status Ashen Village
         boolean boardExamined = data.isWorldFlag("village_board_examined", false);
@@ -1424,12 +1438,14 @@ public final class GameplayScene extends Scene {
         drawTelegraphs(g, camX, camY);
         drawPlayerGlow(g, camX, camY);
         drawEntities(g, camX, camY);
+        drawHeldTorch(g, camX, camY);
         drawDust(g);
 
         if ("hollow_woods".equals(currentAreaId)) {
             drawMovingFog(g, camX, camY);
         }
 
+        drawTorchDarkness(g, camX, camY);
         PixelUI.vignette(g);
         drawPrompt(g, camX, camY);
         drawHeader(g);
@@ -1636,6 +1652,129 @@ public final class GameplayScene extends Scene {
             g.ellipse(px, py, 54, 48);
             g.fill(Palette.alpha(Palette.MAGIC, 5));
             g.ellipse(px, py, 30, 28);
+        }
+    }
+
+    /** Obor digenggam di tangan tokoh saat berjalan di Jalur Tebing. */
+    private void drawHeldTorch(PGraphics g, int camX, int camY) {
+        if (!torchObtained || !"valley_cliff_path".equals(currentAreaId)
+                || !Art.torchSpriteReady() || isModalOpen()) {
+            return;
+        }
+        int px = Math.round(player.x() - camX);
+        int py = Math.round(player.y() - camY);
+        int alpha = 255;
+        if (player.isInvulnerable()) {
+            int blink = (int) (player.invulnerableTimer() * 20f);
+            if ((blink & 1) == 0) {
+                alpha = 110;
+            }
+        }
+        Art.drawHeldTorch(g, px, py, player.facing(), player.isMoving(),
+                player.animTime(), alpha);
+    }
+
+    /**
+     * Kegelapan Jalur Tebing. Sebelum obor diambil, hanya titik obor di pintu
+     * masuk yang bercahaya; sesudah diambil, cahaya mengikuti pemain.
+     */
+    private void drawTorchDarkness(PGraphics g, int camX, int camY) {
+        if (!"valley_cliff_path".equals(currentAreaId) || respawnActive) {
+            return;
+        }
+        ensureTorchLightAssets();
+
+        float flicker = 1f + 0.05f * (float) Math.sin(time * 7.3f)
+                + 0.03f * (float) Math.sin(time * 11.7f);
+        float cx;
+        float cy;
+        float radius;
+        int baseAlpha;
+        if (torchObtained) {
+            cx = player.x() - camX;
+            cy = player.y() - camY - 10f;
+            radius = 82f * flicker;
+            baseAlpha = 244;
+        } else {
+            cx = oborTebing.x() - camX;
+            cy = oborTebing.y() - camY - 10f;
+            radius = 58f * flicker;
+            baseAlpha = 232;
+        }
+
+        // Hangatnya cahaya obor di dunia, digambar sebelum lapisan kegelapan.
+        g.noStroke();
+        for (int i = 3; i >= 1; i--) {
+            float r = radius * (0.32f + i * 0.2f);
+            g.fill(255, 150, 60, 5 + (3 - i) * 4);
+            g.ellipse(cx, cy, r, r);
+        }
+
+        // Gelap diterapkan langsung ke piksel kanvas. Memakai PImage perantara
+        // tidak aman karena PGraphics.image() menimpa alpha sumber menjadi 255,
+        // yang membuat lubang cahaya ikut tertutup.
+        g.loadPixels();
+        int w = g.width;
+        int h = g.height;
+        int[] pixels = g.pixels;
+        int maskSize = torchLightMask.width;
+        int maskR = maskSize / 2;
+        float scale = maskSize / (radius * 2f);
+        int[] mask = torchLightMask.pixels;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int mx = (int) ((x - cx) * scale + maskR);
+                int my = (int) ((y - cy) * scale + maskR);
+                int a = baseAlpha;
+                if (mx >= 0 && my >= 0 && mx < maskSize && my < maskSize) {
+                    a = (mask[my * maskSize + mx] >>> 24) & 0xFF;
+                    if (a > baseAlpha) {
+                        a = baseAlpha;
+                    }
+                }
+                if (a <= 0) {
+                    continue;
+                }
+                int idx = y * w + x;
+                int src = pixels[idx];
+                int inv = 255 - a;
+                int r = (((src >> 16) & 0xFF) * inv + 0x06 * a) / 255;
+                int gr = (((src >> 8) & 0xFF) * inv + 0x08 * a) / 255;
+                int b = ((src & 0xFF) * inv + 0x10 * a) / 255;
+                pixels[idx] = 0xFF000000 | (r << 16) | (gr << 8) | b;
+            }
+        }
+        g.updatePixels();
+    }
+
+    private void ensureTorchLightAssets() {
+        if (torchLightMask == null) {
+            int size = 192;
+            torchLightMask = new PImage(size, size);
+            int center = size / 2;
+            float[] alpha = new float[size * size];
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    float dx = x - center + 0.5f;
+                    float dy = y - center + 0.5f;
+                    float d = (float) Math.sqrt(dx * dx + dy * dy) / center;
+                    float a;
+                    if (d <= 0.16f) {
+                        a = 0f;
+                    } else if (d >= 1f) {
+                        a = 255f;
+                    } else {
+                        float t = (d - 0.16f) / (1f - 0.16f);
+                        a = 255f * t * t;
+                    }
+                    alpha[y * size + x] = a;
+                }
+            }
+            torchLightMask.loadPixels();
+            for (int i = 0; i < alpha.length; i++) {
+                torchLightMask.pixels[i] = (int) alpha[i] << 24;
+            }
+            torchLightMask.updatePixels();
         }
     }
 
@@ -2135,6 +2274,21 @@ public final class GameplayScene extends Scene {
                 if (focused instanceof GerbangArsip) {
                     clearInput();
                     transitionToHallFromArchive();
+                    interactCooldown = INPUT_COOLDOWN;
+                    return;
+                }
+
+                // Obor Jalur Tebing: diambil sekali, lalu cahayanya mengikuti pemain
+                if (focused instanceof Obor) {
+                    boolean wasPicked = ((Obor) focused).isPickedUp();
+                    Dialogue torchDialogue = focused.interact(investigation);
+                    if (!wasPicked) {
+                        torchObtained = true;
+                        investigation.setNotification("OBOR DIAMBIL — CAHAYA MENERANGI LORONG!", 3.5f);
+                        autosave();
+                    }
+                    dialogue.open(torchDialogue);
+                    clearInput();
                     interactCooldown = INPUT_COOLDOWN;
                     return;
                 }

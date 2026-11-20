@@ -144,11 +144,18 @@ SilentWitch/
 - Jendela: **960 x 540** (skala integer 3x).
 - Semua scene menggambar ke `PGraphics` 320x180, lalu hasilnya diperbesar ke jendela dengan integer nearest-neighbor tanpa blur.
 - Teks memakai font bitmap 5x7 buatan sendiri (`PixelFont.java`), bebas dari dependensi font sistem.
-- Latar, NPC, musuh, dan properti dibuat murni secara prosedural (tanpa file gambar eksternal),
-  kecuali **Ashen Village** yang memakai gambar latar penuh
-  (`data/art/bg_ashen_village.png`, 640x256). Peta yang punya gambar latar
-  menggambar gambar itu sebagai lapisan dasar dan hanya tile objek (gerbang)
-  yang digambar di atasnya; kalau berkasnya hilang, peta kembali ke tile prosedural.
+- NPC, musuh, dan properti dibuat murni secara prosedural (tanpa file gambar eksternal).
+  Beberapa area memakai gambar latar penuh dari pengguna: **Ashen Village**
+  (`data/art/bg_ashen_village.png`), **Aula Manor** (`bg_manor_hall.png`, 416x256),
+  **Hollow Woods** (`bg_hollow_woods.png`), dan **Jalur Tebing Lembah**
+  (`bg_valley_cliff.png`) — semuanya 640x256 kecuali aula. Peta yang punya gambar
+  latar menggambar gambar itu sebagai lapisan dasar dan hanya tile objek yang
+  digambar di atasnya; kalau berkasnya hilang, peta kembali ke tile prosedural.
+- **Jalur Tebing gelap:** area ini hanya diterangi obor. Ambil obor di dekat
+  pintu masuk dengan `E`, lalu obor digenggam dan cahayanya mengikuti pemain.
+  Sprite obor (`data/art/torch_anim.png`, CC0) tidak bergantung pada aset lain;
+  bila berkasnya hilang, obor tetap bisa diambil namun hanya memancarkan cahaya
+  tanpa sprite.
 - Karakter utama memakai sprite dari paket "Dark Knight" (`knight_game_assets`):
   `data/art/hero_knight_body.png` (12 pose idle/walk/run × 4 arah),
   `data/art/hero_knight_attack.png` (5 frame tebasan), dan

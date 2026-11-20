@@ -61,8 +61,8 @@ public final class TileMap {
             "#.......,,,,,,,,,,......G#",
             "#.......,,,,,,,,,,......G#",
             "#.......,,,,,,,,,,......##",
-            "#...........S..........###",
-            "#......................###",
+            "#...........S...........##",
+            "#.......................##",
             "##########################"
     };
 
@@ -334,6 +334,10 @@ public final class TileMap {
 
     public static TileMap valleyCliffPath() {
         TileMap map = themed(new TileMap(VALLEY_CLIFF_PATH), Art.Theme.CAVE);
+        map.setBackground(Art.loadBackground("bg_valley_cliff.png"));
+        // Gambar latar sudah memuat lengkung gerbang di kedua ujungnya,
+        // sehingga sprite pintu besi tidak digambar ulang di atasnya.
+        map.setDrawDoors(false);
         map.setGateOpen(true);
         return map;
     }
