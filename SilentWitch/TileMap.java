@@ -175,7 +175,7 @@ public final class TileMap {
             "CCCCCCCCCCCCCCddddddddddddddRRRddddCCCCC",
             "CCCCCCCCCCCCCCddddddddddddddddddddCCCCCC",
             "CCCCCCCCCCCCddddddddddddddddddddddddCCCC",
-            "CCCCCCCCCCCCdddRRRddddddRRdddddCCCCCCCCC",
+            "CCCCCCCCCCCCdddRRRdddddRRRdddddCCCCCCCCC",
             "CCCvCCCCCCCCddRdddRddddRddRdddCCCCCCCCCC",
             "CCCvCCCCCCCCCCRdZdRddddRddRCCCCCCCCCCCCC",
             "CCCCCCCCCCCCCCRRRRRCCCCRRRRCCCCCCCCCCCCC",
