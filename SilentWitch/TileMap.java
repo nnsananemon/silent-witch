@@ -353,6 +353,8 @@ public final class TileMap {
 
     public static TileMap valleyRuins() {
         TileMap map = themed(new TileMap(VALLEY_RUINS), Art.Theme.CAVE);
+        map.setBackground(Art.loadBackground("bg_valley_ruins.png"));
+        map.setDrawDoors(false);
         map.setGateOpen(true);
         return map;
     }

@@ -4,6 +4,17 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.11] - 2026-11-22
+
+### Changed
+
+- **Lintasan Reruntuhan memakai latar bertekstur (`bg_valley_ruins.png`, `TileMap.java`):**
+  - Peta yang sebelumnya prosedural kini memakai background penuh 640x256 yang
+    disusun dari tekstur batu/tanah `bg_valley_floor.png` mengikuti layout
+    `VALLEY_RUINS`, sehingga detailnya senada dengan Dasar Lembah.
+  - Bongkahan reruntuhan ('R'), tebing ('C'), tanah ('d'), dan air ('w')
+    dibedakan dengan color-grading supaya mudah dibaca.
+
 ## [1.4.10] - 2026-11-22
 
 ### Changed

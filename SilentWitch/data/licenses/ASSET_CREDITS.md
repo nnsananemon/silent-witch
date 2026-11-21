@@ -30,6 +30,8 @@ Aset gambar eksternal yang sudah dipakai:
   (1254x1254 / 1983x793).
 - Sprite pose duduk ksatria (`data/art/hero_sit.png`, 4 arah), diturunkan
   dari lembar "Lembar Sprite Ksatria Berkemah" (1536x1024, dari pengguna).
+- Latar penuh Lintasan Reruntuhan (`data/art/bg_valley_ruins.png`, 640x256),
+  disusun dari tekstur `bg_valley_floor.png` mengikuti layout `VALLEY_RUINS`.
 
 Status lisensi paket Dark Knight, lembar NPC desa, latar buatan pengguna, dan
 flamelings **belum terverifikasi** dan wajib dicek sebelum rilis publik.
