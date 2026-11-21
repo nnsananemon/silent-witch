@@ -4,6 +4,17 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.10] - 2026-11-22
+
+### Changed
+
+- **Sistem gelap & obor meluas ke Dasar Lembah (`GameplayScene.java`):**
+  - Dasar Lembah kini gelap seperti Jalur Tebing. Obor yang sudah diambil
+    di Jalur Tebing tetap digenggam & cahayanya mengikuti pemain di area ini.
+  - Belum punya obor → perapian titik istirahat jadi sumber cahaya.
+  - Transisi balik dari Dasar Lembah ke Jalur Tebing kini muncul di **ujung
+    kanan** (x=600), bukan spawn awal, supaya nyambung dengan jalur masuk.
+
 ## [1.4.8] - 2026-11-21
 
 ### Added

@@ -776,6 +776,16 @@ public final class GameplayScene extends Scene {
         autosave();
     }
 
+    /** Kembali dari Dasar Lembah ke ujung kanan Jalur Tebing (nyambung). */
+    public void transitionToValleyCliffPathFromFloor() {
+        setupArea("valley_cliff_path");
+        player.setPosition(600f, 72f);
+        player.setFacing(Player.Facing.LEFT);
+        centerCameraOnPlayer();
+        investigation.setNotification("KEMBALI KE JALUR TEBING", 2.5f);
+        autosave();
+    }
+
     public void transitionToValleyRuins() {
         setupArea("valley_ruins");
         player.setPosition(mapValleyRuins.spawnX(), mapValleyRuins.spawnY());
@@ -1379,7 +1389,7 @@ public final class GameplayScene extends Scene {
         } else if (currentAreaId.equals("valley_floor")) {
             if (player.x() <= 8f) {
                 clearInput();
-                transitionToValleyCliffPath();
+                transitionToValleyCliffPathFromFloor();
             }
         } else if (currentAreaId.equals("valley_ruins")) {
             if (player.x() <= 8f) {
@@ -1688,9 +1698,15 @@ public final class GameplayScene extends Scene {
         }
     }
 
-    /** Obor digenggam di tangan tokoh saat berjalan di Jalur Tebing. */
+    /** True bila area aktif memakai sistem gelap + obor genggam. */
+    private boolean isTorchArea() {
+        return "valley_cliff_path".equals(currentAreaId)
+                || "valley_floor".equals(currentAreaId);
+    }
+
+    /** Obor digenggam di tangan tokoh saat berjalan di area gelap lembah. */
     private void drawHeldTorch(PGraphics g, int camX, int camY) {
-        if (!torchObtained || !"valley_cliff_path".equals(currentAreaId)
+        if (!torchObtained || !isTorchArea()
                 || !Art.torchSpriteReady() || isModalOpen()) {
             return;
         }
@@ -1712,7 +1728,7 @@ public final class GameplayScene extends Scene {
      * masuk yang bercahaya; sesudah diambil, cahaya mengikuti pemain.
      */
     private void drawTorchDarkness(PGraphics g, int camX, int camY) {
-        if (!"valley_cliff_path".equals(currentAreaId) || respawnActive) {
+        if (!isTorchArea() || respawnActive) {
             return;
         }
         ensureTorchLightAssets();
@@ -1728,6 +1744,12 @@ public final class GameplayScene extends Scene {
             cy = player.y() - camY - 10f;
             radius = 82f * flicker;
             baseAlpha = 244;
+        } else if ("valley_floor".equals(currentAreaId)) {
+            // Belum bawa obor: perapian titik istirahat jadi sumber cahaya.
+            cx = 328f - camX;
+            cy = 116f - camY;
+            radius = 70f * flicker;
+            baseAlpha = 232;
         } else {
             cx = oborTebing.x() - camX;
             cy = oborTebing.y() - camY - 10f;
