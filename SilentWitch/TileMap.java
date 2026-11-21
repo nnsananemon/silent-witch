@@ -355,6 +355,9 @@ public final class TileMap {
         TileMap map = themed(new TileMap(VALLEY_RUINS), Art.Theme.CAVE);
         map.setBackground(Art.loadBackground("bg_valley_ruins.png"));
         map.setDrawDoors(false);
+        // Latar sudah memuat batu rune sendiri: jangan timpa dengan sprite
+        // prosedural. Tile 'X' tetap solid untuk collision.
+        map.setDrawOverlaySymbols(false);
         map.setGateOpen(true);
         return map;
     }
@@ -367,10 +370,16 @@ public final class TileMap {
     private boolean drawDoors = true;
     private boolean drawClosedGateDoor = true;
     private boolean drawOpenGateDoor = true;
+    private boolean drawOverlaySymbols = true;
 
     /** memasang gambar latar peta (null = pakai tile prosedural). */
     public void setBackground(PImage image) {
         this.background = image;
+    }
+
+    /** Matikan sprite batu simbol prosedural bila latar sudah memuatnya. */
+    public void setDrawOverlaySymbols(boolean draw) {
+        this.drawOverlaySymbols = draw;
     }
 
     /**
@@ -566,6 +575,9 @@ public final class TileMap {
      * memakai rantai di ujung kanan gambar, bukan aset gerbang prosedural.
      */
     private boolean isOverlayTile(char ch) {
+        if (ch == 'X' && !drawOverlaySymbols) {
+            return false;
+        }
         return ch == 'K' || ch == 'X' || ch == 'E';
     }
 
