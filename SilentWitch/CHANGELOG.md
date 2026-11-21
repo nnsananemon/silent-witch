@@ -4,19 +4,6 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
-## [1.4.9] - 2026-11-21
-
-### Changed
-
-- **Karakter utama memakai sprite ksatria pixel gelap baru (`hero_knight_body.png`,
-  `hero_knight_portrait.png`):**
-  - Sheet baru 1536x1024 (7 kolom x 4 baris: depan/belakang/kiri/kanan)
-    disusun ulang ke format 9 frame yang dipakai `Art.drawHero`
-    (3 aksi idle/walk/run x 3 arah), tinggi 28 px.
-  - Arah kanan tetap dicerminkan saat runtime; serangan TIDAK diubah —
-    masih memakai `hero_knight_attack.png` yang lama sesuai permintaan.
-  - Fallback prosedural tetap aman bila aset tidak ditemukan.
-
 ## [1.4.8] - 2026-11-21
 
 ### Added
