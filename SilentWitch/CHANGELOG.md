@@ -4,6 +4,17 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.12] - 2026-11-22
+
+### Changed
+
+- **Batu simbol & gelap di Lintasan Reruntuhan (`TileMap.java`, `GameplayScene.java`):**
+  - Tile 'X' dipindah ke kolom 21 baris 7 (world 344,120) supaya sejajar dengan
+    rune di latar dan kini benar-benar solid (sebelumnya meleset ke 456,104).
+  - Area ini ikut sistem gelap seperti Jalur Tebing & Dasar Lembah. Obor yang
+    sudah diambil tetap terbawa & cahayanya mengikuti pemain; kalau belum punya
+    obor, lilin di titik istirahat yang menyala.
+
 ## [1.4.11] - 2026-11-22
 
 ### Changed

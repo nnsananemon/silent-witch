@@ -1703,7 +1703,8 @@ public final class GameplayScene extends Scene {
     /** True bila area aktif memakai sistem gelap + obor genggam. */
     private boolean isTorchArea() {
         return "valley_cliff_path".equals(currentAreaId)
-                || "valley_floor".equals(currentAreaId);
+                || "valley_floor".equals(currentAreaId)
+                || "valley_ruins".equals(currentAreaId);
     }
 
     /** Obor digenggam di tangan tokoh saat berjalan di area gelap lembah. */
@@ -1750,6 +1751,12 @@ public final class GameplayScene extends Scene {
             // Belum bawa obor: perapian titik istirahat jadi sumber cahaya.
             cx = 328f - camX;
             cy = 116f - camY;
+            radius = 70f * flicker;
+            baseAlpha = 232;
+        } else if ("valley_ruins".equals(currentAreaId)) {
+            // Belum bawa obor: lilin di titik istirahat jadi sumber cahaya.
+            cx = 271f - camX;
+            cy = 168f - camY;
             radius = 70f * flicker;
             baseAlpha = 232;
         } else {
