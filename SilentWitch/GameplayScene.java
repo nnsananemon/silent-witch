@@ -645,6 +645,9 @@ public final class GameplayScene extends Scene {
             player.clearBlockers();
             // Perapian di Lintasan Reruntuhan (271,172) tidak bisa ditembus.
             player.addBlocker(271f, 168f, 30f, 20f);
+            // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
+            // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
+            player.addBlocker(337f, 122f, 20f, 22f);
             interactables.clear();
             interactables.addAll(valleyRuinsInteractables);
         } else if ("chapel_of_whispers".equals(areaId)) {
