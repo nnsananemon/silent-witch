@@ -441,7 +441,7 @@ public final class GameplayScene extends Scene {
         valleyFloorInteractables.add(gerbangLembah);
 
         // --- Objek Interaktif Valley — Lintasan Reruntuhan (Bab 3C) ---
-        ExamineSpot reruntuhanSimbol = new ExamineSpot(328f, 152f, 26f, "BATU SIMBOL RERUNTUHAN",
+        ExamineSpot reruntuhanSimbol = new ExamineSpot(337f, 124f, 26f, "BATU SIMBOL RERUNTUHAN",
                 new Dialogue("BATU SIMBOL RERUNTUHAN",
                         "Batu paling besar di antara semua yang kau temui.",
                         "Simbol di sini menggabungkan semua pola sebelumnya: panah, spiral, bintang.",
@@ -450,7 +450,7 @@ public final class GameplayScene extends Scene {
                 new Dialogue("BATU SIMBOL RERUNTUHAN",
                         "Batu simbol besar dengan gabungan semua pola dan pesan kuno."));
 
-        RestPoint istirahatReruntuhan = new RestPoint(264f, 200f);
+        RestPoint istirahatReruntuhan = new RestPoint(271f, 172f);
 
         GerbangLembah gerbangReruntuhan = new GerbangLembah(600f, 72f, "CHAPEL OF WHISPERS");
 
@@ -643,6 +643,8 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
+            // Perapian di Lintasan Reruntuhan (271,172) tidak bisa ditembus.
+            player.addBlocker(271f, 168f, 30f, 20f);
             interactables.clear();
             interactables.addAll(valleyRuinsInteractables);
         } else if ("chapel_of_whispers".equals(areaId)) {
@@ -2370,7 +2372,8 @@ public final class GameplayScene extends Scene {
                 // menghadap ke arah api (4 frame arah sesuai sprite).
                 if (focused instanceof RestPoint) {
                     RestPoint rp = (RestPoint) focused;
-                    if ("valley_floor".equals(currentAreaId)) {
+                    if ("valley_floor".equals(currentAreaId)
+                            || "valley_ruins".equals(currentAreaId)) {
                         float dx = rp.x() - player.x();
                         float dy = rp.y() - player.y();
                         if (Math.abs(dx) >= Math.abs(dy)) {

@@ -8,12 +8,12 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 
 ### Changed
 
-- **Lintasan Reruntuhan memakai latar bertekstur (`bg_valley_ruins.png`, `TileMap.java`):**
-  - Peta yang sebelumnya prosedural kini memakai background penuh 640x256 yang
-    disusun dari tekstur batu/tanah `bg_valley_floor.png` mengikuti layout
-    `VALLEY_RUINS`, sehingga detailnya senada dengan Dasar Lembah.
-  - Bongkahan reruntuhan ('R'), tebing ('C'), tanah ('d'), dan air ('w')
-    dibedakan dengan color-grading supaya mudah dibaca.
+- **Lintasan Reruntuhan memakai latar aset pengguna (`bg_valley_ruins.png`, `TileMap.java`):**
+  - Background penuh 640x256 dari render "Reruntuhan Dungeon dengan Rune
+    Bercahaya" (1983x793), menggantikan hasil susunan tekstur sementara.
+  - Tile 'X' digeser ke (21,6) supaya sejajar dengan rune cyan di latar;
+    RestPoint digeser ke (271,172) tepat di lilin, lengkap dengan blocker api.
+  - Duduk di titik istirahat kini berlaku juga di area ini.
 
 ## [1.4.10] - 2026-11-22
 
