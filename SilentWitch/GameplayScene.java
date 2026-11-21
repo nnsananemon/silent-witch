@@ -635,7 +635,7 @@ public final class GameplayScene extends Scene {
             player.clearBlockers();
             // Perapian titik istirahat: blocker sedikit lebih besar dari altar
             // supaya sprite duduk tidak menimpa nyala api.
-            player.addBlocker(328f, 116f, 24f, 18f);
+            player.addBlocker(328f, 116f, 30f, 20f);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
