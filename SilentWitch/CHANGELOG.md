@@ -25,6 +25,9 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
     i-frame, dengan fallback prosedural bila aset tidak tersedia.
   - Saat istirahat, pemain tidak lagi di-teleport: duduk langsung di tempat
     berdiri dan menghadap ke arah api (dari kanan → frame kiri, dll).
+  - `hero_sit.png` dibangun ulang: frame 27x26 px (setara badan berdiri),
+    padding dipangkas dan warna di-grade ulang ke perak-gelap supaya menyatu
+    dengan sprite ksatria utama.
 
 ## [1.4.7] - 2026-11-21
 

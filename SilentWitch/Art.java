@@ -240,13 +240,13 @@ public final class Art {
             }
         }
 
-        // Pose duduk ksatria (4 arah, sheet 40x28 per sel).
+        // Pose duduk ksatria (4 arah, sheet 28x26 per sel).
         PImage sitSheet = load("hero_sit.png");
         if (sitSheet != null) {
-            int sitCell = 40;
+            int sitCell = 28;
             sitFrames = new PImage[sitSheet.width / sitCell];
             for (int i = 0; i < sitFrames.length; i++) {
-                sitFrames[i] = cut(sitSheet, i * sitCell, 0, sitCell, 28);
+                sitFrames[i] = cut(sitSheet, i * sitCell, 0, sitCell, 26);
             }
         }
 
