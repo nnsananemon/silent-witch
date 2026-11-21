@@ -105,6 +105,9 @@ public final class Art {
     /** Enam frame nyala api perapian Dasar Lembah (dari aset pengguna). */
     private static PImage[] campfireFrames;
 
+    /** Empat pose duduk ksatria (kiri, kanan, depan, belakang). */
+    private static PImage[] sitFrames;
+
     /** Enam variasi tile air untuk animasi riak Dasar Lembah. */
     private static PImage[] waterFrames;
 
@@ -234,6 +237,16 @@ public final class Art {
                 shadowFlameFrames = new PImage[]{
                         shade(small, 0.82f), shade(small, 0.68f), shade(small, 0.90f)
                 };
+            }
+        }
+
+        // Pose duduk ksatria (4 arah, sheet 40x28 per sel).
+        PImage sitSheet = load("hero_sit.png");
+        if (sitSheet != null) {
+            int sitCell = 40;
+            sitFrames = new PImage[sitSheet.width / sitCell];
+            for (int i = 0; i < sitFrames.length; i++) {
+                sitFrames[i] = cut(sitSheet, i * sitCell, 0, sitCell, 28);
             }
         }
 
@@ -1017,6 +1030,29 @@ public final class Art {
         g.triangle(cx - w * 0.28f, y + h, cx + w * 0.28f, y + h, cx, y + h * 0.38f);
         g.fill(255, 238, 170);
         g.triangle(cx - w * 0.14f, y + h * 0.92f, cx + w * 0.14f, y + h * 0.92f, cx, y + h * 0.55f);
+    }
+
+    /** True bila sprite pose duduk ksatria berhasil dimuat. */
+    public static boolean sitSpriteReady() {
+        ensureLoaded();
+        return sitFrames != null && sitFrames.length > 0;
+    }
+
+    /** Menggambar ksatria duduk. index: 0=kiri, 1=kanan, 2=depan, 3=belakang. */
+    public static void drawSit(PGraphics g, int px, int py, int index, int alpha) {
+        ensureLoaded();
+        if (sitFrames == null || sitFrames.length == 0) {
+            return;
+        }
+        PImage img = sitFrames[Math.floorMod(index, sitFrames.length)];
+        if (alpha < 255) {
+            g.tint(255, 255, 255, alpha);
+        }
+        // Jangkar kaki di dasar sel, 1px di atas garis tanah seperti hero biasa.
+        g.image(img, px - img.width / 2f, py - img.height + 1f);
+        if (alpha < 255) {
+            g.noTint();
+        }
     }
 
     /** True bila sprite api perapian berhasil dimuat. */

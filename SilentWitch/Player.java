@@ -406,8 +406,30 @@ public final class Player {
         return false;
     }
 
-    /** Pose duduk di tepi perapian: kaki ditekuk, badan sedikit membungkuk. */
+    /** Pose duduk di tepi perapian: sprite 4 arah, fallback prosedural. */
     private void drawSittingPose(PGraphics g, int px, int py) {
+        if (Art.sitSpriteReady()) {
+            // 0=kiri, 1=kanan, 2=depan, 3=belakang
+            int index;
+            switch (facing) {
+                case LEFT: index = 0; break;
+                case RIGHT: index = 1; break;
+                case UP: index = 3; break;
+                case DOWN:
+                default: index = 2; break;
+            }
+            int alpha = 255;
+            if (invulnerableTimer > 0f) {
+                int blink = (int) (invulnerableTimer * 20f);
+                if ((blink & 1) == 0) alpha = 110;
+            }
+            g.noStroke();
+            g.fill(Palette.alpha(0x000000, 80));
+            g.ellipse(px, py - 1f, 16f, 3f);
+            Art.drawSit(g, px, py, index, alpha);
+            return;
+        }
+
         g.noStroke();
         // Bayangan
         g.fill(Palette.alpha(0x000000, 90));

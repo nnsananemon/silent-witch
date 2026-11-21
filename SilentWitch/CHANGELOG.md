@@ -20,6 +20,9 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
     titik istirahat juga diberi blocker fisik.
   - Saat berinteraksi dengan titik istirahat Dasar Lembah, pemain duduk di
     samping perapian menghadap api; berdiri lagi saat dialog ditutup.
+  - Pose duduk memakai sprite ksatria berkemah 4 arah (`hero_sit.png`, dari
+    pengguna) menggantikan pose prosedural; mengikuti arah hadap dan kedipan
+    i-frame, dengan fallback prosedural bila aset tidak tersedia.
 
 ## [1.4.7] - 2026-11-21
 
