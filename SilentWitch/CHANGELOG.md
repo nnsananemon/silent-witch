@@ -4,6 +4,23 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.8] - 2026-11-21
+
+### Added
+
+- **Dasar Lembah full background & animasi (`Art.java`, `TileMap.java`, `RestPoint.java`, `GameplayScene.java`):**
+  - Latar penuh `bg_valley_floor.png` (640x256) dari render pengguna,
+    menggantikan tile prosedural. Layout kolam, api, dan rune persis cocok
+    dengan peta `VALLEY_FLOOR`.
+  - Nyala api perapian kini benar-benar beranimasi (6 frame + kedipan cahaya
+    + percikan api) memakai `flame_anim.png`.
+  - Riak air bergerak halus di atas kolam yang sudah ada di latar
+    (tanpa menimpa tile penuh).
+  - Tile air `'w'` kini solid — pemain tidak bisa menembus kolam. Perapian
+    titik istirahat juga diberi blocker fisik.
+  - Saat berinteraksi dengan titik istirahat Dasar Lembah, pemain duduk di
+    samping perapian menghadap api; berdiri lagi saat dialog ditutup.
+
 ## [1.4.7] - 2026-11-21
 
 ### Added

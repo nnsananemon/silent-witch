@@ -61,28 +61,19 @@ public final class RestPoint implements Interactable {
     public void draw(PGraphics g, int cameraX, int cameraY) {
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
+        float animTime = (System.currentTimeMillis() % 100000) / 1000f;
 
-        if (Art.ENABLED) {
-            g.noStroke();
-            g.fill(255, 170, 80, 24);
-            g.ellipse(px, py, 34, 34);
-            g.fill(255, 190, 100, 46);
-            g.ellipse(px, py, 20, 20);
-            Art.drawSpiritFire(g, px - 11, py - 26, 22, 28);
+        // Nyala api sungguhan (6 frame + kedip + percikan) dari aset pengguna.
+        if (Art.campfireSpriteReady()) {
+            Art.drawCampfire(g, px, py, animTime);
             return;
         }
 
         g.noStroke();
-
-        // Cahaya hangat luar dari api
         g.fill(Palette.alpha(Palette.REST_GLOW, 14));
         g.ellipse(px, py, 34, 34);
-
-        // Cahaya hangat dalam
         g.fill(Palette.alpha(Palette.REST_GLOW, 28));
         g.ellipse(px, py, 20, 20);
-
-        // Titik bara api di pusat
         g.fill(Palette.alpha(Palette.WARM, 45));
         g.ellipse(px, py, 8, 8);
         g.fill(Palette.alpha(Palette.WARM, 70));

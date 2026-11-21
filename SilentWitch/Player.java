@@ -35,6 +35,7 @@ public final class Player {
     private Facing facing = Facing.DOWN;
     private boolean moving = false;
     private float animTime = 0f;
+    private boolean sitting = false;
 
     // --- Status Pertarungan & Senjata Saku ---
     private int hp = MAX_HP;
@@ -126,6 +127,17 @@ public final class Player {
 
     public boolean isMoving() {
         return moving;
+    }
+
+    public boolean isSitting() {
+        return sitting;
+    }
+
+    public void setSitting(boolean value) {
+        sitting = value;
+        if (sitting) {
+            moving = false;
+        }
     }
 
     /** Waktu animasi lokal, dipakai agar aksesis (mis. obor) seirama dengan langkah. */
@@ -394,9 +406,46 @@ public final class Player {
         return false;
     }
 
+    /** Pose duduk di tepi perapian: kaki ditekuk, badan sedikit membungkuk. */
+    private void drawSittingPose(PGraphics g, int px, int py) {
+        g.noStroke();
+        // Bayangan
+        g.fill(Palette.alpha(0x000000, 90));
+        g.rect(px - 6f, py - 1f, 12f, 2f);
+        // Kaki ditekuk ke depan
+        g.fill(0xFF15121C);
+        g.rect(px - 5f, py - 5f, 10f, 4f);
+        g.fill(0xFF2A2138);
+        g.rect(px - 6f, py - 6f, 12f, 3f);
+        // Jubah / badan
+        g.fill(0xFF2A2138);
+        g.rect(px - 5f, py - 13f, 10f, 8f);
+        g.fill(0xFF3B2E52);
+        g.rect(px - 6f, py - 10f, 12f, 2f);
+        // Lengan bertumpu di lutut
+        g.fill(0xFF3B2E52);
+        g.rect(px - 7f, py - 9f, 2f, 5f);
+        g.rect(px + 5f, py - 9f, 2f, 5f);
+        // Kepala sedikit menunduk ke arah api
+        g.fill(0xFFD9CFC0);
+        g.rect(px - 3f, py - 17f, 6f, 5f);
+        g.fill(0xFF201A24);
+        g.rect(px - 3f, py - 17f, 6f, 1f);
+        g.rect(px - 3f, py - 16f, 1f, 3f);
+        g.rect(px + 2f, py - 16f, 1f, 3f);
+        g.fill(0xFF1A1520);
+        g.rect(px - 2f, py - 14f, 1f, 1f);
+        g.rect(px + 1f, py - 14f, 1f, 1f);
+    }
+
     public void draw(PGraphics g, int cameraX, int cameraY) {
         int px = Math.round(x - cameraX);
         int py = Math.round(y - cameraY);
+
+        if (sitting) {
+            drawSittingPose(g, px, py);
+            return;
+        }
 
         if (Art.heroSpriteReady() || Art.ENABLED) {
             int alpha = 255;

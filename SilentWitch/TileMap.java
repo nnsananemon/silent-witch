@@ -344,6 +344,9 @@ public final class TileMap {
 
     public static TileMap valleyFloor() {
         TileMap map = themed(new TileMap(VALLEY_FLOOR), Art.Theme.CAVE);
+        map.setBackground(Art.loadBackground("bg_valley_floor.png"));
+        // Latar sudah memuat jalur di kedua ujung, pintu besi tidak digambar.
+        map.setDrawDoors(false);
         map.setGateOpen(true);
         return map;
     }
@@ -465,7 +468,7 @@ public final class TileMap {
         }
         return ch == '#' || ch == 'W' || ch == 'B' || ch == 'T' || ch == 'P' || ch == 'A' || ch == 'M'
                 || ch == 't' || ch == 'l' || ch == 'r' || ch == 'X'
-                || ch == 'C' || ch == 'R'
+                || ch == 'C' || ch == 'R' || ch == 'w'
                 || ch == 'H' || ch == 'n' || ch == 'a' || ch == 'i'
                 || ch == 'V' || ch == 'N' || ch == 'L' || ch == 'f'
                 || ch == 'U' || ch == 'b' || ch == 'q' || ch == 'e';

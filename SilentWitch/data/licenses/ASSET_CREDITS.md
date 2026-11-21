@@ -24,6 +24,10 @@ Aset gambar eksternal yang sudah dipakai:
 - Sprite obor genggam (`data/art/torch_anim.png`, 48x32 = 6 frame 16x16)
   dari OpenGameArt karya Natural_Privateer, lisensi **CC0** — dipakai di
   Jalur Tebing sebagai satu-satunya sumber cahaya.
+- Latar penuh Dasar Lembah (`data/art/bg_valley_floor.png`, 640x256),
+  sprite nyala api (`flame_anim.png`, 6 frame), dan riak air
+  (`water_anim.png`), diturunkan dari tileset & render pengguna
+  (1254x1254 / 1983x793).
 
 Status lisensi paket Dark Knight, lembar NPC desa, latar buatan pengguna, dan
 flamelings **belum terverifikasi** dan wajib dicek sebelum rilis publik.
@@ -61,6 +65,7 @@ lisensi pada halaman resmi sumber. Jangan menghapus atribusi yang diwajibkan.
 | `wizard_purple.png` | belum diketahui | lembar sprite wizard ungu gothic 2172x724 dari pengguna (`872961d4-ec02-4d3a-bd6b-5c728f6b8b46.png`) | **belum terverifikasi** | 2026-11-20 | 15 frame profil menyamping menghadap kiri (160x160 per sel transparan), mencakup idle, telegraf sihir ungu, dan semburan api depan |
 | `flamelings.png` | belum diketahui | dari pengguna (`flamelings_sprites.png`) | **belum terverifikasi** | 2026-11-20 | Sheet 384x128 berisi 3 wujud (kecil/sedang/besar). Latar biru rata dibuang saat runtime, lalu dipangkas. Dipakai Bayangan Hutan (wujud kecil→sedang→besar sesuai state) dan api Rest Point |
 | `torch_anim.png` (obor genggam Jalur Tebing) | Natural_Privateer | OpenGameArt, "Simple Torch Animation 16x16" (`opengameart.org/content/simple-torch-animation-16x16`) | **CC0** | 2026-11-21 | Sheet 48x32 = 6 frame 16x16 (3 kolom x 2 baris). Dipakai obor yang diambil di pintu masuk Jalur Tebing dan digenggam pemain saat berjalan; cahayanya menjadi satu-satunya penerang area gelap |
+| `bg_valley_floor.png`, `flame_anim.png`, `water_anim.png` (Dasar Lembah) | belum diketahui | render 1983x793 & tileset 1254x1254 dari pengguna | **belum terverifikasi** | 2026-11-21 | Render di-downscale ke 640x256 lewat `BackgroundBuilder`-style area-average; nyala api diekstrak 6 frame dari altar, riak air dari variasi tile air. Dipakai di area `valley_floor` |
 
 Bila berkas sprite di atas dihapus, game otomatis kembali memakai penyihir
 prosedural (`Art.HERO_SPRITE` gagal dimuat) sehingga tidak ada aset eksternal

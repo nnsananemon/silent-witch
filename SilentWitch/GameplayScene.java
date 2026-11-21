@@ -633,6 +633,8 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
+            // Perapian titik istirahat tidak bisa ditembus.
+            player.addBlocker(328f, 116f, 12f, 12f);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
@@ -1300,6 +1302,11 @@ public final class GameplayScene extends Scene {
             return;
         }
 
+        // Bangkit dari duduk ketika dialog selesai atau modal lain terbuka.
+        if (player.isSitting() && !dialogue.isOpen()) {
+            player.setSitting(false);
+        }
+
         float inputX = 0f;
         float inputY = 0f;
         // Kunci gerakan pemain jika modal terbuka
@@ -1435,6 +1442,10 @@ public final class GameplayScene extends Scene {
         g.background(Palette.INK);
         map.draw(g, camX, camY);
 
+        if ("valley_floor".equals(currentAreaId)) {
+            drawAnimatedWater(g, camX, camY);
+        }
+
         drawTelegraphs(g, camX, camY);
         drawPlayerGlow(g, camX, camY);
         drawEntities(g, camX, camY);
@@ -1465,6 +1476,27 @@ public final class GameplayScene extends Scene {
 
         if (pauseOpen) {
             drawPauseMenu(g);
+        }
+    }
+
+    /**Riak air yang bergerak di atas latar Dasar Lembah (tile 'w'). */
+    private void drawAnimatedWater(PGraphics g, int camX, int camY) {
+        if (!Art.waterSpriteReady()) {
+            return;
+        }
+        for (int row = 0; row < map.rows(); row++) {
+            for (int col = 0; col < map.cols(); col++) {
+                if (map.tileAt(col, row) != 'w') {
+                    continue;
+                }
+                int px = col * TileMap.TILE - camX;
+                int py = row * TileMap.TILE - camY;
+                if (px < -16 || py < -16 || px > GameManager.VIRTUAL_W
+                        || py > GameManager.VIRTUAL_H) {
+                    continue;
+                }
+                Art.drawWater(g, px, py, time, col, row);
+            }
         }
     }
 
@@ -2309,6 +2341,17 @@ public final class GameplayScene extends Scene {
                     activeSpeaker = saksiDesa;
                 } else {
                     activeSpeaker = null;
+                }
+
+                // Titik istirahat: duduk di samping api saat berinteraksi
+                if (focused instanceof RestPoint) {
+                    RestPoint rp = (RestPoint) focused;
+                    if ("valley_floor".equals(currentAreaId) && rp.x() == 328f) {
+                        // Geser ke samping perapian lalu duduk menghadap api.
+                        player.setPosition(rp.x() + 12f, rp.y() + 2f);
+                        player.setFacing(Player.Facing.LEFT);
+                        player.setSitting(true);
+                    }
                 }
 
                 Dialogue d = focused.interact(investigation);

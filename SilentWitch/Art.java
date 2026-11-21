@@ -102,6 +102,12 @@ public final class Art {
     private static PImage[] spiritFireFrames;
     private static PImage[] shadowFlameFrames;
 
+    /** Enam frame nyala api perapian Dasar Lembah (dari aset pengguna). */
+    private static PImage[] campfireFrames;
+
+    /** Enam variasi tile air untuk animasi riak Dasar Lembah. */
+    private static PImage[] waterFrames;
+
     private static PImage[] brickFloor;
     private static PImage[] brickWall;
     private static PImage[] stoneFloor;
@@ -228,6 +234,22 @@ public final class Art {
                 shadowFlameFrames = new PImage[]{
                         shade(small, 0.82f), shade(small, 0.68f), shade(small, 0.90f)
                 };
+            }
+        }
+
+        // Nyala api & air dari aset pengguna (sheet 16x20 / 16x16 per frame).
+        PImage flameSheet = load("flame_anim.png");
+        if (flameSheet != null) {
+            campfireFrames = new PImage[flameSheet.width / 16];
+            for (int i = 0; i < campfireFrames.length; i++) {
+                campfireFrames[i] = cut(flameSheet, i * 16, 0, 16, 20);
+            }
+        }
+        PImage waterSheet = load("water_anim.png");
+        if (waterSheet != null) {
+            waterFrames = new PImage[waterSheet.width / 16];
+            for (int i = 0; i < waterFrames.length; i++) {
+                waterFrames[i] = cut(waterSheet, i * 16, 0, 16, 16);
             }
         }
 
@@ -995,6 +1017,72 @@ public final class Art {
         g.triangle(cx - w * 0.28f, y + h, cx + w * 0.28f, y + h, cx, y + h * 0.38f);
         g.fill(255, 238, 170);
         g.triangle(cx - w * 0.14f, y + h * 0.92f, cx + w * 0.14f, y + h * 0.92f, cx, y + h * 0.55f);
+    }
+
+    /** True bila sprite api perapian berhasil dimuat. */
+    public static boolean campfireSpriteReady() {
+        ensureLoaded();
+        return campfireFrames != null && campfireFrames.length > 0;
+    }
+
+    /**
+     * Nyala api perapian yang benar-benar beranimasi (6 frame), lengkap dengan
+     * kedipan cahaya hangat dan percikan api. Dipakai di RestPoint Dasar Lembah.
+     */
+    public static void drawCampfire(PGraphics g, int px, int py, float animTime) {
+        ensureLoaded();
+        if (campfireFrames == null || campfireFrames.length == 0) {
+            drawSpiritFire(g, px - 8, py - 24, 16, 20, animTime);
+            return;
+        }
+        // Kedipan cahaya: ukuran & alpha mengikuti waktu.
+        float flicker = 1f + 0.12f * (float) Math.sin(animTime * 9.3f)
+                + 0.06f * (float) Math.sin(animTime * 15.7f);
+        int frame = Math.floorMod((int) (animTime * 9f), campfireFrames.length);
+        PImage flame = campfireFrames[frame];
+
+        g.noStroke();
+        // Halo hangat
+        g.fill(255, 140, 50, 18);
+        g.ellipse(px, py - 10, 26 * flicker, 22 * flicker);
+        g.fill(255, 190, 80, 28);
+        g.ellipse(px, py - 10, 16 * flicker, 14 * flicker);
+
+        // Nyala api
+        float w = flame.width * flicker;
+        float h = flame.height * flicker;
+        g.image(flame, px - w / 2f, py - h - 4f, w, h);
+
+        // Percikan api
+        for (int i = 0; i < 3; i++) {
+            float phase = (animTime * 1.6f + i * 0.37f) % 1f;
+            float sx = px + (float) Math.sin(animTime * 3f + i * 2f) * (2f + phase * 4f);
+            float sy = py - 10f - phase * 12f;
+            g.fill(255, 200 - (int) (phase * 80f), 70, (int) (180f * (1f - phase)));
+            g.rect(sx, sy, 1, 1);
+        }
+    }
+
+    /** True bila sprite air beranimasi berhasil dimuat. */
+    public static boolean waterSpriteReady() {
+        ensureLoaded();
+        return waterFrames != null && waterFrames.length > 0;
+    }
+
+    /**
+     * Riak halus di atas air yang sudah tergambar di latar. Tile air tidak
+     * digambar ulang (menimpa latar akan membuat kotak biru yang jelek).
+     */
+    public static void drawWater(PGraphics g, int px, int py, float animTime, int col, int row) {
+        g.noStroke();
+        float shift = (animTime * 10f + col * 7f + row * 5f) % 16f;
+        // Dua garis kilau yang meluncur lambat
+        g.fill(150, 210, 225, 38);
+        g.rect(px + shift - 6f, py + 6f, 5f, 1f);
+        g.fill(190, 225, 235, 26);
+        g.rect(px + 16f - shift, py + 11f, 4f, 1f);
+        g.fill(120, 180, 200, 22);
+        g.rect(px + (8f + shift * 0.5f) % 16f, py + 3f, 3f, 1f);
     }
 
     /** Roh api dari paket flamelings, dipakai di titik peristirahatan. */
