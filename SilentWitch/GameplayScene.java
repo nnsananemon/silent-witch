@@ -633,8 +633,9 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
-            // Perapian titik istirahat tidak bisa ditembus.
-            player.addBlocker(328f, 116f, 12f, 12f);
+            // Perapian titik istirahat: blocker sedikit lebih besar dari altar
+            // supaya sprite duduk tidak menimpa nyala api.
+            player.addBlocker(328f, 116f, 24f, 18f);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
