@@ -2343,13 +2343,18 @@ public final class GameplayScene extends Scene {
                     activeSpeaker = null;
                 }
 
-                // Titik istirahat: duduk di samping api saat berinteraksi
+                // Titik istirahat: duduk langsung di tempat berdiri tanpa teleport,
+                // menghadap ke arah api (4 frame arah sesuai sprite).
                 if (focused instanceof RestPoint) {
                     RestPoint rp = (RestPoint) focused;
-                    if ("valley_floor".equals(currentAreaId) && rp.x() == 328f) {
-                        // Geser ke samping perapian lalu duduk menghadap api.
-                        player.setPosition(rp.x() + 12f, rp.y() + 2f);
-                        player.setFacing(Player.Facing.LEFT);
+                    if ("valley_floor".equals(currentAreaId)) {
+                        float dx = rp.x() - player.x();
+                        float dy = rp.y() - player.y();
+                        if (Math.abs(dx) >= Math.abs(dy)) {
+                            player.setFacing(dx < 0f ? Player.Facing.LEFT : Player.Facing.RIGHT);
+                        } else {
+                            player.setFacing(dy < 0f ? Player.Facing.UP : Player.Facing.DOWN);
+                        }
                         player.setSitting(true);
                     }
                 }

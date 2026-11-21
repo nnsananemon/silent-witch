@@ -23,6 +23,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
   - Pose duduk memakai sprite ksatria berkemah 4 arah (`hero_sit.png`, dari
     pengguna) menggantikan pose prosedural; mengikuti arah hadap dan kedipan
     i-frame, dengan fallback prosedural bila aset tidak tersedia.
+  - Saat istirahat, pemain tidak lagi di-teleport: duduk langsung di tempat
+    berdiri dan menghadap ke arah api (dari kanan → frame kiri, dll).
 
 ## [1.4.7] - 2026-11-21
 
