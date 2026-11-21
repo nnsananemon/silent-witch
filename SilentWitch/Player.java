@@ -409,14 +409,14 @@ public final class Player {
     /** Pose duduk di tepi perapian: sprite 4 arah, fallback prosedural. */
     private void drawSittingPose(PGraphics g, int px, int py) {
         if (Art.sitSpriteReady()) {
-            // 0=kiri, 1=kanan, 2=depan, 3=belakang
+            // Urutan frame pada hero_sit.png: 0=depan, 1=belakang, 2=kiri, 3=kanan.
             int index;
             switch (facing) {
-                case LEFT: index = 0; break;
-                case RIGHT: index = 1; break;
-                case UP: index = 3; break;
+                case LEFT: index = 2; break;
+                case RIGHT: index = 3; break;
+                case UP: index = 1; break;
                 case DOWN:
-                default: index = 2; break;
+                default: index = 0; break;
             }
             int alpha = 255;
             if (invulnerableTimer > 0f) {

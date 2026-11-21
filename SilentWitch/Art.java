@@ -1038,7 +1038,7 @@ public final class Art {
         return sitFrames != null && sitFrames.length > 0;
     }
 
-    /** Menggambar ksatria duduk. index: 0=kiri, 1=kanan, 2=depan, 3=belakang. */
+    /** Menggambar ksatria duduk. index: 0=depan, 1=belakang, 2=kiri, 3=kanan. */
     public static void drawSit(PGraphics g, int px, int py, int index, int alpha) {
         ensureLoaded();
         if (sitFrames == null || sitFrames.length == 0) {
