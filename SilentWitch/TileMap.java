@@ -1360,6 +1360,10 @@ public final class TileMap {
     }
 
     private void drawRestPoint(PGraphics g, int x, int y, int col, int row) {
+        if (theme == Art.Theme.CAVE && Art.brazierSpriteReady()) {
+            Art.drawBrazier(g, x + 8, y + 16, (System.currentTimeMillis() % 100000) / 1000f);
+            return;
+        }
         g.noStroke();
 
         // Lingkaran batu dasar

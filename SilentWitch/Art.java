@@ -105,6 +105,9 @@ public final class Art {
     /** Enam frame nyala api perapian Dasar Lembah (dari aset pengguna). */
     private static PImage[] campfireFrames;
 
+    /** Delapan frame animasi brazier batu dungeon masonry (dari aset pengguna). */
+    private static PImage[] brazierFrames;
+
     /** Empat pose duduk ksatria (kiri, kanan, depan, belakang). */
     private static PImage[] sitFrames;
 
@@ -256,6 +259,16 @@ public final class Art {
             campfireFrames = new PImage[flameSheet.width / 16];
             for (int i = 0; i < campfireFrames.length; i++) {
                 campfireFrames[i] = cut(flameSheet, i * 16, 0, 16, 20);
+            }
+        }
+        PImage brazierSheet = load("brazier_anim.png");
+        if (brazierSheet != null) {
+            int bw = 16;
+            int bh = 32;
+            int count = brazierSheet.width / bw;
+            brazierFrames = new PImage[count];
+            for (int i = 0; i < count; i++) {
+                brazierFrames[i] = cut(brazierSheet, i * bw, 0, bw, bh);
             }
         }
         PImage waterSheet = load("water_anim.png");
@@ -670,7 +683,11 @@ public final class Art {
                 break;
             case 'Z':
                 drawFloor(g, theme, x, y, col, row);
-                drawFire(g, x + 1, y + 3, 15, 18);
+                if (theme == Theme.CAVE && brazierSpriteReady()) {
+                    drawBrazier(g, x + 8, y + 16, (System.currentTimeMillis() % 100000) / 1000f);
+                } else {
+                    drawFire(g, x + 1, y + 3, 15, 18);
+                }
                 break;
             case 'H':
                 drawTiled(g, stoneWall, x, y, col, row);
@@ -1097,6 +1114,40 @@ public final class Art {
             g.fill(255, 200 - (int) (phase * 80f), 70, (int) (180f * (1f - phase)));
             g.rect(sx, sy, 1, 1);
         }
+    }
+
+    /** True bila sprite animasi brazier batu dungeon masonry berhasil dimuat. */
+    public static boolean brazierSpriteReady() {
+        ensureLoaded();
+        return brazierFrames != null && brazierFrames.length > 0;
+    }
+
+    /**
+     * Menggambar brazier batu dungeon masonry beranimasi (8 frame).
+     *
+     * @param px       titik tengah horizontal sel (dunia / layar)
+     * @param py       titik bawah dasar batu sel (dunia / layar)
+     * @param animTime waktu animasi dalam detik
+     */
+    public static void drawBrazier(PGraphics g, int px, int py, float animTime) {
+        ensureLoaded();
+        if (brazierFrames == null || brazierFrames.length == 0) {
+            drawCampfire(g, px, py, animTime);
+            return;
+        }
+        int frame = Math.floorMod((int) (animTime * 8.33f), brazierFrames.length);
+        PImage img = brazierFrames[frame];
+
+        // Cahaya hangat lembut di sekitar api brazier
+        float flicker = 1f + 0.05f * (float) Math.sin(animTime * 8.3f);
+        g.noStroke();
+        g.fill(255, 140, 50, 16);
+        g.ellipse(px, py - 18, 30 * flicker, 26 * flicker);
+        g.fill(255, 190, 80, 24);
+        g.ellipse(px, py - 18, 18 * flicker, 16 * flicker);
+
+        // Render sprite brazier (jangkar di tengah dasar)
+        g.image(img, px - img.width / 2f, py - img.height);
     }
 
     /** True bila sprite air beranimasi berhasil dimuat. */

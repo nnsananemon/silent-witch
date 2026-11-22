@@ -4,6 +4,33 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.16] - 2026-11-23
+
+### Fixed
+
+- **Blocker titik istirahat brazier tidak konsisten (`RestPoint.java`, `GameplayScene.java`):**
+  - Geometri blocker kini dihitung terpusat lewat `RestPoint.blockerRect()` sehingga selalu mengikuti gaya visual, bukan koordinat hardcode lama.
+  - Blocker `BRAZIER` diperbesar dari 16x16 menjadi **16x22** dan diposisikan di `(x, y-11)` agar mencakup **nyala api (y-22..y-16) sekaligus tapak masonry (y-16..y)**. Sebelumnya pemain masih bisa menembus nyala api dari atas/samping karena blocker hanya menutup tapaknya.
+  - `underground_archive` akhirnya mendapat blocker brazier — sebelumnya rest point `BRAZIER` di sini sama sekali tidak punya penghalang.
+  - Blocker lilin kapel dikecilkan dari **30x20 di (485,132)** menjadi **10x12** di posisi lilin (488,136). Koordinat 30x20 adalah warisan lama saat lilin masih di (504,136) dan menutupi seluruh altar sehingga memblokir berlebihan.
+  - Rest point Lintasan Reruntuhan digeser dari (271,184) ke **(271,192)** supaya tapak brazier menutupi pedestal batu di `bg_valley_ruins.png`, tidak melayang 8px di atasnya; sumber cahaya gelapnya ikut diselaraskan.
+  - Kondisi duduk menghadap api kini juga berlaku di `underground_archive`.
+  - Semua blocker rest point kini dipasang lewat helper `addRestBlocker(restPoint)` di `setupArea`, menghilangkan duplikasi koordinat.
+
+## [1.4.15] - 2026-11-22
+
+### Changed
+
+- **Tile-based Brazier Dungeon Masonry di Semua Area Gua (`Art.java`, `RestPoint.java`, `GameplayScene.java`, `TileMap.java`):**
+  - Menggantikan animasi api melayang sebelumnya (`flame_anim.png` / procedural flicker) di seluruh area gua (`valley_floor`, `valley_ruins`, dan tile peristirahatan `Z`) dengan animasi brazier batu dungeon masonry berbasis tile 16x32 (`brazier_anim.png`, 8 frame).
+  - Aset diekstrak dari GIF `Animasi Brazier Api di Dungeon Masonry.gif` dengan 8 frame lengkap (kecepatan 8.33 fps / 120ms), transparansi latar belakang yang bersih, serta dasar masonry 16x16 presisi 1-tile.
+  - `RestPoint` kini mendukung enum gaya `Style` (`BRAZIER`, `CANDLE`, `CAMPFIRE`):
+    - Area gua memakai `Style.BRAZIER` dengan dialog "BRAZIER BATU KUNO" dan visual tungku masonry beranimasi.
+    - Area kapel memakai `Style.CANDLE` dengan dialog "LILIN ALTAR RERUNTUHAN" dan cahaya lembut tanpa menimpa lilin latar.
+    - Area hutan/default tetap mendukung `Style.CAMPFIRE`.
+  - Penyesuaian presisi posisi, collision blocker, serta sumber cahaya gelap di `valley_floor` (328, 128) dan `valley_ruins` (271, 184).
+  - Membersihkan sisa piksel api statis lama pada berkas latar `bg_valley_floor.png` dan `bg_valley_ruins.png`.
+
 ## [1.4.14] - 2026-11-22
 
 ### Fixed

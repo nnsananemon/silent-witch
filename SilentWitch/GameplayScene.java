@@ -86,6 +86,10 @@ public final class GameplayScene extends Scene {
     private final ExamineSpot altarKapel;
     private final GerbangArsip gerbangArsip;
     private final Obor oborTebing;
+    private final RestPoint restLembah;
+    private final RestPoint restReruntuhan;
+    private final RestPoint restKapel;
+    private final RestPoint restArsip;
     private boolean expeditionCompleted = false;
     private boolean torchObtained = false;
 
@@ -432,12 +436,12 @@ public final class GameplayScene extends Scene {
                 new Dialogue("BATU SIMBOL LEMBAH",
                         "Batu simbol dengan pola spiral. Kabut berputar di sekelilingnya."));
 
-        RestPoint istirahatLembah = new RestPoint(328f, 120f);
+        restLembah = new RestPoint(328f, 128f, RestPoint.Style.BRAZIER);
 
         GerbangLembah gerbangLembah = new GerbangLembah(600f, 72f, "LINTASAN RERUNTUHAN");
 
         valleyFloorInteractables.add(lembahSimbol);
-        valleyFloorInteractables.add(istirahatLembah);
+        valleyFloorInteractables.add(restLembah);
         valleyFloorInteractables.add(gerbangLembah);
 
         // --- Objek Interaktif Valley — Lintasan Reruntuhan (Bab 3C) ---
@@ -450,12 +454,14 @@ public final class GameplayScene extends Scene {
                 new Dialogue("BATU SIMBOL RERUNTUHAN",
                         "Batu simbol besar dengan gabungan semua pola dan pesan kuno."));
 
-        RestPoint istirahatReruntuhan = new RestPoint(271f, 172f);
+        // Brazier diletakkan di dasar altar (y=192) supaya tapak masonry-nya
+        // menutupi pedestal batu di bg_valley_ruins.png, bukan melayang di atasnya.
+        restReruntuhan = new RestPoint(271f, 192f, RestPoint.Style.BRAZIER);
 
         GerbangLembah gerbangReruntuhan = new GerbangLembah(600f, 72f, "CHAPEL OF WHISPERS");
 
         valleyRuinsInteractables.add(reruntuhanSimbol);
-        valleyRuinsInteractables.add(istirahatReruntuhan);
+        valleyRuinsInteractables.add(restReruntuhan);
         valleyRuinsInteractables.add(gerbangReruntuhan);
 
         // --- Objek Interaktif Ashen Village (Prolog) ---
@@ -504,7 +510,7 @@ public final class GameplayScene extends Scene {
 
         // Lilin di latar bg_chapel_whispers.png berada di (488,136), sejajar
         // dengan altar; nyala animasi harus menempel tepat di atas lilin itu.
-        RestPoint istirahatKapel = new RestPoint(488f, 136f);
+        restKapel = new RestPoint(488f, 136f, RestPoint.Style.CANDLE);
 
         ExamineSpot chapelSimbol = new ExamineSpot(312f, 136f, 26f, "SIMBOL KONTUR KAPEL",
                 new Dialogue("SIMBOL KONTUR KAPEL",
@@ -530,7 +536,7 @@ public final class GameplayScene extends Scene {
 
         chapelInteractables.add(gerbangKapel);
         chapelInteractables.add(altarKapel);
-        chapelInteractables.add(istirahatKapel);
+        chapelInteractables.add(restKapel);
         chapelInteractables.add(chapelSimbol);
         chapelInteractables.add(kacaPatri);
         chapelInteractables.add(bangkuKapel);
@@ -562,7 +568,7 @@ public final class GameplayScene extends Scene {
                 new Dialogue("MEJA KATALOG ARSIP",
                         "Buku katalog inventaris dan catatan rahasia manor."));
 
-        RestPoint istirahatArsip = new RestPoint(104f, 216f);
+        restArsip = new RestPoint(104f, 216f, RestPoint.Style.BRAZIER);
 
         ExamineSpot batuArsip = new ExamineSpot(616f, 200f, 26f, "PRASASTI LELUHUR",
                 new Dialogue("PRASASTI LELUHUR THORNE",
@@ -575,7 +581,7 @@ public final class GameplayScene extends Scene {
         archiveInteractables.add(arsipMekanisme);
         archiveInteractables.add(dokumenKultus);
         archiveInteractables.add(mejaArsip);
-        archiveInteractables.add(istirahatArsip);
+        archiveInteractables.add(restArsip);
         archiveInteractables.add(batuArsip);
 
         // Setup awal area
@@ -635,9 +641,8 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
-            // Perapian titik istirahat: blocker sedikit lebih besar dari altar
-            // supaya sprite duduk tidak menimpa nyala api.
-            player.addBlocker(328f, 116f, 30f, 20f);
+            // Blocker 16x22 menutup nyala api + tapak masonry brazier.
+            addRestBlocker(restLembah);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
@@ -645,8 +650,8 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            // Perapian di Lintasan Reruntuhan (271,172) tidak bisa ditembus.
-            player.addBlocker(271f, 168f, 30f, 20f);
+            // Brazier di Lintasan Reruntuhan (271,192) tidak bisa ditembus.
+            addRestBlocker(restReruntuhan);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
@@ -657,9 +662,9 @@ public final class GameplayScene extends Scene {
             map = mapChapel;
             player.setMap(mapChapel);
             player.clearBlockers();
-            // Lilin titik istirahat (488,136) tidak bisa ditembus, sama seperti
-            // perapian di Dasar Lembah dan Lintasan Reruntuhan.
-            player.addBlocker(485f, 132f, 30f, 20f);
+            // Blocker lilin mengikuti ukuran lilin asli — bukan 30x20 lama yang
+            // menutupi seluruh altar akibat koordinat lama (485,132).
+            addRestBlocker(restKapel);
             interactables.clear();
             interactables.addAll(chapelInteractables);
         } else if ("underground_archive".equals(areaId)) {
@@ -667,6 +672,8 @@ public final class GameplayScene extends Scene {
             map = mapArchive;
             player.setMap(mapArchive);
             player.clearBlockers();
+            // Sebelumnya brazier arsip tidak punya blocker sama sekali.
+            addRestBlocker(restArsip);
             interactables.clear();
             interactables.addAll(archiveInteractables);
         } else {
@@ -684,6 +691,12 @@ public final class GameplayScene extends Scene {
             interactables.clear();
             interactables.addAll(hallInteractables);
         }
+    }
+
+    /** Pasang penghalang fisik sesuai gaya visual titik istirahat. */
+    private void addRestBlocker(RestPoint rp) {
+        float[] b = rp.blockerRect();
+        player.addBlocker(b[0], b[1], b[2], b[3]);
     }
 
     public void transitionToVillage() {
@@ -1756,15 +1769,15 @@ public final class GameplayScene extends Scene {
             radius = 82f * flicker;
             baseAlpha = 244;
         } else if ("valley_floor".equals(currentAreaId)) {
-            // Belum bawa obor: perapian titik istirahat jadi sumber cahaya.
-            cx = 328f - camX;
-            cy = 116f - camY;
+            // Belum bawa obor: brazier titik istirahat jadi sumber cahaya.
+            cx = restLembah.x() - camX;
+            cy = restLembah.y() - 16f - camY;
             radius = 70f * flicker;
             baseAlpha = 232;
         } else if ("valley_ruins".equals(currentAreaId)) {
-            // Belum bawa obor: lilin di titik istirahat jadi sumber cahaya.
-            cx = 271f - camX;
-            cy = 168f - camY;
+            // Belum bawa obor: brazier di titik istirahat jadi sumber cahaya.
+            cx = restReruntuhan.x() - camX;
+            cy = restReruntuhan.y() - 20f - camY;
             radius = 70f * flicker;
             baseAlpha = 232;
         } else {
@@ -2389,7 +2402,8 @@ public final class GameplayScene extends Scene {
                     RestPoint rp = (RestPoint) focused;
                     if ("valley_floor".equals(currentAreaId)
                             || "valley_ruins".equals(currentAreaId)
-                            || "chapel_of_whispers".equals(currentAreaId)) {
+                            || "chapel_of_whispers".equals(currentAreaId)
+                            || "underground_archive".equals(currentAreaId)) {
                         float dx = rp.x() - player.x();
                         float dy = rp.y() - player.y();
                         if (Math.abs(dx) >= Math.abs(dy)) {
