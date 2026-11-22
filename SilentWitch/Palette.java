@@ -97,6 +97,14 @@ public final class Palette {
     public static final int STAINED_GLASS_R = 0xFF6A2838;
     public static final int STAINED_GLASS_B = 0xFF283868;
     public static final int STAINED_GLASS_G = 0xFF285038;
+    public static final int CHAPEL_MORTAR = 0xFF0D0B12;
+    public static final int CHAPEL_STONE_EDGE = 0xFF3A3244;
+    public static final int CHAPEL_CARPET = 0xFF3A1626;
+    public static final int CHAPEL_CARPET_LIGHT = 0xFF5A2438;
+    public static final int CHAPEL_CARPET_GOLD = 0xFF8A6A32;
+    public static final int CHAPEL_GLASS_LEAD = 0xFF0C0A12;
+    public static final int CHAPEL_GLASS_GLOW = 0xFFB7A6D8;
+    public static final int CHAPEL_CANDLE = 0xFFF0C878;
 
     // Underground Archive (Bab 5)
     public static final int ARCHIVE_WALL = 0xFF161220;

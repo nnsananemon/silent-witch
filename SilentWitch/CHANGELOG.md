@@ -4,6 +4,23 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.13] - 2026-11-22
+
+### Changed
+
+- **Chapel of Whispers memakai latar aset pengguna (`bg_chapel_whispers.png`, `TileMap.java`, `Palette.java`):**
+  - Background penuh 640x256 dari `Ruang Bawah Tanah dengan Altar Rune.png`,
+    diskalakan memakai algoritma area-average `BackgroundBuilder`, menggantikan
+    render tile prosedural. Latar sudah memuat jendela, bangku, rune, altar,
+    lilin, dan gerbang di posisi yang sesuai dengan peta `CHAPEL_WHISPERS`.
+  - Sprite pintu besi dan overlay rune prosedural dimatikan supaya tidak
+    menimpa latar; tile `'X'` tetap solid untuk collision.
+  - Dua tile `'d'` (tanah lembah) di dekat gerbang diganti `'o'` supaya tidak
+    ada tambalan coklat di lantai kapel.
+  - Renderer prosedural kapel yang diperkaya (bata, lempeng, karpet, kaca
+    patri, dan pancaran cahaya) tetap dipertahankan sebagai fallback bila
+    berkas latar tidak tersedia.
+
 ## [1.4.12] - 2026-11-22
 
 ### Changed
