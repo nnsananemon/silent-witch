@@ -502,7 +502,9 @@ public final class GameplayScene extends Scene {
                 new Dialogue("ALTAR KAPEL SUNYI",
                         "Altar marmer hitam. Mekanisme pengunci pintu batu telah terbuka."));
 
-        RestPoint istirahatKapel = new RestPoint(504f, 136f);
+        // Lilin di latar bg_chapel_whispers.png berada di (488,136), sejajar
+        // dengan altar; nyala animasi harus menempel tepat di atas lilin itu.
+        RestPoint istirahatKapel = new RestPoint(488f, 136f);
 
         ExamineSpot chapelSimbol = new ExamineSpot(312f, 136f, 26f, "SIMBOL KONTUR KAPEL",
                 new Dialogue("SIMBOL KONTUR KAPEL",
@@ -655,6 +657,9 @@ public final class GameplayScene extends Scene {
             map = mapChapel;
             player.setMap(mapChapel);
             player.clearBlockers();
+            // Lilin titik istirahat (488,136) tidak bisa ditembus, sama seperti
+            // perapian di Dasar Lembah dan Lintasan Reruntuhan.
+            player.addBlocker(485f, 132f, 30f, 20f);
             interactables.clear();
             interactables.addAll(chapelInteractables);
         } else if ("underground_archive".equals(areaId)) {
@@ -2383,7 +2388,8 @@ public final class GameplayScene extends Scene {
                 if (focused instanceof RestPoint) {
                     RestPoint rp = (RestPoint) focused;
                     if ("valley_floor".equals(currentAreaId)
-                            || "valley_ruins".equals(currentAreaId)) {
+                            || "valley_ruins".equals(currentAreaId)
+                            || "chapel_of_whispers".equals(currentAreaId)) {
                         float dx = rp.x() - player.x();
                         float dy = rp.y() - player.y();
                         if (Math.abs(dx) >= Math.abs(dy)) {

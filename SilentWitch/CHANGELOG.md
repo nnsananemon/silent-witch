@@ -4,6 +4,18 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.14] - 2026-11-22
+
+### Fixed
+
+- **Chapel of Whispers — titik istirahat (`GameplayScene.java`):**
+  - Rest point digeser dari (504,136) ke (488,136) supaya nyala api animasi
+    menempel tepat di atas lilin yang tergambar di `bg_chapel_whispers.png`.
+  - Lilin diberi blocker fisik (485,132,30,20) seperti perapian di Dasar
+    Lembah dan Lintasan Reruntuhan, jadi tidak bisa ditembus pemain.
+  - Tokoh kini bisa duduk menghadap api di kapel, sama seperti di kedua map
+    lembah.
+
 ## [1.4.13] - 2026-11-22
 
 ### Changed
