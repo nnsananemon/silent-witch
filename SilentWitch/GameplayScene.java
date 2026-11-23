@@ -509,9 +509,10 @@ public final class GameplayScene extends Scene {
                 new Dialogue("ALTAR KAPEL SUNYI",
                         "Altar marmer hitam. Mekanisme pengunci pintu batu telah terbuka."));
 
-        // Lilin di latar bg_chapel_whispers.png berada di (488,136), sejajar
-        // dengan altar; nyala animasi harus menempel tepat di atas lilin itu.
-        restKapel = new RestPoint(488f, 136f, RestPoint.Style.CANDLE);
+        // Altar kapel memakai brazier masonry yang sama dengan area lembah.
+        // Tapaknya di y=140 supaya duduk rapih di atas lempengan batu altar
+        // (sisa lilin lama di bg_chapel_whispers.png sudah dibersihkan).
+        restKapel = new RestPoint(488f, 140f, RestPoint.Style.BRAZIER);
 
         ExamineSpot chapelSimbol = new ExamineSpot(312f, 136f, 26f, "SIMBOL KONTUR KAPEL",
                 new Dialogue("SIMBOL KONTUR KAPEL",

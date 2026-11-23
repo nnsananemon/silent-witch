@@ -4,6 +4,15 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.27] - 2026-11-23
+
+### Changed
+
+- **Chapel of Whispers memakai brazier masonry (`GameplayScene.java`, `bg_chapel_whispers.png`):**
+  - Titik istirahat chapel diubah dari `Style.CANDLE` menjadi `Style.BRAZIER` dengan posisi (488,140), memakai aset `brazier_anim.png` yang sama seperti Lintasan Reruntuhan. Tapak brazier duduk rapih di atas lempengan altar.
+  - Sisa lilin lama di `bg_chapel_whispers.png` dibersihkan supaya tidak ada api ganda.
+  - Blocker otomatis mengikuti geometri BRAZIER (32x20). Preview `preview_chapel.png` ditaruh di Desktop.
+
 ## [1.4.26] - 2026-11-23
 
 ### Fixed
