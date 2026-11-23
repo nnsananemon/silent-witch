@@ -83,9 +83,9 @@ public final class RestPoint implements Interactable {
                 // Sprite 16x32 digambar dengan dasar di (x, y):
                 //   nyala api  -> y-22 .. y-16
                 //   tapak batu -> y-16 .. y
-                // Blocker harus menutup keduanya, bukan hanya tapaknya,
-                // supaya pemain tidak bisa menembus nyala api dari atas/samping.
-                return new float[]{x, y - 11f, 16f, 22f};
+                // Blocker 16x18 menutup tapak + sedikit nyala, cukup untuk
+                // mencegah tembusan tanpa menghalangi tile walkable di sekitar altar.
+                return new float[]{x, y - 9f, 16f, 18f};
             case CANDLE:
                 return new float[]{x, y - 4f, 10f, 12f};
             case CAMPFIRE:

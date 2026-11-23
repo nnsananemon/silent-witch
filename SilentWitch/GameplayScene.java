@@ -454,9 +454,10 @@ public final class GameplayScene extends Scene {
                 new Dialogue("BATU SIMBOL RERUNTUHAN",
                         "Batu simbol besar dengan gabungan semua pola dan pesan kuno."));
 
-        // Brazier diletakkan di dasar altar (y=192) supaya tapak masonry-nya
-        // menutupi pedestal batu di bg_valley_ruins.png, bukan melayang di atasnya.
-        restReruntuhan = new RestPoint(271f, 192f, RestPoint.Style.BRAZIER);
+        // Brazier di atas pedestal altar (y=184). Jangan diturunkan ke y=192:
+        // blocker-nya akan menutupi seluruh baris tile 11 (y176..191), satu-satunya
+        // jalur walkable di atas altar, sehingga pemain mentok dan tak bisa duduk.
+        restReruntuhan = new RestPoint(271f, 184f, RestPoint.Style.BRAZIER);
 
         GerbangLembah gerbangReruntuhan = new GerbangLembah(600f, 72f, "CHAPEL OF WHISPERS");
 
@@ -650,7 +651,7 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            // Brazier di Lintasan Reruntuhan (271,192) tidak bisa ditembus.
+            // Brazier di Lintasan Reruntuhan (271,184) tidak bisa ditembus.
             addRestBlocker(restReruntuhan);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
@@ -1777,7 +1778,7 @@ public final class GameplayScene extends Scene {
         } else if ("valley_ruins".equals(currentAreaId)) {
             // Belum bawa obor: brazier di titik istirahat jadi sumber cahaya.
             cx = restReruntuhan.x() - camX;
-            cy = restReruntuhan.y() - 20f - camY;
+            cy = restReruntuhan.y() - 12f - camY;
             radius = 70f * flicker;
             baseAlpha = 232;
         } else {

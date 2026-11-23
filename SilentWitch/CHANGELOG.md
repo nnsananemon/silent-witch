@@ -4,6 +4,17 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.17] - 2026-11-23
+
+### Fixed
+
+- **Lintasan Reruntuhan — titik istirahat tidak bisa dicapai (`TileMap.java`, `GameplayScene.java`, `RestPoint.java`):**
+  - Bug utama: seluruh kantong altar (baris 11–12, kolom 15–17) terkurung tile `R` solid sehingga pemain tidak pernah bisa masuk dari spawn — brazier terlihat tapi tak bisa didekati. Salah satu tile `R` di sisi kanan altar (baris 12, kolom 18) dibuka menjadi `d`, menghubungkan kantong ke koridor yang sudah bisa dijangkau.
+  - Rest point digeser dari (271,192) ke **(271,184)** supaya tidak menutupi seluruh baris tile 11 (jalur walkable di atas altar).
+  - Blocker brazier dikecilkan dari 16×22 menjadi **16×18** di `(x, y-9)` — cukup menutup tapak + nyala bagian bawah tanpa menghalangi pemain duduk dekat.
+  - Sumber cahaya gelap area ini diselaraskan kembali ke nyala brazier.
+  - Verifikasi: BFS dari spawn sekarang mencapai tile `Z`; simulasi pergerakan pemain berhenti pada jarak ~5px dari titik istirahat.
+
 ## [1.4.16] - 2026-11-23
 
 ### Fixed
