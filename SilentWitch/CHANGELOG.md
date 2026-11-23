@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.21] - 2026-11-23
+
+### Changed
+
+- **Jarak blocker brazier ditambah (`RestPoint.java`):** ukuran simetris dinaikkan dari 24x24 menjadi **32x32** di `(x, y-12)`, memberi ruang ekstra ~4px dari tiap sisi. Jarak berhenti pemain: kiri/kanan ~21.8px, bawah ~7.8px, atas ~31.1px dari titik istirahat.
+
 ## [1.4.20] - 2026-11-23
 
 ### Changed
