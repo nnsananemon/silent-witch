@@ -795,6 +795,16 @@ public final class GameplayScene extends Scene {
         autosave();
     }
 
+    /** Kembali dari Lintasan Reruntuhan ke ujung kanan Dasar Lembah. */
+    public void transitionToValleyFloorFromRuins() {
+        setupArea("valley_floor");
+        player.setPosition(600f, 72f);
+        player.setFacing(Player.Facing.LEFT);
+        centerCameraOnPlayer();
+        investigation.setNotification("KEMBALI KE DASAR LEMBAH", 2.5f);
+        autosave();
+    }
+
     /** Kembali dari Dasar Lembah ke ujung kanan Jalur Tebing (nyambung). */
     public void transitionToValleyCliffPathFromFloor() {
         setupArea("valley_cliff_path");
@@ -811,6 +821,16 @@ public final class GameplayScene extends Scene {
         player.setFacing(Player.Facing.RIGHT);
         centerCameraOnPlayer();
         investigation.setNotification("LINTASAN RERUNTUHAN — RERUNTUHAN KUNO", 3.0f);
+        autosave();
+    }
+
+    /** Kembali dari Chapel of Whispers ke ujung kanan Lintasan Reruntuhan. */
+    public void transitionToValleyRuinsFromChapel() {
+        setupArea("valley_ruins");
+        player.setPosition(600f, 72f);
+        player.setFacing(Player.Facing.LEFT);
+        centerCameraOnPlayer();
+        investigation.setNotification("KEMBALI KE LINTASAN RERUNTUHAN", 2.5f);
         autosave();
     }
 
@@ -1413,7 +1433,7 @@ public final class GameplayScene extends Scene {
         } else if (currentAreaId.equals("valley_ruins")) {
             if (player.x() <= 8f) {
                 clearInput();
-                transitionToValleyFloor();
+                transitionToValleyFloorFromRuins();
             } else if (player.x() >= 608f) {
                 clearInput();
                 transitionToChapel();
@@ -1421,7 +1441,7 @@ public final class GameplayScene extends Scene {
         } else if (currentAreaId.equals("chapel_of_whispers")) {
             if (player.x() <= 8f) {
                 clearInput();
-                transitionToValleyRuins();
+                transitionToValleyRuinsFromChapel();
             } else if (gerbangKapel.isUnlocked() && player.x() >= 616f) {
                 clearInput();
                 transitionToArchive();

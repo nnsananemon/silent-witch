@@ -4,6 +4,15 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.26] - 2026-11-23
+
+### Fixed
+
+- **Spawn saat kembali ke map sebelumnya (`GameplayScene.java`):**
+  - Dua transisi balik yang masih memakai spawn kiri diperbaiki: Lintasan Reruntuhan → Dasar Lembah dan Chapel → Lintasan Reruntuhan kini memakai method khusus `transitionToValleyFloorFromRuins()` / `transitionToValleyRuinsFromChapel()` yang menempatkan pemain di **ujung kanan (600,72) menghadap kiri**.
+  - Transisi balik lain sudah konsisten: Floor → Tebing (600,72), Arsip → Chapel (600,72), Tebing → Hutan (540,72), East Wing/Hutan → Aula (370,176).
+  - Transisi maju tetap spawn di kiri (24,72) menghadap kanan.
+
 ## [1.4.25] - 2026-11-23
 
 ### Fixed
