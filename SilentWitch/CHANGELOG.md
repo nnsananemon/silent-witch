@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.34] - 2026-11-23
+
+### Changed
+
+- **Blocker titik istirahat dinonaktifkan lagi (`GameplayScene.java`):** pemain bebas memposisikan diri di sekitar brazier tanpa penghalang. Helper `addRestBlocker` dilepas, tetapi `RestPoint.blockerRect()` tetap disimpan supaya mudah dipasang kembali setelah posisi final ditentukan.
+
 ## [1.4.33] - 2026-11-23
 
 ### Fixed

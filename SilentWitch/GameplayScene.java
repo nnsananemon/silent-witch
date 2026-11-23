@@ -643,7 +643,6 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
-            addRestBlocker(restLembah);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
@@ -651,7 +650,6 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            addRestBlocker(restReruntuhan);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
@@ -662,7 +660,6 @@ public final class GameplayScene extends Scene {
             map = mapChapel;
             player.setMap(mapChapel);
             player.clearBlockers();
-            addRestBlocker(restKapel);
             interactables.clear();
             interactables.addAll(chapelInteractables);
         } else if ("underground_archive".equals(areaId)) {
@@ -670,7 +667,6 @@ public final class GameplayScene extends Scene {
             map = mapArchive;
             player.setMap(mapArchive);
             player.clearBlockers();
-            addRestBlocker(restArsip);
             interactables.clear();
             interactables.addAll(archiveInteractables);
         } else {
@@ -688,12 +684,6 @@ public final class GameplayScene extends Scene {
             interactables.clear();
             interactables.addAll(hallInteractables);
         }
-    }
-
-    /** Pasang penghalang fisik titik istirahat (simetris di 4 arah). */
-    private void addRestBlocker(RestPoint rp) {
-        float[] b = rp.blockerRect();
-        player.addBlocker(b[0], b[1], b[2], b[3]);
     }
 
     public void transitionToVillage() {
