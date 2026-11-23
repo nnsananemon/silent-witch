@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.31] - 2026-11-23
+
+### Fixed
+
+- **Blocker brazier diperkecil (`RestPoint.java`):** ukuran **32x20 → 24x16** di `(x, y-4)`. Kiri/kanan **21.9 → 17.6px**, atas **19.3 → 15.9px**, bawah tetap ~7.4px.
+
 ## [1.4.30] - 2026-11-23
 
 ### Fixed
