@@ -81,9 +81,9 @@ public final class RestPoint implements Interactable {
         switch (style) {
             case BRAZIER:
                 // Lebar 32 dipertahankan (kiri/kanan), dasar tetap di y+4 (bawah),
-                // tapi pinggiran atas diturunkan dari y-28 ke y-20 supaya pemain
-                // yang mendekat dari atas (frame bawah) tidak terlalu jauh.
-                return new float[]{x, y - 8f, 32f, 24f};
+                // tapi pinggiran atas diturunkan lagi ke y-16 supaya pemain yang
+                // mendekat dari atas (frame atas) bisa lebih rapih.
+                return new float[]{x, y - 6f, 32f, 20f};
             case CANDLE:
                 return new float[]{x, y - 4f, 10f, 12f};
             case CAMPFIRE:

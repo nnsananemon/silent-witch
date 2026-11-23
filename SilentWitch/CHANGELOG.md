@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.25] - 2026-11-23
+
+### Fixed
+
+- **Frame atas brazier diperkecil lagi (`RestPoint.java`):** blocker jadi **32x20** di `(x, y-6)` — pinggiran atas turun dari y-20 ke y-16. Jarak pemain di atas brazier **23.6px → 19.3px**, sedangkan frame bawah tetap ~7.4px dan kiri/kanan tidak berubah.
+
 ## [1.4.24] - 2026-11-23
 
 ### Fixed
