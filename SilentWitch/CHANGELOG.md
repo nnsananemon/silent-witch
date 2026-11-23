@@ -8,7 +8,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 
 ### Fixed
 
-- **Penempatan brazier Lintasan Reruntuhan (`GameplayScene.java`):** titik istirahat digeser dari x=271 ke **x=275** supaya tapak brazier rapih di tengah pedestal batu dan tidak kekiri. Blocker dan sumber cahaya otomatis mengikuti koordinat baru. Preview Desktop diperbarui.
+- **Penempatan brazier Lintasan Reruntuhan (`GameplayScene.java`):** titik istirahat digeser dari x=271 ke **x=273** supaya tapak brazier rapih di tengah pedestal batu dan tidak kekiri. Blocker dan sumber cahaya otomatis mengikuti koordinat baru. Preview Desktop diperbarui.
 
 ## [1.4.23] - 2026-11-23
 

@@ -454,11 +454,10 @@ public final class GameplayScene extends Scene {
                 new Dialogue("BATU SIMBOL RERUNTUHAN",
                         "Batu simbol besar dengan gabungan semua pola dan pesan kuno."));
 
-        // Brazier di atas pedestal altar (y=184). X digeser ke 275 supaya tapaknya
-        // rapih di tengah pedestal batu, tidak kekiri. Jangan diturunkan ke y=192:
-        // blocker-nya akan menutupi seluruh baris tile 11 (y176..191), satu-satunya
-        // jalur walkable di atas altar, sehingga pemain mentok dan tak bisa duduk.
-        restReruntuhan = new RestPoint(275f, 184f, RestPoint.Style.BRAZIER);
+        // Brazier di atas pedestal altar (y=184). X=273 rapih di tengah pedestal
+        // batu. Jangan diturunkan ke y=192: blocker-nya akan menutupi seluruh
+        // baris tile 11 (y176..191), satu-satunya jalur walkable di atas altar.
+        restReruntuhan = new RestPoint(273f, 184f, RestPoint.Style.BRAZIER);
 
         GerbangLembah gerbangReruntuhan = new GerbangLembah(600f, 72f, "CHAPEL OF WHISPERS");
 
