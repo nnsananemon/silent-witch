@@ -4,6 +4,15 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.22] - 2026-11-23
+
+### Fixed
+
+- **Lintasan Reruntuhan — area altar terlalu lebar diblokir (`TileMap.java`):**
+  - Penyebabnya bukan ukuran blocker (kode sudah sama dengan Dasar Lembah), melainkan tile batu `R` solid yang mengapit altar di atas/kiri/kanan.
+  - Dibuka 6 tile: baris 10 kolom 15–17 (atas), baris 11 kolom 14 & 18 (kiri/kanan), dan baris 12 kolom 14 (kiri bawah).
+  - Hasil pengukuran: jarak berhenti pemain kiri/kanan **21.9px**, atas **31.1px** — identik dengan Dasar Lembah. Preview di Desktop sudah diperbarui.
+
 ## [1.4.21] - 2026-11-23
 
 ### Changed
