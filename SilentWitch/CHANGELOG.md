@@ -4,6 +4,15 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.20] - 2026-11-23
+
+### Changed
+
+- **Blocker titik istirahat dipasang lagi secara simetris (`RestPoint.java`, `GameplayScene.java`):**
+  - Blocker brazier kini kotak **24x24** yang dipusatkan di `(x, y-12)`, memberi jarak halang yang sama ke kiri, kanan, atas, dan bawah.
+  - Helper `addRestBlocker` dan keempat pemanggilnya di `setupArea` dikembalikan setelah periode percobaan tanpa blocker.
+  - Jalur masuk ke altar Lintasan Reruntuhan tetap terbuka.
+
 ## [1.4.19] - 2026-11-23
 
 ### Changed

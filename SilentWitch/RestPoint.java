@@ -80,10 +80,10 @@ public final class RestPoint implements Interactable {
     public float[] blockerRect() {
         switch (style) {
             case BRAZIER:
-                // Sprite 16x32 digambar dengan dasar di (x, y). Blocker sengaja
-                // dibuat lebih kecil dari tapak (12x12) dan dasarnya diangkat 1px
-                // supaya pemain bisa duduk benar-benar dekat ke brazier.
-                return new float[]{x, y - 7f, 12f, 12f};
+                // Kotak 24x24 (simetris) dengan dasar tepat di permukaan tanah y,
+                // sehingga pemain terblokir dengan jarak yang sama dari keempat
+                // arah: kiri, kanan, atas, bawah.
+                return new float[]{x, y - 12f, 24f, 24f};
             case CANDLE:
                 return new float[]{x, y - 4f, 10f, 12f};
             case CAMPFIRE:

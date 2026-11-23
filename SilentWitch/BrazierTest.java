@@ -42,14 +42,14 @@ public class BrazierTest {
 
         // 4. Geometri blocker: brazier menutup api + tapak, lilin tidak berlebihan
         float[] bb = rpBrazier.blockerRect();
-        if (bb[2] != 12f || bb[3] != 12f || bb[1] != 128f - 7f) {
-            throw new AssertionError("Blocker BRAZIER harus 12x12 di (x, y-7)");
+        if (bb[2] != 24f || bb[3] != 24f || bb[1] != 128f - 12f) {
+            throw new AssertionError("Blocker BRAZIER harus 24x24 simetris di (x, y-12)");
         }
         float[] cb = rpCandle.blockerRect();
         if (cb[2] != 10f || cb[3] != 12f) {
             throw new AssertionError("Blocker CANDLE harus 10x12 (tidak 30x20 lama)");
         }
-        System.out.println("[PASS] 4. Geometri blocker BRAZIER (12x12) & CANDLE (10x12) sesuai");
+        System.out.println("[PASS] 4. Geometri blocker BRAZIER (24x24 simetris) & CANDLE (10x12) sesuai");
 
         // 5. Verifikasi gameplay scene di semua area cave
         GameplayScene scene = new GameplayScene(null);
