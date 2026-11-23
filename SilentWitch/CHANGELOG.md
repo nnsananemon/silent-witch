@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.18] - 2026-11-23
+
+### Fixed
+
+- **Blocker brazier diperkecil lagi (`RestPoint.java`):** ukuran `BRAZIER` diturunkan dari 16x18 menjadi **12x12** di `(x, y-7)`. Dasar blocker diangkat 1px supaya pemain bisa duduk benar-benar dekat ke tungku. Simulasi pergerakan di Lintasan Reruntuhan: jarak berhenti pemain menyusut dari ~5px menjadi **~2px** dari titik istirahat.
+
 ## [1.4.17] - 2026-11-23
 
 ### Fixed
