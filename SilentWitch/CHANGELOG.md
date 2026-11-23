@@ -4,6 +4,14 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.19] - 2026-11-23
+
+### Changed
+
+- **Semua blocker titik istirahat dinonaktifkan sementara (`GameplayScene.java`):**
+  - Pemain kini bebas mendekat/menembus brazier maupun lilin tanpa penghalang fisik, supaya perilaku dan visualnya bisa dinilai langsung dulu sebelum memutuskan ukuran blocker final.
+  - Helper `addRestBlocker` dihapus; `RestPoint.blockerRect()` tetap disimpan agar mudah dipasang kembali nanti.
+
 ## [1.4.18] - 2026-11-23
 
 ### Fixed

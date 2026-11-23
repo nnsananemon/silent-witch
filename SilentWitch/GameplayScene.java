@@ -642,8 +642,7 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
-            // Blocker 16x22 menutup nyala api + tapak masonry brazier.
-            addRestBlocker(restLembah);
+            // Titik istirahat sengaja tanpa blocker: pemain bebas mendekat/menembus api.
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {
@@ -651,8 +650,7 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            // Brazier di Lintasan Reruntuhan (271,184) tidak bisa ditembus.
-            addRestBlocker(restReruntuhan);
+            // Brazier Lintasan Reruntuhan (271,184) sengaja tanpa blocker.
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
@@ -663,9 +661,7 @@ public final class GameplayScene extends Scene {
             map = mapChapel;
             player.setMap(mapChapel);
             player.clearBlockers();
-            // Blocker lilin mengikuti ukuran lilin asli — bukan 30x20 lama yang
-            // menutupi seluruh altar akibat koordinat lama (485,132).
-            addRestBlocker(restKapel);
+            // Lilin kapel juga tanpa blocker (tidak ada penghalang fisik).
             interactables.clear();
             interactables.addAll(chapelInteractables);
         } else if ("underground_archive".equals(areaId)) {
@@ -673,8 +669,7 @@ public final class GameplayScene extends Scene {
             map = mapArchive;
             player.setMap(mapArchive);
             player.clearBlockers();
-            // Sebelumnya brazier arsip tidak punya blocker sama sekali.
-            addRestBlocker(restArsip);
+            // Brazier arsip juga tanpa blocker.
             interactables.clear();
             interactables.addAll(archiveInteractables);
         } else {
@@ -692,12 +687,6 @@ public final class GameplayScene extends Scene {
             interactables.clear();
             interactables.addAll(hallInteractables);
         }
-    }
-
-    /** Pasang penghalang fisik sesuai gaya visual titik istirahat. */
-    private void addRestBlocker(RestPoint rp) {
-        float[] b = rp.blockerRect();
-        player.addBlocker(b[0], b[1], b[2], b[3]);
     }
 
     public void transitionToVillage() {
