@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.24] - 2026-11-23
+
+### Fixed
+
+- **Penempatan brazier Lintasan Reruntuhan (`GameplayScene.java`):** titik istirahat digeser dari x=271 ke **x=275** supaya tapak brazier rapih di tengah pedestal batu dan tidak kekiri. Blocker dan sumber cahaya otomatis mengikuti koordinat baru. Preview Desktop diperbarui.
+
 ## [1.4.23] - 2026-11-23
 
 ### Fixed
