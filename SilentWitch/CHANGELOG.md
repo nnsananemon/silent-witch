@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.36] - 2026-11-23
+
+### Fixed
+
+- **Blocker Dasar Lembah & Lintasan Reruntuhan dikembalikan ke ukuran asli repo (`GameplayScene.java`):** memakai nilai hardcoded semula — floor `(328,116,30,20)` dan ruins `(271,168,30,20)`. Chapel dan Arsip tetap tanpa blocker.
+
 ## [1.4.35] - 2026-11-23
 
 ### Fixed
