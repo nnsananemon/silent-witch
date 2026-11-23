@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.35] - 2026-11-23
+
+### Fixed
+
+- **Blocker dikembalikan hanya di area lembah (`GameplayScene.java`):** `addRestBlocker` dipasang lagi untuk Dasar Lembah dan Lintasan Reruntuhan. Chapel of Whispers dan Underground Archive sengaja tetap tanpa blocker supaya pemain bisa bebas memposisikan diri di sana.
+
 ## [1.4.34] - 2026-11-23
 
 ### Changed
