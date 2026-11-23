@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.28] - 2026-11-23
+
+### Fixed
+
+- **Penyesuaian halus brazier chapel (`GameplayScene.java`):** posisi digeser 1px ke kanan dan 3px ke bawah menjadi **(489,143)** supaya tapaknya presisi di atas altar. Preview Desktop diperbarui.
+
 ## [1.4.27] - 2026-11-23
 
 ### Changed
