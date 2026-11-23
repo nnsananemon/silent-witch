@@ -643,8 +643,9 @@ public final class GameplayScene extends Scene {
             map = mapValleyFloor;
             player.setMap(mapValleyFloor);
             player.clearBlockers();
-            // Blocker asli repo: perapian titik istirahat Dasar Lembah.
-            player.addBlocker(328f, 116f, 30f, 20f);
+            // Blocker Dasar Lembah: sisi bawah diperpanjang supaya pemain
+            // yang duduk di bawah brazier (frame bawah) tidak terlalu mepet.
+            player.addBlocker(328f, 119f, 30f, 26f);
             interactables.clear();
             interactables.addAll(valleyFloorInteractables);
         } else if ("valley_ruins".equals(areaId)) {

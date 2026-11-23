@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.37] - 2026-11-23
+
+### Fixed
+
+- **Blocker frame bawah Dasar Lembah (`GameplayScene.java`):** sisi bawah blocker perapian diperpanjang 6px — `(328,116,30,20)` menjadi **`(328,119,30,26)`**. Jarak pemain di bawah brazier **~1px → 7.3px**; arah atas/kiri/kanan tidak berubah.
+
 ## [1.4.36] - 2026-11-23
 
 ### Fixed
