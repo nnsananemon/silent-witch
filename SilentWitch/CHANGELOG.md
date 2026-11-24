@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.41] - 2026-11-24
+
+### Fixed
+
+- **Tumpukan batu kiri altar Lintasan Reruntuhan (`GameplayScene.java`):** ditambah blocker `(208,192,32,32)` supaya pemain tidak lagi tampak menembus batu yang tergambar di latar (tile-nya walkable tapi visualnya solid).
+
 ## [1.4.40] - 2026-11-24
 
 ### Fixed
