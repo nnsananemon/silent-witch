@@ -4,11 +4,11 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
-## [1.4.46] - 2026-11-24
+## [1.4.46] - 2026-11-25
 
 ### Changed
 
-- **Peti kayu di Chapel of Whispers (`bg_chapel_whispers.png`):** kotak-kotak bangku kecil di latar diganti dengan sprite peti dari `Lembar Sprite Peti Kayu Pixel Art.png` (varian peti papan horizontal), di-scale ke 12x12 px dan digelapkan agar menyatu dengan latar kapel. Kredit aset ditambahkan di `ASSET_CREDITS.md`.
+- **Kotak bangku di Chapel of Whispers dihapus (`bg_chapel_whispers.png`):** percobaan mengganti kotak kecil dengan sprite peti kayu dibatalkan karena hasilnya tidak cocok. area tersebut dikembalikan ke tekstur lantai kapel yang bersih.
 
 ## [1.4.43] - 2026-11-24
 
