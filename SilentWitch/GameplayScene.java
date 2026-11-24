@@ -37,6 +37,54 @@ public final class GameplayScene extends Scene {
     private static final int HEADER_H = 15;
     private static final int HINT_H = 12;
     private static final int DUST_COUNT = 16;
+    /** Kotak tabrakan presisi dari peta referensi Lintasan Reruntuhan. */
+    private static final float[][] RUINS_RED_BOXES = {
+{587.4f, 27.9f, 104.6f, 55.8f},
+            {544.0f, 19.0f, 10.7f, 7.7f},
+            {490.1f, 22.0f, 12.6f, 5.8f},
+            {333.4f, 28.1f, 6.5f, 1.9f},
+            {639.0f, 38.9f, 1.3f, 8.7f},
+            {233.2f, 47.6f, 14.5f, 10.7f},
+            {633.4f, 53.4f, 1.6f, 6.1f},
+            {524.5f, 58.3f, 10.3f, 9.4f},
+            {335.0f, 58.4f, 9.7f, 9.0f},
+            {376.0f, 70.1f, 7.7f, 6.5f},
+            {423.4f, 79.4f, 18.1f, 20.7f},
+            {202.7f, 77.0f, 10.3f, 10.0f},
+            {435.4f, 84.9f, 9.0f, 9.0f},
+            {201.4f, 88.9f, 12.9f, 8.7f},
+            {216.4f, 93.5f, 13.9f, 8.1f},
+            {588.0f, 98.5f, 7.7f, 4.5f},
+            {229.5f, 106.4f, 11.0f, 10.7f},
+            {497.5f, 117.7f, 52.6f, 28.1f},
+            {443.8f, 107.8f, 9.0f, 7.7f},
+            {216.6f, 115.7f, 14.2f, 11.3f},
+            {229.5f, 120.9f, 11.0f, 10.0f},
+            {52.1f, 139.0f, 1.6f, 6.8f},
+            {91.0f, 162.1f, 5.2f, 1.3f},
+            {387.9f, 170.8f, 20.7f, 16.1f},
+            {255.3f, 170.1f, 9.7f, 9.7f},
+            {301.4f, 178.0f, 12.9f, 19.0f},
+            {274.5f, 173.4f, 5.5f, 2.6f},
+            {413.3f, 185.1f, 32.6f, 19.7f},
+            {271.4f, 180.1f, 5.2f, 8.4f},
+            {277.2f, 180.1f, 5.2f, 8.4f},
+            {248.0f, 183.2f, 10.7f, 8.7f},
+            {499.3f, 186.1f, 5.2f, 1.6f},
+            {295.1f, 195.6f, 8.7f, 14.2f},
+            {252.7f, 197.9f, 8.4f, 9.0f},
+            {628.9f, 204.3f, 1.6f, 5.2f},
+            {246.3f, 206.1f, 8.4f, 4.2f},
+            {307.1f, 233.7f, 1.6f, 6.5f},
+            {42.8f, 242.1f, 5.5f, 1.3f},
+            {545.9f, 244.9f, 6.8f, 2.3f},
+            {281.8f, 250.4f, 2.6f, 10.7f},
+            {86.2f, 250.7f, 1.9f, 10.0f},
+            {639.0f, 251.0f, 1.3f, 9.4f},
+            {9.4f, 252.4f, 1.9f, 6.5f},
+            {530.4f, 255.0f, 7.4f, 1.3f},
+    };
+
     private static final float INPUT_COOLDOWN = 0.18f;
 
     private TileMap map;
@@ -662,6 +710,12 @@ public final class GameplayScene extends Scene {
             // Tumpukan batu di kanan altar (kolom 19-20, baris 12) — sama seperti
             // yang kiri, tile-nya walkable tapi latar memuat batu solid.
             player.addBlocker(320f, 200f, 32f, 16f);
+            // Blocker presisi mengikuti kotak tabrakan merah pada peta referensi
+            // "Peta Reruntuhan dengan Kotak Tabrakan Merah.png". Pintu masuk &
+            // keluar sengaja dikecualikan.
+            for (float[] b : RUINS_RED_BOXES) {
+                player.addBlocker(b[0], b[1], b[2], b[3]);
+            }
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
