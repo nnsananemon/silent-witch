@@ -4,6 +4,13 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.40] - 2026-11-24
+
+### Fixed
+
+- **Blocker Reruntuhan sisi atas ditambah (`GameplayScene.java`):** kotak jadi **34x34** di `(271,189)`, jarak pemain dari atas **~10px → ~16px**.
+- **Tile batu bawah altar ditutup lagi (`TileMap.java`):** 3 tile di baris 13 kolom 15–17 dikembalikan ke `R` (solid), sehingga sisi bawah kembali terhalang batu seperti semula.
+
 ## [1.4.39] - 2026-11-24
 
 ### Fixed

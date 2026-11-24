@@ -653,9 +653,9 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            // Bloker Reruntuhan: jarak per arah atas=10, bawah=25, kanan=20,
+            // Bloker Reruntuhan: jarak per arah atas=15, bawah=25, kanan=20,
             // kiri=24 px dari brazier (dihitung dari tepi kotak + hitbox pemain).
-            player.addBlocker(271f, 191.5f, 34f, 29f);
+            player.addBlocker(271f, 189f, 34f, 34f);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
