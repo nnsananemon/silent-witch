@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.38] - 2026-11-24
+
+### Fixed
+
+- **Blocker atas brazier Lintasan Reruntuhan dihapus (`GameplayScene.java`):** blocker diturunkan dari `(271,168,30,20)` menjadi **`(271,187,30,14)`**, sehingga tidak lagi menutupi nyala api/area atas brazier. Jarak pemain dari atas **~29px → 7.2px**.
+
 ## [1.4.37] - 2026-11-23
 
 ### Fixed

@@ -653,8 +653,9 @@ public final class GameplayScene extends Scene {
             map = mapValleyRuins;
             player.setMap(mapValleyRuins);
             player.clearBlockers();
-            // Blocker asli repo: perapian titik istirahat Lintasan Reruntuhan.
-            player.addBlocker(271f, 168f, 30f, 20f);
+            // Bloker Reruntuhan hanya di bawah tapak brazier — tidak ada
+            // penghalang lagi di area atas/nyala api.
+            player.addBlocker(271f, 187f, 30f, 14f);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);
