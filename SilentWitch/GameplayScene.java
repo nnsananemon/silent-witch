@@ -658,7 +658,7 @@ public final class GameplayScene extends Scene {
             player.addBlocker(271f, 189f, 34f, 34f);
             // Tumpukan batu di kiri altar (tile kolom 12-13, baris 11-12):
             // tile-nya walkable tapi latar memuat batu, jadi pemain tampak tembus.
-            player.addBlocker(208f, 192f, 32f, 32f);
+            player.addBlocker(208f, 192f, 34f, 34f);
             // Batu simbol rune (337,124): blocker pas seukuran relief-nya supaya
             // ksatria tidak bisa menimpa/melewati batu saat memeriksa.
             player.addBlocker(337f, 122f, 20f, 22f);

@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.42] - 2026-11-24
+
+### Fixed
+
+- **Blocker tumpukan batu kiri altar diperbesar (`GameplayScene.java`):** 32x32 → **34x34** di `(208,192)` (1px ekstra per sisi).
+
 ## [1.4.41] - 2026-11-24
 
 ### Fixed
