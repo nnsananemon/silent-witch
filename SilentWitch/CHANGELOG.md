@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.44] - 2026-11-24
+
+### Fixed
+
+- **Batas garis biru Lintasan Reruntuhan diterapkan di tile map (`TileMap.java`):** 19 tile `d` yang latarnya batu/tembok diubah jadi `C` (solid), mengikuti kontur garis biru pada `peta_tembok_reruntuhan.png`. Blocker brazier `(271,189,34,34)` dan batu simbol rune `(337,122,20,22)` sengaja tidak diubah. Keterjangkauan spawn → brazier → exit tetap aman.
+
 ## [1.4.43] - 2026-11-24
 
 ### Fixed
