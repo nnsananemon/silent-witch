@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.39] - 2026-11-24
+
+### Fixed
+
+- **Jarak blocker Lintasan Reruntuhan per arah (`GameplayScene.java`, `TileMap.java`):** kotak blocker diubah menjadi **34x29** di `(271,191.5)` supaya jarak berhenti pemain: atas ~10px, bawah ~25px, kanan ~20px, kiri ~24px. Tiga tile batu di bawah altar (baris 13, kolom 15–17) dibuka menjadi `d` agar pemain benar-benar bisa mencapai jarak 25px dari sisi bawah.
+
 ## [1.4.38] - 2026-11-24
 
 ### Fixed
