@@ -4,12 +4,6 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
-## [1.4.45] - 2026-11-24
-
-### Added
-
-- **Blocker presisi dari peta referensi (`GameplayScene.java`):** 44 kotak tabrakan diekstrak dari `Peta Reruntuhan dengan Kotak Tabrakan Merah.png` dan dipasang sebagai `addBlocker` di Lintasan Reruntuhan. Pintu masuk (24,72) dan keluar (600,72) sengaja dikecualikan. Blocker brazier dan batu simbol rune tetap seperti semula.
-
 ## [1.4.44] - 2026-11-24
 
 ### Fixed
