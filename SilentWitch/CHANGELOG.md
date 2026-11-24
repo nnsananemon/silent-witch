@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.43] - 2026-11-24
+
+### Fixed
+
+- **Analisis batas tembok Lintasan Reruntuhan (`GameplayScene.java`):** semua tumpukan batu di latar yang tile-nya walkable kini diberi blocker — kiri altar `(208,192,34,34)` dan kanan altar `(320,200,32,16)`. Peta anotasi `peta_tembok_reruntuhan.png` ditaruh di Desktop sebagai panduan batasnya.
+
 ## [1.4.42] - 2026-11-24
 
 ### Fixed
