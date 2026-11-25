@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.50] - 2026-11-26
+
+### Changed
+
+- **Chapel of Whispers — seluruh item di PNG sekarang punya tile block (`TileMap.java`, `GameplayScene.java`):** array tile dipetakan ulang dari gambar: dinding atas/bawah, jendela gerbang kiri/kanan, 9 bangku kayu (`n`), ~32 tumpukan batu (`R`), 4 rune ungu + 2 tablet cyan (`X`), altar emas (`a`), dan koridor tengah yang bebas. Brazier dipindah ke (504,148) tepat di atas altar emas. Aset bangku lama (`pew_chapel.png`) dihapus.
+
 ## [1.4.49] - 2026-11-26
 
 ### Changed

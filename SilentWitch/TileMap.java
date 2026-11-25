@@ -191,21 +191,21 @@ public final class TileMap {
     //   'G' gerbang (terbuka)     'a' altar (solid, overlay)   'X' rune (solid)
     private static final String[] CHAPEL_WHISPERS = {
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HoooooooooooooooooooXooooooooooooooooooH",
-            "GSoooooooooooooooooooooooooooooooooooooG",
-            "HoooooooooooooooooooooooooooooaooooooooH",
-            "HoooooooooooooooooooooooooooooaooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HooooooooooooooooooooooooooooooooooooooH",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+            "ooooRRoooooooRRooooooooooooRRooooRRooooo",
+            "ooonoonoonoooooooonoonooonoooooooooooooo",
+            "oooooooooooooooonoooooooRooooooooXoooooo",
+            "GoSooooooooooooooooooooooooooooXoooooooG",
+            "oooRRoooooooRoooooRRoooooooooooooXoooooo",
+            "ooooooRooRoooooooooooRoooooooooooXoooRoo",
+            "oooooooooooooooooooRoooooooRRooooooooooo",
+            "ooonoooooooooRRooooooXoRonooRRoaoooooRoo",
+            "oooooooooooooRRooooooXoooooooooaoooooooo",
+            "HHHHHHoooooooHHHHHHHHHHHHHHHHHoooooHHHHH",
+            "HHHHHHoooooooHHHHHHHHHHHHHHHHHoooooHHHHH",
+            "HHHHHHoXoooooHHHHHHHHHHHHHHHHHoooooHHHHH",
+            "HHHHHHoooooooHHHHHHHHHHHHHHHHHoooooHHHHH",
+            "HHHHHHoooooooHHHHHHHHHHHHHHHHHoooooHHHHH",
+            "HHHHHHoooooooHHHHHHHHHHHHHHHHHoooooHHHHH"
     };
 
     // Ashen Village — desa berkabut tempat prolog dimulai.

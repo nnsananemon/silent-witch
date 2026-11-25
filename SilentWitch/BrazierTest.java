@@ -77,11 +77,14 @@ public class BrazierTest {
             throw new AssertionError("bg_chapel_whispers.png harus bisa dimuat");
         }
         TileMap chapel = TileMap.chapelWhispers();
-        if (chapel.tileAt(30, 7) != 'a' || !chapel.isSolid(30, 7)) {
-            throw new AssertionError("Altar chapel (30,7) harus 'a' dan solid");
+        if (chapel.tileAt(31, 8) != 'a' || !chapel.isSolid(31, 8)) {
+            throw new AssertionError("Altar chapel (31,8) harus 'a' dan solid");
         }
-        if (chapel.tileAt(10, 5) != 'o' || chapel.isSolid(10, 5)) {
-            throw new AssertionError("Interior chapel harus walkable (tanpa collision hantu)");
+        if (!chapel.isSolid(3, 2) || !chapel.isSolid(4, 1) || !chapel.isSolid(33, 3)) {
+            throw new AssertionError("Bangku, batu, dan rune harus solid");
+        }
+        if (chapel.isSolid(10, 4) || chapel.isSolid(20, 4)) {
+            throw new AssertionError("Koridor utama baris 4 harus walkable");
         }
         GameplayScene chapelScene = new GameplayScene(null);
         chapelScene.setupArea("chapel_of_whispers");

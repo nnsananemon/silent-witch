@@ -500,7 +500,7 @@ public final class GameplayScene extends Scene {
         // --- Objek Interaktif Chapel of Whispers (Bab 4) ---
         this.gerbangKapel = new GerbangKapel(616f, 72f);
 
-        this.altarKapel = new ExamineSpot(504f, 120f, 28f, "ALTAR KAPEL",
+        this.altarKapel = new ExamineSpot(504f, 112f, 28f, "ALTAR KAPEL",
                 new Dialogue("ALTAR KAPEL SUNYI",
                         "Altar marmer hitam dengan ukiran relief kuno.",
                         "Sebuah plat perunggu tertanam di tengahnya, menggambarkan susunan simbol penjaga.",
@@ -509,11 +509,8 @@ public final class GameplayScene extends Scene {
                 new Dialogue("ALTAR KAPEL SUNYI",
                         "Altar marmer hitam. Mekanisme pengunci pintu batu telah terbuka."));
 
-        // Altar kapel memakai brazier masonry yang sama dengan area lembah.
-        // Tapaknya di (490,149) supaya duduk rapih di atas lempengan batu altar.
-        // Chapel sudah tile-based — altar dan bangku digambar dari tile 'a'/'n',
-        // bukan dari latar PNG.
-        restKapel = new RestPoint(490f, 149f, RestPoint.Style.BRAZIER);
+        // Altar emas di (31,8)-(31,9) — brazier masonry duduk tepat di atasnya.
+        restKapel = new RestPoint(504f, 148f, RestPoint.Style.BRAZIER);
 
         ExamineSpot chapelSimbol = new ExamineSpot(328f, 96f, 26f, "SIMBOL KONTUR KAPEL",
                 new Dialogue("SIMBOL KONTUR KAPEL",
