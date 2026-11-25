@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.48] - 2026-11-26
+
+### Changed
+
+- **Tekstur Chapel of Whispers diperkaya (`TileMap.java`):** lantai jadi bata persegi panjang bertingkat dengan celah gelap, pinggiran terang, retakan, pudar kelembapan, dan flek moss; karpet diberi pita sisi emas dan motif berulang; dinding diberi variasi warna per bata, pilaster batu tiap 8 tile, dan kusen; altar ditinggikan dengan undakan, kain beludru, mahkota emas, dan permata; jendela kaca patri diberi lengkung runcing bertingkat dan kusen batu.
+
 ## [1.4.47] - 2026-11-25
 
 ### Changed

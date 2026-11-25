@@ -1482,9 +1482,14 @@ public final class TileMap {
             g.rect(x + seam, cy, 1, 7);
             float tone = Palette.hash(col * 37 + row * 19 + course * 11);
             g.fill(Palette.alpha(Palette.CHAPEL_STONE, tone > 0.45f ? 130 : 70));
-            g.rect(x + 1, cy + 1, 7, 6);
+            g.rect(x + 1, cy + 1, seam - 1, 6);
+            g.rect(x + seam + 1, cy + 1, TILE - seam - 1, 6);
             g.fill(Palette.alpha(Palette.CHAPEL_STONE_EDGE, 120));
-            g.rect(x + 1, cy + 1, TILE - 2, 1);
+            g.rect(x + 1, cy + 1, seam - 1, 1);
+            g.rect(x + seam + 1, cy + 1, TILE - seam - 1, 1);
+            g.fill(Palette.alpha(Palette.CHAPEL_STONE_LIGHT, 55));
+            g.rect(x + 1, cy + 6, seam - 1, 1);
+            g.rect(x + seam + 1, cy + 6, TILE - seam - 1, 1);
         }
 
         // Tepian yang menghadap ruang terbuka memberi kesan ketebalan dinding.
@@ -1527,6 +1532,21 @@ public final class TileMap {
             g.fill(Palette.CHAPEL_CANDLE);
             g.rect(x + 7, y + 8, 2, 1);
         }
+
+        // Pilaster: tiang batu yang menonjol di batas panel dinding (tiap 8 tile).
+        if (isChapelWall(col, row + 1) && col % 8 == 0) {
+            g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 120));
+            g.rect(x + 5, y, 7, TILE);
+            g.fill(Palette.CHAPEL_STONE_EDGE);
+            g.rect(x + 6, y, 5, TILE);
+            g.fill(Palette.alpha(Palette.CHAPEL_STONE_LIGHT, 150));
+            g.rect(x + 6, y, 1, TILE);
+            g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 160));
+            g.rect(x + 10, y, 1, TILE);
+            g.fill(Palette.alpha(Palette.CHAPEL_STONE_EDGE, 170));
+            g.rect(x + 4, y, 9, 2);
+            g.rect(x + 4, y + TILE - 3, 9, 2);
+        }
     }
 
     private boolean isChapelWall(int col, int row) {
@@ -1535,26 +1555,44 @@ public final class TileMap {
     }
 
     /**
-     * Lempeng batu kapel dengan sambungan yang di-stagger. Jalur utama pemain
-     * (baris 4) dilengkapi karpet merah tua bermotif emas ala nave kapel.
+     * Lempeng batu kapel dengan sambungan yang di-stagger. Setiap tile dipecah
+     * menjadi bata persegi panjang (dua baris bertingkat) dengan celah gelap,
+     * pinggiran terang tipis, retakan, pudar kelembapan, dan flek moss.
+     * Jalur utama pemain (baris 4) dilengkapi karpet merah tua bermotif emas.
      */
     private void drawChapelFloor(PGraphics g, int x, int y, int col, int row) {
         g.noStroke();
         g.fill(Palette.CHAPEL_FLOOR);
         g.rect(x, y, TILE, TILE);
 
-        // Satu lempeng besar per tile supaya lantai tidak terbaca seperti dinding bata.
-        g.fill(Palette.CHAPEL_MORTAR);
-        g.rect(x, y + TILE - 1, TILE, 1);
-        g.rect(x + TILE - 1, y, 1, TILE);
-        g.fill(Palette.alpha(Palette.CHAPEL_FLOOR_LIGHT, 110));
-        g.rect(x + 1, y + 1, TILE - 2, 1);
-        g.rect(x + 1, y + 1, 1, TILE - 2);
+        // Dua baris bata bertingkat; sambungan bergeser tiap baris.
+        for (int course = 0; course < 2; course++) {
+            int by = y + course * 8;
+            int seam = (col * 2 + course + row) % 2 == 0 ? 4 : 10;
+            g.fill(Palette.CHAPEL_MORTAR);
+            g.rect(x, by + 7, TILE, 1);
 
-        if (Palette.hash(col * 11 + row * 47) > 0.58f) {
-            g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 120));
-            g.rect(x + 4, y + 9, 5, 1);
-            g.rect(x + 9, y + 10, 1, 2);
+            g.fill(Palette.alpha(Palette.CHAPEL_FLOOR, 130));
+            g.rect(x, by, seam, 7);
+            g.rect(x + seam + 1, by, TILE - seam - 1, 7);
+
+            float tone = Palette.hash(col * 37 + row * 11 + course * 5);
+            g.fill(Palette.alpha(Palette.CHAPEL_FLOOR_LIGHT, tone > 0.55f ? 125 : 65));
+            g.rect(x + 1, by + 1, seam - 1, 1);
+            g.rect(x + seam + 2, by + 1, TILE - seam - 3, 1);
+
+            if (tone > 0.7f) {
+                int cx = 3 + (int) (Palette.hash(col * 13 + row * 29 + course) * 9);
+                g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 150));
+                g.rect(x + cx, by + 2, 1, 4);
+                g.rect(x + cx - 1, by + 5, 2, 1);
+            }
+        }
+
+        // Pudar kelembapan tipis di sudut tile.
+        if (Palette.hash(col * 5 + row * 3) > 0.5f) {
+            g.fill(Palette.alpha(Palette.CHAPEL_FLOOR_LIGHT, 28));
+            g.ellipse(x + 4, y + 12, 8, 4);
         }
 
         if (row == 4 && col > 1 && col < 38) {
@@ -1566,18 +1604,30 @@ public final class TileMap {
         g.noStroke();
         g.fill(Palette.CHAPEL_CARPET);
         g.rect(x, y, TILE, TILE);
+
+        // Pita sisi + list emas, motif berulang tiap tiga tile.
+        g.fill(Palette.alpha(Palette.CHAPEL_CARPET_GOLD, 120));
+        g.rect(x, y, 2, TILE);
+        g.rect(x + TILE - 2, y, 2, TILE);
         g.fill(Palette.alpha(Palette.CHAPEL_CARPET_GOLD, 150));
         g.rect(x, y, TILE, 1);
         g.rect(x, y + TILE - 1, TILE, 1);
+
         if (col % 3 == 0) {
-            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_LIGHT, 180));
-            g.rect(x + 5, y + 4, 6, 6);
-            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_GOLD, 160));
-            g.rect(x + 7, y + 6, 2, 2);
+            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_LIGHT, 200));
+            g.rect(x + 5, y + 4, 6, 8);
+            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_GOLD, 170));
+            g.rect(x + 5, y + 4, 6, 1);
+            g.rect(x + 5, y + 11, 6, 1);
+            g.rect(x + 5, y + 4, 1, 8);
+            g.rect(x + 10, y + 4, 1, 8);
+            g.rect(x + 7, y + 6, 2, 4);
         } else {
-            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_LIGHT, 110));
-            g.rect(x + 3, y + 6, 2, 2);
-            g.rect(x + 11, y + 8, 2, 2);
+            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_LIGHT, 120));
+            g.rect(x + 3, y + 5, 2, 2);
+            g.rect(x + 11, y + 9, 2, 2);
+            g.fill(Palette.alpha(Palette.CHAPEL_CARPET_GOLD, 100));
+            g.rect(x + 7, y + 6, 2, 2);
         }
     }
 
@@ -1633,22 +1683,39 @@ public final class TileMap {
 
     private void drawChapelAltar(PGraphics g, int x, int y, int col, int row) {
         g.noStroke();
-        g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 170));
-        g.rect(x, y + 13, TILE, 3);
+        // Bayangan dasar di lantai.
+        g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 190));
+        g.rect(x, y + 14, TILE, 2);
 
-        // Undakan batu dan kain beludru dengan trim emas.
+        // Undakan batu: lebar di bawah, menyempit ke atas.
         g.fill(Palette.ALTAR_STONE);
-        g.rect(x + 1, y + 6, 14, 9);
+        g.rect(x + 1, y + 10, 14, 5);
+        g.fill(Palette.ALTAR_STONE);
+        g.rect(x + 2, y + 6, 12, 5);
         g.fill(Palette.CHAPEL_STONE_LIGHT);
-        g.rect(x + 1, y + 6, 14, 2);
-        g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 140));
-        g.rect(x + 3, y + 10, 10, 1);
-        g.fill(0xFF442756);
-        g.rect(x + 2, y + 8, 12, 6);
-        g.fill(Palette.CHAPEL_CARPET_GOLD);
-        g.rect(x + 2, y + 8, 12, 1);
-        g.rect(x + 7, y + 10, 2, 2);
+        g.rect(x + 2, y + 6, 12, 1);
+        g.rect(x + 1, y + 10, 14, 1);
 
+        // Kain beludru dengan trim emas.
+        g.fill(0xFF442756);
+        g.rect(x + 2, y + 7, 12, 5);
+        g.fill(Palette.CHAPEL_CARPET_GOLD);
+        g.rect(x + 2, y + 7, 12, 1);
+        g.fill(Palette.alpha(Palette.CHAPEL_CARPET_LIGHT, 160));
+        g.rect(x + 3, y + 9, 10, 1);
+
+        // Mahkota emas + permata di tengah.
+        g.fill(Palette.CHAPEL_CARPET_GOLD);
+        g.rect(x + 7, y + 8, 2, 2);
+        g.fill(Palette.CHAPEL_STONE_EDGE);
+        g.rect(x + 6, y + 3, 4, 3);
+        g.fill(Palette.CHAPEL_CARPET_GOLD);
+        g.rect(x + 7, y + 2, 2, 1);
+        g.fill(Palette.CHAPEL_CARPET_GOLD);
+        g.rect(x + 5, y + 1, 1, 2);
+        g.rect(x + 10, y + 1, 1, 2);
+
+        // Pendar altar.
         g.fill(Palette.alpha(Palette.ALTAR_GLOW, 70));
         g.rect(x + 4, y + 4, 8, 4);
         g.fill(Palette.ALTAR_GLOW);
@@ -1672,11 +1739,14 @@ public final class TileMap {
 
     private void drawChapelStainedGlass(PGraphics g, int x, int y, int col, int row) {
         drawChapelWall(g, x, y, col, row);
-        // Ceruk gelap; kaca lengkung setinggi dua tile digambar di lapisan
-        // suasana supaya tidak tertutup tile lantai di baris berikutnya.
+        // Ceruk gelap berbentuk lengkung runcing (lancet) setinggi dua tile;
+        // kaca berwarna digambar di lapisan suasana supaya tidak tertutup.
         g.noStroke();
         g.fill(Palette.CHAPEL_GLASS_LEAD);
         g.rect(x + 3, y, 10, TILE);
+        g.rect(x + 4, y - 2, 8, 2);
+        g.rect(x + 6, y - 4, 4, 2);
+        g.rect(x + 7, y - 6, 2, 2);
     }
 
     private int chapelGlassColor(int col) {
@@ -1709,19 +1779,28 @@ public final class TileMap {
                     g.rect(px + 3, py + 4, 10, 26);
                     g.rect(px + 4, py + 2, 8, 2);
                     g.rect(px + 6, py, 4, 2);
+                    g.rect(px + 7, py - 2, 2, 2);
                     g.fill(Palette.alpha(color, 235));
                     g.rect(px + 4, py + 5, 3, 11);
                     g.rect(px + 9, py + 17, 3, 12);
                     g.fill(Palette.alpha(accent, 225));
                     g.rect(px + 9, py + 5, 3, 11);
                     g.rect(px + 4, py + 17, 3, 12);
+                    // Lengkung runcing bertingkat di puncak jendela.
+                    g.fill(Palette.alpha(color, 235));
+                    g.rect(px + 5, py + 1, 6, 3);
+                    g.rect(px + 6, py, 4, 2);
+                    g.rect(px + 7, py - 1, 2, 2);
                     g.fill(Palette.CHAPEL_GLASS_LEAD);
                     g.rect(px + 7, py + 4, 2, 25);
                     g.rect(px + 4, py + 16, 8, 1);
                     g.fill(Palette.alpha(Palette.CHAPEL_GLASS_GLOW, 150));
                     g.rect(px + 5, py + 6, 1, 3);
                     g.rect(px + 10, py + 19, 1, 3);
+                    // Kusen batu di sekeliling ceruk.
                     g.fill(Palette.CHAPEL_STONE_EDGE);
+                    g.rect(px + 2, py + 4, 1, 27);
+                    g.rect(px + 13, py + 4, 1, 27);
                     g.rect(px + 3, py + 30, 10, 1);
 
                     // Pancaran cahaya menurun ke lantai kapel.
