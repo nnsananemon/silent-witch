@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.49] - 2026-11-26
+
+### Changed
+
+- **Chapel of Whispers memakai latar PNG baru (`bg_chapel_whispers.png`):** diganti dengan "Reruntuhan Kuil Rune Bercahaya" (1983x793 → 640x256). Tile array diselaraskan: interior walkable (tanpa collision hantu), altar bercahaya di kolom 30-31, gerbang di tepi kiri/kanan, rune solid. Altar (tile 'a') dan brazier (RestPoint) tetap digambar sebagai overlay buatan sendiri di atas latar. Posisi `ExamineSpot` altar/simbol/kaca patri disesuaikan; spot bangku yang tidak relevan dihapus.
+
 ## [1.4.48] - 2026-11-26
 
 ### Changed

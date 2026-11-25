@@ -500,7 +500,7 @@ public final class GameplayScene extends Scene {
         // --- Objek Interaktif Chapel of Whispers (Bab 4) ---
         this.gerbangKapel = new GerbangKapel(616f, 72f);
 
-        this.altarKapel = new ExamineSpot(504f, 72f, 28f, "ALTAR KAPEL",
+        this.altarKapel = new ExamineSpot(504f, 120f, 28f, "ALTAR KAPEL",
                 new Dialogue("ALTAR KAPEL SUNYI",
                         "Altar marmer hitam dengan ukiran relief kuno.",
                         "Sebuah plat perunggu tertanam di tengahnya, menggambarkan susunan simbol penjaga.",
@@ -515,7 +515,7 @@ public final class GameplayScene extends Scene {
         // bukan dari latar PNG.
         restKapel = new RestPoint(490f, 149f, RestPoint.Style.BRAZIER);
 
-        ExamineSpot chapelSimbol = new ExamineSpot(312f, 136f, 26f, "SIMBOL KONTUR KAPEL",
+        ExamineSpot chapelSimbol = new ExamineSpot(328f, 96f, 26f, "SIMBOL KONTUR KAPEL",
                 new Dialogue("SIMBOL KONTUR KAPEL",
                         "Relief batu gotik yang menggambarkan simbol kultus masa lalu.",
                         "Bentuknya menyerupai simbol di lembah, namun terukir dengan motif tanaman berduri.",
@@ -523,26 +523,18 @@ public final class GameplayScene extends Scene {
                 new Dialogue("SIMBOL KONTUR KAPEL",
                         "Relief simbol kultus masa lampau. Hanya konteks sejarah yang tersisa."));
 
-        ExamineSpot kacaPatri = new ExamineSpot(144f, 24f, 26f, "KACA PATRI GOTIK",
+        ExamineSpot kacaPatri = new ExamineSpot(144f, 40f, 26f, "KACA PATRI GOTIK",
                 new Dialogue("KACA PATRI GOTIK",
                         "Kaca patri berwarna merah dan biru tua yang membiaskan cahaya redup ke lantai kapel.",
                         "Pola kaca membentuk figur pelindung desa yang memegang kunci kuno."),
                 new Dialogue("KACA PATRI GOTIK",
                         "Kaca patri membiaskan cahaya temaram ke lantai kapel."));
 
-        ExamineSpot bangkuKapel = new ExamineSpot(80f, 40f, 26f, "BANGKU JEMAAT",
-                new Dialogue("BANGKU JEMAAT",
-                        "Deretan bangku kayu tua berlapis debu tebal.",
-                        "Sebuah sobekan kain hitam tersangkut di ujung sandaran bangku."),
-                new Dialogue("BANGKU JEMAAT",
-                        "Bangku kayu berdebu dalam keheningan kapel."));
-
         chapelInteractables.add(gerbangKapel);
         chapelInteractables.add(altarKapel);
         chapelInteractables.add(restKapel);
         chapelInteractables.add(chapelSimbol);
         chapelInteractables.add(kacaPatri);
-        chapelInteractables.add(bangkuKapel);
 
         // --- Objek Interaktif Underground Archive (Bab 5) ---
         this.gerbangArsip = new GerbangArsip(600f, 72f);

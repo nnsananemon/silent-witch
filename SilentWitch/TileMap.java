@@ -183,24 +183,27 @@ public final class TileMap {
             "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
     };
 
-    // Chapel of Whispers — kapel reruntuhan gotik (Bab 4).
-    // Ukuran 40x16 tile (640x256 piksel).
-    // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
+    // Chapel of Whispers — latar PNG "Reruntuhan Kuil Rune Bercahaya" (640x256).
+    // Interior gelap dengan altar bercahaya di sekitar kolom 30-31, baris 7-8.
+    // Tile hanya untuk collision + overlay altar ('a') buatan sendiri; brazier
+    // digambar oleh RestPoint. Gerbang di tepi kiri (masuk) dan kanan (keluar).
+    //   'H' dinding batu (solid)   'o' lantai (walkable)   'S' spawn
+    //   'G' gerbang (terbuka)     'a' altar (solid, overlay)   'X' rune (solid)
     private static final String[] CHAPEL_WHISPERS = {
-            "HHHHiHHHHiHHHHHHHHHHHHHHiHHHHHHHiHHHHHHH",
-            "HooooooooooooHHoooooooooooooHoooooooooHH",
-            "HonoonnoonoooHHonoonnoonoooHooooooooooHH",
-            "HoooooooooooooooooooooooooooHooaooooooGH",
-            "GSooommooooommooooommoooooooooaoooooooGH",
-            "HoooooooooooooooooooooooooooooaoooooooHH",
-            "HoooooooooooooooooooooooooooHooaooooooHH",
-            "HonoonnoonoooHHonoonnoonoooHooooooooooHH",
-            "HooooooooooooHHooooXooooooHHooZoooooooHH",
-            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHH",
-            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHH",
-            "HHHHHooooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
-            "HHHHHoXooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
-            "HHHHHooooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
+            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HoooooooooooooooooooXooooooooooooooooooH",
+            "GSoooooooooooooooooooooooooooooooooooooG",
+            "HoooooooooooooooooooooooooooooaooooooooH",
+            "HoooooooooooooooooooooooooooooaooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     };
@@ -418,9 +421,12 @@ public final class TileMap {
 
     public static TileMap chapelWhispers() {
         TileMap map = themed(new TileMap(CHAPEL_WHISPERS), Art.Theme.CHAPEL);
-        // Kapel sepenuhnya tile-based: tidak memakai background PNG lagi.
-        // Semanticanya tetap dari tile array ('H' dinding, 'o' lantai, 'n' bangku,
-        // 'a' altar, 'i' kaca patri, 'X' batu rune, 'G' gerbang).
+        // Latar PNG kuil rune; hanya altar ('a') yang digambar sebagai overlay
+        // di atasnya. Brazier digambar oleh RestPoint. Gerbang & rune sudah ada
+        // di gambar, jadi tidak digambar ulang (collision tetap dari tile).
+        map.setBackground(Art.loadBackground("bg_chapel_whispers.png"));
+        map.setDrawDoors(false);
+        map.setDrawOverlaySymbols(false);
         map.setGateOpen(true);
         return map;
     }
@@ -585,7 +591,8 @@ public final class TileMap {
         if (ch == 'X' && !drawOverlaySymbols) {
             return false;
         }
-        return ch == 'K' || ch == 'X' || ch == 'E';
+        // Altar kapel selalu digambar di atas latar PNG (aset buatan sendiri).
+        return ch == 'K' || ch == 'X' || ch == 'E' || ch == 'a';
     }
 
     private void drawTile(PGraphics g, char ch, int col, int row, int camX, int camY) {
