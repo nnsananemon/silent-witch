@@ -187,22 +187,22 @@ public final class TileMap {
     // Ukuran 40x16 tile (640x256 piksel).
     // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
     private static final String[] CHAPEL_WHISPERS = {
-            "ooHoHHHHHHHHHooHHHHHHHHHHHHHHHHHHHHHHHHo",
-            "ooHHHHHHHHHHHoHHHHHHHHHHHHoHHooooooooHHo",
-            "oHHHHHHoHHHoHHHHHHooHHHHHHoHHooHHooooHHo",
-            "oHHHoHHoHHHooHHHHHooHHHooooHHoHaHooooHGo",
-            "GSooooooooooooooooooooooooooooaHHoooooGo",
-            "HHooooooooooooooooooooooooooooaHHoooooHo",
-            "oHoooHHHoHoooHHooooooHHHHooHHoHaHoooooHo",
-            "oHHHHHHHHHHoHHHHHHoHHHHHHoHHHoHHHoooooHo",
+            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+            "HHHHoHoHoHHHoHHoHHoooooooHHoHHooooHHHHHH",
+            "HHHHHoHHHoHHHHHHooHHHHHHoHHooHHooooHHHHH",
+            "oHHHoHHoHHHooHHHHHooHHHooooHHoHHHooooHHH",
+            "GSoooooooooooooooooooooooooooHHHooooooGo",
+            "HHoooooooooooooooooooooooooooHHHoooooHHo",
+            "oHoooHHHoHoooHHoooooooHHooHHoHHHoooooHHo",
+            "oHHHHHHHHHHoHHHHHHoHHHHHHoHHHoHHHooooHHo",
             "oHoooooooooHHHHHHHHXHHooooHHHHZHooooooHo",
             "oHHHHHHooooHoooHHHHHoHHHHHHoHHHHHoooHHHo",
-            "ooooooHooooHooooooooooooooooooHHHoooHHHo",
-            "oooooHHHoooHoooooooooooooooooHHHHoooHHHo",
-            "oooooHXHHooHoooooooooooooooooHHoooooooHo",
-            "ooooooooHHHHoooooooooooooooooHHHHHHHHHHo",
-            "oooooooooHHoooooooooooooooooooHHoHooHHHo",
-            "oooooooooooooooooooooooooooooooooooooooo"
+            "HHHHHHHooooHHHHHHHHHHHHHHHHHoHHHoooHHHHo",
+            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHo",
+            "HHHHHHXHHooHHHHHHHHHHHHHHHHHHHooooooooHo",
+            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHo",
+            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     };
 
     // Ashen Village — desa berkabut tempat prolog dimulai.
