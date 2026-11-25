@@ -4,6 +4,13 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.47] - 2026-11-25
+
+### Changed
+
+- **Chapel of Whispers sepenuhnya tile-based (`TileMap.java`):** `bg_chapel_whispers.png` tidak dipakai lagi dan dihapus. Dinding, lantai, karpet, kaca patri, altar, gerbang, dan batu rune kini digambar dari array tile seperti area lainnya. Tile `'n'` kembali terlihat sebagai bangku, jadi collision solid-nya tidak lagi "tak kasat mata".
+- **Aset bangku baru (`pew_chapel.png`):** sprite 16x16 transparan buatan sendiri dengan palet `PEW_WOOD` / `PEW_WOOD_LIGHT` / `CHAPEL_STONE_DARK` — sandaran, serat kayu, papan duduk, penopang, bayangan, dan debu. Dipakai `drawChapelPew()` dengan fallback prosedural. Kredit ditambahkan di `ASSET_CREDITS.md`.
+
 ## [1.4.46] - 2026-11-25
 
 ### Changed

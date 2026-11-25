@@ -510,8 +510,9 @@ public final class GameplayScene extends Scene {
                         "Altar marmer hitam. Mekanisme pengunci pintu batu telah terbuka."));
 
         // Altar kapel memakai brazier masonry yang sama dengan area lembah.
-        // Tapaknya di (490,149) supaya duduk rapih di atas lempengan batu altar
-        // (sisa lilin lama di bg_chapel_whispers.png sudah dibersihkan).
+        // Tapaknya di (490,149) supaya duduk rapih di atas lempengan batu altar.
+        // Chapel sudah tile-based — altar dan bangku digambar dari tile 'a'/'n',
+        // bukan dari latar PNG.
         restKapel = new RestPoint(490f, 149f, RestPoint.Style.BRAZIER);
 
         ExamineSpot chapelSimbol = new ExamineSpot(312f, 136f, 26f, "SIMBOL KONTUR KAPEL",

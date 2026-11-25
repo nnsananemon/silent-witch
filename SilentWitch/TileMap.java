@@ -418,11 +418,9 @@ public final class TileMap {
 
     public static TileMap chapelWhispers() {
         TileMap map = themed(new TileMap(CHAPEL_WHISPERS), Art.Theme.CHAPEL);
-        map.setBackground(Art.loadBackground("bg_chapel_whispers.png"));
-        // Latar sudah memuat gerbang besi dan batu rune: jangan digambar ulang.
-        // Tile 'X' tetap solid untuk collision.
-        map.setDrawDoors(false);
-        map.setDrawOverlaySymbols(false);
+        // Kapel sepenuhnya tile-based: tidak memakai background PNG lagi.
+        // Semanticanya tetap dari tile array ('H' dinding, 'o' lantai, 'n' bangku,
+        // 'a' altar, 'i' kaca patri, 'X' batu rune, 'G' gerbang).
         map.setGateOpen(true);
         return map;
     }
@@ -1599,6 +1597,13 @@ public final class TileMap {
     }
 
     private void drawChapelPew(PGraphics g, int x, int y, int col, int row) {
+        // Aset bangku 16x16 buatan sendiri (data/art/pew_chapel.png).
+        // Turun ke bentuk prosedural hanya jika berkasnya tidak ada.
+        PImage pew = Art.loadImage("pew_chapel.png");
+        if (pew != null) {
+            g.image(pew, x, y);
+            return;
+        }
         g.noStroke();
         g.fill(Palette.alpha(Palette.CHAPEL_STONE_DARK, 150));
         g.rect(x + 1, y + 14, 14, 2);
