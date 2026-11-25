@@ -187,22 +187,22 @@ public final class TileMap {
     // Ukuran 40x16 tile (640x256 piksel).
     // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
     private static final String[] CHAPEL_WHISPERS = {
-            "HHHHiHHHHiHHHHHHHHHHHHHHiHHHHHHHiHHHHHHH",
-            "HooooooooooooHHoooooooooooooHoooooooooHH",
-            "HonoonnoonoooHHonoonnoonoooHooooooooooHH",
-            "HoooooooooooooooooooooooooooHooaooooooGH",
-            "GSooommooooommooooommoooooooooaoooooooGH",
-            "HoooooooooooooooooooooooooooooaoooooooHH",
-            "HoooooooooooooooooooooooooooHooaooooooHH",
-            "HonoonnoonoooHHonoonnoonoooHooooooooooHH",
-            "HooooooooooooHHooooXooooooHHooZoooooooHH",
-            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHH",
-            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHH",
-            "HHHHHooooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
-            "HHHHHoXooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
-            "HHHHHooooooHHHHHHHHHHHHHHHHHHHoooooooHHH",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+            "ooHoHHHHHHHHHooHHHHHHHHHHHHHHHHHHHHHHHHo",
+            "ooHHHHHHHHHHHoHHHHHHHHHHHHoHHooooooooHHo",
+            "oHHHHHHoHHHoHHHHHHooHHHHHHoHHooHHooooHHo",
+            "oHHHoHHoHHHooHHHHHooHHHooooHHoHaHooooHGo",
+            "GSooooooooooooooooooooooooooooaHHoooooGo",
+            "HHooooooooooooooooooooooooooooaHHoooooHo",
+            "oHoooHHHoHoooHHooooooHHHHooHHoHaHoooooHo",
+            "oHHHHHHHHHHoHHHHHHoHHHHHHoHHHoHHHoooooHo",
+            "oHoooooooooHHHHHHHHXHHooooHHHHZHooooooHo",
+            "oHHHHHHooooHoooHHHHHoHHHHHHoHHHHHoooHHHo",
+            "ooooooHooooHooooooooooooooooooHHHoooHHHo",
+            "oooooHHHoooHoooooooooooooooooHHHHoooHHHo",
+            "oooooHXHHooHoooooooooooooooooHHoooooooHo",
+            "ooooooooHHHHoooooooooooooooooHHHHHHHHHHo",
+            "oooooooooHHoooooooooooooooooooHHoHooHHHo",
+            "oooooooooooooooooooooooooooooooooooooooo"
     };
 
     // Ashen Village — desa berkabut tempat prolog dimulai.

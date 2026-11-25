@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.52] - 2026-11-26
+
+### Changed
+
+- **Collision Chapel of Whispers mengikuti penanda biru pengguna (`TileMap.java`):** array `CHAPEL_WHISPERS` disusun ulang dari garis biru pada `Peta Chapel - Panduan Tabrakan (Jelas).png` — setiap tile yang dilalui garis biru jadi solid (`H`). Elemen fungsi (spawn `S`, gerbang `G`, altar `a`, brazier `Z`, rune `X`) dipertahankan di posisi semula.
+
 ## [1.4.51] - 2026-11-26
 
 ### Changed
