@@ -4,6 +4,12 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.51] - 2026-11-26
+
+### Changed
+
+- **Chapel of Whispers dikembalikan ke commit `fdd61b3`:** tile map, latar PNG, interaktif, dan renderer chapel disetel ulang ke versi `fdd61b3`. Perubahan di luar chapel (blocker Lintasan Reruntuhan) tetap dipertahankan.
+
 ## [1.4.50] - 2026-11-26
 
 ### Changed

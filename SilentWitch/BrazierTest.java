@@ -72,25 +72,6 @@ public class BrazierTest {
         scene.draw(g);
         System.out.println("[PASS] 5. GameplayScene valley_floor, valley_ruins & archive sukses dirender");
 
-        // 6. Chapel pakai latar PNG + altar overlay buatan sendiri
-        if (Art.loadBackground("bg_chapel_whispers.png") == null) {
-            throw new AssertionError("bg_chapel_whispers.png harus bisa dimuat");
-        }
-        TileMap chapel = TileMap.chapelWhispers();
-        if (chapel.tileAt(31, 8) != 'a' || !chapel.isSolid(31, 8)) {
-            throw new AssertionError("Altar chapel (31,8) harus 'a' dan solid");
-        }
-        if (!chapel.isSolid(3, 2) || !chapel.isSolid(4, 1) || !chapel.isSolid(33, 3)) {
-            throw new AssertionError("Bangku, batu, dan rune harus solid");
-        }
-        if (chapel.isSolid(10, 4) || chapel.isSolid(20, 4)) {
-            throw new AssertionError("Koridor utama baris 4 harus walkable");
-        }
-        GameplayScene chapelScene = new GameplayScene(null);
-        chapelScene.setupArea("chapel_of_whispers");
-        chapelScene.draw(g);
-        System.out.println("[PASS] 6. Chapel: latar PNG + altar overlay, interior walkable, scene dirender");
-
         g.endDraw();
         System.out.println(">>> SEMUA TES BRAZIER LULUS 100%! <<<");
     }
