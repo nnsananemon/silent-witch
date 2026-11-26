@@ -374,6 +374,8 @@ public final class TileMap {
      */
     private PImage background;
     private PImage[] backgroundTiles;
+    private PImage collisionMask;
+    private boolean[] collisionMaskSolid;
     private boolean tileFromBackground = false;
     private boolean drawDoors = true;
     private boolean drawClosedGateDoor = true;
@@ -399,6 +401,23 @@ public final class TileMap {
                 for (int c = 0; c < cols; c++) {
                     backgroundTiles[r * cols + c] = background.get(c * TILE, r * TILE, TILE, TILE);
                 }
+            }
+        }
+    }
+
+    /**
+     * Masker tabrakan per-piksel (putih = solid, hitam = lewat). Dipakai bila
+     * collision tidak bisa diwakili grid 16x16 — misalnya relief/bangku kecil
+     * yang outline-nya mengikuti bentuk aslinya, bukan kotak tile.
+     */
+    public void setCollisionMask(PImage mask) {
+        this.collisionMask = mask;
+        this.collisionMaskSolid = null;
+        if (mask != null) {
+            mask.loadPixels();
+            collisionMaskSolid = new boolean[mask.pixels.length];
+            for (int i = 0; i < mask.pixels.length; i++) {
+                collisionMaskSolid[i] = (mask.pixels[i] & 0xFF) >= 128;
             }
         }
     }
@@ -451,6 +470,7 @@ public final class TileMap {
         map.setDrawDoors(false);
         map.setDrawOverlaySymbols(false);
         map.setGateOpen(true);
+        map.setCollisionMask(Art.loadBackground("collision_chapel.png"));
         return map;
     }
 
@@ -537,6 +557,23 @@ public final class TileMap {
     public boolean rectCollides(float x, float y, float w, float h) {
         if (w <= 0f || h <= 0f) {
             return true;
+        }
+        if (collisionMaskSolid != null) {
+            if (x < 0f || y < 0f || x + w > collisionMask.width || y + h > collisionMask.height) {
+                return true;
+            }
+            int x0 = (int) Math.floor(x);
+            int x1 = (int) Math.ceil(x + w) - 1;
+            int y0 = (int) Math.floor(y);
+            int y1 = (int) Math.ceil(y + h) - 1;
+            for (int yy = y0; yy <= y1; yy++) {
+                for (int xx = x0; xx <= x1; xx++) {
+                    if (collisionMaskSolid[yy * collisionMask.width + xx]) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         int c0 = (int) Math.floor(x / TILE);
         int c1 = (int) Math.floor((x + w - 0.001f) / TILE);

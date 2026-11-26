@@ -81,6 +81,16 @@ public class BrazierTest {
         if (chapel.isSolid(30, 8) || !chapel.hasBackground()) {
             throw new AssertionError("Brazier harus walkable dan kapel harus memakai tile PNG");
         }
+        // Masker pixel: spawn/gerbang bebas, tembok atas benar-benar solid.
+        if (chapel.rectCollides(19f, 69f, 10f, 6f)
+                || chapel.rectCollides(3f, 69f, 10f, 6f)
+                || chapel.rectCollides(611f, 69f, 10f, 6f)) {
+            throw new AssertionError("Spawn dan gerbang kapel tidak boleh keblock");
+        }
+        if (!chapel.rectCollides(100f, 4f, 10f, 6f)) {
+            throw new AssertionError("Tembok atas kapel harus memblok (masker pixel)");
+        }
+        System.out.println("[PASS] 7. Masker collision pixel: spawn/gate bebas, tembok solid");
         for (int c = 2; c < 38; c++) {
             if (chapel.isSolid(c, 5)) {
                 throw new AssertionError("Koridor utama baris 5 harus bebas");
