@@ -187,21 +187,24 @@ public final class TileMap {
     // Ukuran 40x16 tile (640x256 piksel).
     // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
     private static final String[] CHAPEL_WHISPERS = {
+            // Collision mengikuti bg_chapel_whispers.png. Hanya dinding tepi dan
+            // dua pilar tengah yang solid; lantai, pew bata, rune, dan brazier
+            // walkable supaya kapel terasa lapang.
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHHHoHoHoHHHoHHoHHoooooooHHoHHooooHHHHHH",
-            "HHHHHoHHHoHHHHHHooHHHHHHoHHooHHooooHHHHH",
-            "oHHHoHHoHHHooHHHHHooHHHooooHHoHHHooooHHH",
-            "GSoooooooooooooooooooooooooooHHHooooooGo",
-            "HHoooooooooooooooooooooooooooHHHoooooHHo",
-            "oHoooHHHoHoooHHoooooooHHooHHoHHHoooooHHo",
-            "oHHHHHHHHHHoHHHHHHoHHHHHHoHHHoHHHooooHHo",
-            "oHoooooooooHHHHHHHHXHHooooHHHHZHooooooHo",
-            "oHHHHHHooooHoooHHHHHoHHHHHHoHHHHHoooHHHo",
-            "HHHHHHHooooHHHHHHHHHHHHHHHHHoHHHoooHHHHo",
-            "HHHHHHHHoooHHHHHHHHHHHHHHHHHHHHHoooHHHHo",
-            "HHHHHHXHHooHHHHHHHHHHHHHHHHHHHooooooooHo",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHo",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+            "HHoooooooooHHHoooooooooooooHHHooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "GSooooooooooooooooooooooooooooooooooooGo",
+            "GooooooooooooooooooooooooooooooooooooooG",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHoooooooooooooooooooXooooooooZoooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHooooooooooooooooooooooooooooooooooooHH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     };
 
@@ -478,6 +481,11 @@ public final class TileMap {
         char ch = tileAt(col, row);
         if (ch == 'G') {
             return !gateOpen;
+        }
+        // Kapel: HANYA 'H' (dinding/pilar) yang solid. Rune 'X' di lantai
+        // kapel hanya dekorasi, bukan penghalang.
+        if (theme == Art.Theme.CHAPEL) {
+            return ch == 'H';
         }
         if (ch == 'K') {
             return !gateOpen;
