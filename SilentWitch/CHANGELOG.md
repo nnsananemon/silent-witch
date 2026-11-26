@@ -4,6 +4,15 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.54] - 2026-11-27
+
+### Added
+
+- **Animasi api & ayunan obor tetap aktif saat karakter diam (`Art.java`, `GameplayScene.java`):**
+  - Nyala api 12-frame obor genggam kini disinkronkan dengan waktu global dunia (`globalTime`), sehingga api tetap berkobar lincah dan tidak membeku/freeze saat ksatria berhenti melangkah.
+  - Ditambahkan gerakan ayunan napas halus (*idle breathing & subtle sway*) pada posisi obor dan sarung tangan besi (*gauntlet*) ksatria saat diam agar karakter terasa hidup dan alami.
+  - Pancaran cahaya hangat (*warm ambient torch glow*) berdenyut dinamis (*flicker*) secara kontinu di sekitar obor baik saat ksatria berjalan maupun berdiam diri.
+
 ## [1.4.53] - 2026-11-27
 
 ### Added

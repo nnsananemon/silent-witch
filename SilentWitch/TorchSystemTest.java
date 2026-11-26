@@ -25,13 +25,17 @@ public class TorchSystemTest {
         }
         System.out.println("[PASS] 2. Art.drawTorch() berhasil dirender di berbagai frame");
 
-        // Tes render Art.drawHeldTorch di 4 arah hadap
+        // Tes render Art.drawHeldTorch di 4 arah hadap (berjalan & diam)
         for (Player.Facing facing : Player.Facing.values()) {
             Art.drawHeldTorch(g, 50, 50, facing, false, 0.5f, 255);
             Art.drawHeldTorch(g, 50, 50, facing, true, 1.2f, 255);
             Art.drawHeldTorch(g, 50, 50, facing, false, 0.5f, 120);
+            // Tes eksplisit karakter diam (moving = false, walkTime = 0f, globalTime dinamis)
+            for (float t = 0f; t < 2f; t += 0.25f) {
+                Art.drawHeldTorch(g, 50, 50, facing, false, 0f, t, 255);
+            }
         }
-        System.out.println("[PASS] 3. Art.drawHeldTorch() berhasil dirender di 4 arah hadap");
+        System.out.println("[PASS] 3. Art.drawHeldTorch() berhasil dirender di 4 arah hadap (termasuk saat diam)");
 
         // 4. Verifikasi GameplayScene di Dasar Lembah
         GameplayScene scene = new GameplayScene(null);

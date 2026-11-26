@@ -1777,7 +1777,7 @@ public final class GameplayScene extends Scene {
             }
         }
         Art.drawHeldTorch(g, px, py, player.facing(), player.isMoving(),
-                player.animTime(), alpha);
+                player.animTime(), time, alpha);
     }
 
     /**

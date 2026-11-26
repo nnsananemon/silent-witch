@@ -1382,14 +1382,18 @@ public final class Art {
     /**
      * Versi "digenggam" dari obor. Menggunakan frame obor beranimasi
      * dengan gagang yang digenggam gauntlet di depan badan ksatria.
-     * Goyangannya mengikuti langkah tokoh.
+     * Goyangannya mengikuti langkah tokoh saat berjalan, dan bernapas halus saat diam.
+     * Nyala api dan cahaya hangat tetap beranimasi dan berkobar baik saat berjalan maupun diam.
      *
-     * @param px, py posisi kaki tokoh di layar
-     * @param moving apakah tokoh sedang berjalan
+     * @param px, py      posisi kaki tokoh di layar
+     * @param moving      apakah tokoh sedang berjalan
+     * @param walkTime    waktu animasi langkah kaki tokoh
+     * @param globalTime  waktu global dunia/scene untuk animasi api & napas
+     * @param alpha       transparansi render
      */
     public static void drawHeldTorch(PGraphics g, int px, int py,
                                      Player.Facing facing, boolean moving,
-                                     float animTime, int alpha) {
+                                     float walkTime, float globalTime, int alpha) {
         ensureLoaded();
         PImage[] frames = (torchHeldFrames != null && torchHeldFrames.length > 0)
                 ? torchHeldFrames : torchFrames;
@@ -1399,21 +1403,32 @@ public final class Art {
 
         float dir = facing == Player.Facing.LEFT ? -1f : 1f;
 
-        // Genggaman di depan dada; sedikit naik-turun mengikuti langkah.
-        float bob = moving ? (float) Math.sin(animTime * 8f) * 1f : 0f;
-        float gx = px + dir * 8f;
+        // Goyangan obor:
+        // Saat berjalan: mengayun naik-turun mengikuti hentakan langkah kaki (stride bob).
+        // Saat diam: gerakan napas & ayunan halus (idle breathing) agar tokoh terasa hidup.
+        float bob;
+        float sway = 0f;
+        if (moving) {
+            bob = (float) Math.sin(walkTime * 8f) * 1.2f;
+        } else {
+            bob = (float) Math.sin(globalTime * 3.5f) * 0.6f;
+            sway = (float) Math.cos(globalTime * 2.8f) * 0.4f;
+        }
+        float gx = px + dir * 8f + sway;
         float gy = py - 12f + bob;
 
         // Cahaya hangat di sekitar api (api ada di bagian atas obor).
         float flameX = gx;
         float flameY = gy - 12f;
+        float flicker = 1f + 0.07f * (float) Math.sin(globalTime * 9.3f)
+                + 0.04f * (float) Math.cos(globalTime * 14.1f);
         g.noStroke();
         g.fill(255, 160, 60, 26);
-        g.ellipse(flameX, flameY, 22, 22);
+        g.ellipse(flameX, flameY, 22f * flicker, 22f * flicker);
         g.fill(255, 200, 90, 42);
-        g.ellipse(flameX, flameY, 13, 13);
+        g.ellipse(flameX, flameY, 13f * flicker, 13f * flicker);
 
-        int frame = Math.floorMod((int) (animTime * 8f), frames.length);
+        int frame = Math.floorMod((int) (globalTime * 8f), frames.length);
         PImage torchImg = frames[frame];
 
         if (alpha < 255) {
@@ -1448,7 +1463,7 @@ public final class Art {
                 g.rect(Math.round(hx) - 1, Math.round(hy), 1, 1);
             }
             if (torchFlameFrames != null && torchFlameFrames.length > 0) {
-                PImage flame = torchFlameFrames[Math.floorMod((int) (animTime * 7f), torchFlameFrames.length)];
+                PImage flame = torchFlameFrames[Math.floorMod((int) (globalTime * 7f), torchFlameFrames.length)];
                 g.image(flame, Math.round(tipX - 5f), Math.round(tipY - 10f));
             }
         }
@@ -1462,6 +1477,16 @@ public final class Art {
         g.rect(Math.round(gx) - 2, Math.round(gy) - 1, 4, 3);
         g.fill(Palette.alpha(0x404457, alpha));
         g.rect(Math.round(gx) - 1, Math.round(gy) - 1, 2, 1);
+    }
+
+    /**
+     * Overload untuk pemanggil dengan satu parameter waktu animTime.
+     */
+    public static void drawHeldTorch(PGraphics g, int px, int py,
+                                     Player.Facing facing, boolean moving,
+                                     float animTime, int alpha) {
+        float globalTime = (animTime > 0f) ? animTime : ((System.currentTimeMillis() % 100000) / 1000f);
+        drawHeldTorch(g, px, py, facing, moving, animTime, globalTime, alpha);
     }
 
     /**
