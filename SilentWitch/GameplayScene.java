@@ -1749,7 +1749,8 @@ public final class GameplayScene extends Scene {
     private boolean isTorchArea() {
         return "valley_cliff_path".equals(currentAreaId)
                 || "valley_floor".equals(currentAreaId)
-                || "valley_ruins".equals(currentAreaId);
+                || "valley_ruins".equals(currentAreaId)
+                || "chapel_of_whispers".equals(currentAreaId);
     }
 
     /** Obor digenggam di tangan tokoh saat berjalan di area gelap lembah. */
@@ -1802,6 +1803,12 @@ public final class GameplayScene extends Scene {
             // Belum bawa obor: brazier di titik istirahat jadi sumber cahaya.
             cx = restReruntuhan.x() - camX;
             cy = restReruntuhan.y() - 12f - camY;
+            radius = 70f * flicker;
+            baseAlpha = 232;
+        } else if ("chapel_of_whispers".equals(currentAreaId)) {
+            // Belum bawa obor: brazier kapel jadi sumber cahaya.
+            cx = restKapel.x() - camX;
+            cy = restKapel.y() - 12f - camY;
             radius = 70f * flicker;
             baseAlpha = 232;
         } else {
