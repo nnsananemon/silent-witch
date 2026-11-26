@@ -1405,16 +1405,10 @@ public final class Art {
 
         // Goyangan obor:
         // Saat berjalan: mengayun naik-turun mengikuti hentakan langkah kaki (stride bob).
-        // Saat diam: gerakan napas & ayunan halus (idle breathing) agar tokoh terasa hidup.
-        float bob;
-        float sway = 0f;
-        if (moving) {
-            bob = (float) Math.sin(walkTime * 8f) * 1.2f;
-        } else {
-            bob = (float) Math.sin(globalTime * 3.5f) * 0.6f;
-            sway = (float) Math.cos(globalTime * 2.8f) * 0.4f;
-        }
-        float gx = px + dir * 8f + sway;
+        // Saat diam: gagang obor dan sarung tangan ksatria tetap diam (tidak goyang),
+        // hanya nyala api di atasnya yang terus bergerak dan berkobar aktif.
+        float bob = moving ? (float) Math.sin(walkTime * 8f) * 1.2f : 0f;
+        float gx = px + dir * 8f;
         float gy = py - 12f + bob;
 
         // Cahaya hangat di sekitar api (api ada di bagian atas obor).

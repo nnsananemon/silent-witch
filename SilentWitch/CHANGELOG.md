@@ -8,10 +8,10 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 
 ### Added
 
-- **Animasi api & ayunan obor tetap aktif saat karakter diam (`Art.java`, `GameplayScene.java`):**
-  - Nyala api 12-frame obor genggam kini disinkronkan dengan waktu global dunia (`globalTime`), sehingga api tetap berkobar lincah dan tidak membeku/freeze saat ksatria berhenti melangkah.
-  - Ditambahkan gerakan ayunan napas halus (*idle breathing & subtle sway*) pada posisi obor dan sarung tangan besi (*gauntlet*) ksatria saat diam agar karakter terasa hidup dan alami.
-  - Pancaran cahaya hangat (*warm ambient torch glow*) berdenyut dinamis (*flicker*) secara kontinu di sekitar obor baik saat ksatria berjalan maupun berdiam diri.
+- **Stabilisasi obor saat karakter diam — gagang tetap kokoh, hanya api yang berkobar (`Art.java`, `torch_held_anim.png`, `torch_wall_anim.png`):**
+  - Gagang obor kayu dan sarung tangan ksatria dibuat diam/statis saat karakter tidak bergerak (tidak ada goyangan atau ayunan pada benda yang dipegang).
+  - Lembar sprite obor (`torch_held_anim.png` & `torch_wall_anim.png`) distabilkan sehingga mangkuk penampung, gagang, dan penopang besi 100% konsisten antar frame tanpa jitter.
+  - Nyala api fantasi di bagian atas tetap bergerak dan berkobar aktif (12-frame loop pada waktu global).
 
 ## [1.4.53] - 2026-11-27
 
