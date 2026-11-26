@@ -672,6 +672,11 @@ public final class GameplayScene extends Scene {
             map = mapChapel;
             player.setMap(mapChapel);
             player.clearBlockers();
+            // Brazier kapel (490,149): tapak masonry + nyala api, 16x12.
+            // Tanpa ini ksatria bisa menimpa/melewati brazier saat duduk.
+            float[] chapelBrazier = restKapel.blockerRect();
+            player.addBlocker(chapelBrazier[0], chapelBrazier[1],
+                    chapelBrazier[2], chapelBrazier[3]);
             interactables.clear();
             interactables.addAll(chapelInteractables);
         } else if ("underground_archive".equals(areaId)) {

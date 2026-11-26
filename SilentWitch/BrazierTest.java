@@ -72,6 +72,27 @@ public class BrazierTest {
         scene.draw(g);
         System.out.println("[PASS] 5. GameplayScene valley_floor, valley_ruins & archive sukses dirender");
 
+        // 6. Collision chapel: tembok, bangku, altar solid; rune & brazier lewat.
+        TileMap chapel = TileMap.chapelWhispers();
+        if (!chapel.isSolid(0, 0) || !chapel.isSolid(3, 2)
+                || !chapel.isSolid(5, 9) || !chapel.isSolid(30, 4)) {
+            throw new AssertionError("Tembok, bangku, dan altar kapel harus solid");
+        }
+        if (chapel.isSolid(21, 8) || chapel.isSolid(30, 8)) {
+            throw new AssertionError("Rune dan brazier kapel harus walkable");
+        }
+        for (int c = 2; c < 38; c++) {
+            if (chapel.isSolid(c, 5)) {
+                throw new AssertionError("Koridor utama baris 5 harus bebas");
+            }
+        }
+        scene.setupArea("chapel_of_whispers");
+        if (!"chapel_of_whispers".equals(scene.currentAreaId())) {
+            throw new AssertionError("Area harus chapel_of_whispers");
+        }
+        scene.draw(g);
+        System.out.println("[PASS] 6. Collision chapel: tembok/bangku/altar solid, koridor bebas");
+
         g.endDraw();
         System.out.println(">>> SEMUA TES BRAZIER LULUS 100%! <<<");
     }

@@ -187,24 +187,21 @@ public final class TileMap {
     // Ukuran 40x16 tile (640x256 piksel).
     // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
     private static final String[] CHAPEL_WHISPERS = {
-            // Collision mengikuti bg_chapel_whispers.png. Hanya dinding tepi dan
-            // dua pilar tengah yang solid; lantai, pew bata, rune, dan brazier
-            // walkable supaya kapel terasa lapang.
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHoooooooooHHHoooooooooooooHHHooooooooHH",
+            "HHononnoonooHHHonooooooooooHHHoaooooooHH",
             "HHooooooooooooooooooooooooooooooooooooHH",
-            "GSooooooooooooooooooooooooooooooooooooGo",
+            "GSooooooooooooooooooooooooooooaaooooooGo",
             "GooooooooooooooooooooooooooooooooooooooG",
             "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHononnoonoooooonoooooooooooooooooooooHH",
             "HHoooooooooooooooooooXooooooooZoooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnnnooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnnnooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
+            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     };
 
@@ -482,10 +479,10 @@ public final class TileMap {
         if (ch == 'G') {
             return !gateOpen;
         }
-        // Kapel: HANYA 'H' (dinding/pilar) yang solid. Rune 'X' di lantai
-        // kapel hanya dekorasi, bukan penghalang.
+        // Kapel: 'H' tembok/pilar, 'n' bangku, 'a' altar — semuanya solid.
+        // Rune 'X' dan brazier 'Z' hanya dekorasi lantai, tetap walkable.
         if (theme == Art.Theme.CHAPEL) {
-            return ch == 'H';
+            return ch == 'H' || ch == 'n' || ch == 'a';
         }
         if (ch == 'K') {
             return !gateOpen;
