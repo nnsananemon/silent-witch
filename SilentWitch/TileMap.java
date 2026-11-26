@@ -187,21 +187,27 @@ public final class TileMap {
     // Ukuran 40x16 tile (640x256 piksel).
     // Entry dari kiri (Valley Ruins), exit ke kanan (Underground Archive).
     private static final String[] CHAPEL_WHISPERS = {
+            // Kapel memakai PNG bg_chapel_whispers.png yang dipotong menjadi
+            // tile 16x16 (lihat setTileFromBackground). Collision mengikuti isi
+            // tiap tile PNG: tembok tepi/pilar, bangku kayu, altar rune, brazier.
+            // H tembok (solid)   n bangku kayu (solid)  a altar/rune (solid)
+            // X batu rune (solid) Z brazier (lewat)    o/m lantai (lewat)
+            // S spawn kiri       G gerbang kiri/kanan (lewat)
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-            "HHononnoonooHHHonooooooooooHHHoaooooooHH",
-            "HHooooooooooooooooooooooooooooooooooooHH",
+            "HoooooooooooHHHooooooooooooHHHoooooooooH",
+            "HoononnoonooHHHonoooonoonooHHHoaoooooooH",
+            "HoooooooooooHHHooooooooooooHHHaooooooooH",
             "GSooooooooooooooooooooooooooooaaooooooGo",
             "GooooooooooooooooooooooooooooooooooooooG",
-            "HHooooooooooooooooooooooooooooooooooooHH",
-            "HHononnoonoooooonoooooooooooooooooooooHH",
-            "HHoooooooooooooooooooXooooooooZoooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnnnooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnnnooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
-            "HHnnnnooooonnnnnnnnnnnnnooonnnooooooooHH",
+            "HoononnoonooHHHonoooonoonooHHHoaoooooooH",
+            "HoooooooooooHHHoooooXooooooHHHZooooooooH",
+            "HoooooooooooHHHooooooooooooHHHZooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
+            "HooooooooooooooooooooooooooooooooooooooH",
             "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
     };
 
@@ -367,6 +373,8 @@ public final class TileMap {
      * lantai/dinding (bukan tile objek, yang tetap digambar di atasnya).
      */
     private PImage background;
+    private PImage[] backgroundTiles;
+    private boolean tileFromBackground = false;
     private boolean drawDoors = true;
     private boolean drawClosedGateDoor = true;
     private boolean drawOpenGateDoor = true;
@@ -375,6 +383,24 @@ public final class TileMap {
     /** memasang gambar latar peta (null = pakai tile prosedural). */
     public void setBackground(PImage image) {
         this.background = image;
+    }
+
+    /**
+     * Saat latar adalah tilesheet (tiap tile 16x16), gambar per-tile memakai
+     * source rect, bukan satu gambar penuh. Ini membuat peta benar-benar
+     * tersusun dari tile PNG sekaligus menjaga collision per-tile.
+     */
+    public void setTileFromBackground(boolean tile) {
+        this.tileFromBackground = tile;
+        this.backgroundTiles = null;
+        if (tile && background != null) {
+            backgroundTiles = new PImage[cols * rows];
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    backgroundTiles[r * cols + c] = background.get(c * TILE, r * TILE, TILE, TILE);
+                }
+            }
+        }
     }
 
     /** Matikan sprite batu simbol prosedural bila latar sudah memuatnya. */
@@ -418,9 +444,10 @@ public final class TileMap {
 
     public static TileMap chapelWhispers() {
         TileMap map = themed(new TileMap(CHAPEL_WHISPERS), Art.Theme.CHAPEL);
+        // PNG dipotong menjadi tile 16x16 dan dipakai sebagai gambar tiap tile.
         map.setBackground(Art.loadBackground("bg_chapel_whispers.png"));
-        // Latar sudah memuat gerbang besi dan batu rune: jangan digambar ulang.
-        // Tile 'X' tetap solid untuk collision.
+        map.setTileFromBackground(true);
+        // Objek di PNG sudah tergambar, jangan ditimpa sprite prosedural.
         map.setDrawDoors(false);
         map.setDrawOverlaySymbols(false);
         map.setGateOpen(true);
@@ -479,10 +506,10 @@ public final class TileMap {
         if (ch == 'G') {
             return !gateOpen;
         }
-        // Kapel: 'H' tembok/pilar, 'n' bangku, 'a' altar — semuanya solid.
-        // Rune 'X' dan brazier 'Z' hanya dekorasi lantai, tetap walkable.
+        // Kapel: 'H' tembok/pilar, 'i' kaca patri, 'n' bangku, 'a' altar,
+        // dan 'X' batu rune semuanya solid. 'Z' brazier tetap walkable.
         if (theme == Art.Theme.CHAPEL) {
-            return ch == 'H' || ch == 'n' || ch == 'a';
+            return ch == 'H' || ch == 'i' || ch == 'n' || ch == 'a' || ch == 'X';
         }
         if (ch == 'K') {
             return !gateOpen;
@@ -535,7 +562,15 @@ public final class TileMap {
      */
     public void drawAll(PGraphics g) {
         if (background != null) {
-            g.image(background, 0, 0, background.width, background.height);
+            if (tileFromBackground && backgroundTiles != null) {
+                for (int r = 0; r < rows; r++) {
+                    for (int c = 0; c < cols; c++) {
+                        g.image(backgroundTiles[r * cols + c], c * TILE, r * TILE);
+                    }
+                }
+            } else {
+                g.image(background, 0, 0, background.width, background.height);
+            }
         }
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
@@ -559,7 +594,16 @@ public final class TileMap {
         int lastRow = Math.min(rows - 1, (cameraY + GameManager.VIRTUAL_H) / TILE);
 
         if (background != null) {
-            g.image(background, -cameraX, -cameraY, background.width, background.height);
+            if (tileFromBackground && backgroundTiles != null) {
+                for (int r = firstRow; r <= lastRow; r++) {
+                    for (int c = firstCol; c <= lastCol; c++) {
+                        g.image(backgroundTiles[r * cols + c],
+                                c * TILE - cameraX, r * TILE - cameraY);
+                    }
+                }
+            } else {
+                g.image(background, -cameraX, -cameraY, background.width, background.height);
+            }
             for (int r = firstRow; r <= lastRow; r++) {
                 for (int c = firstCol; c <= lastCol; c++) {
                     char ch = tiles[r][c];

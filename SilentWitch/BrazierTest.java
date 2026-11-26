@@ -75,11 +75,11 @@ public class BrazierTest {
         // 6. Collision chapel: tembok, bangku, altar solid; rune & brazier lewat.
         TileMap chapel = TileMap.chapelWhispers();
         if (!chapel.isSolid(0, 0) || !chapel.isSolid(3, 2)
-                || !chapel.isSolid(5, 9) || !chapel.isSolid(30, 4)) {
-            throw new AssertionError("Tembok, bangku, dan altar kapel harus solid");
+                || !chapel.isSolid(30, 4) || !chapel.isSolid(20, 7)) {
+            throw new AssertionError("Tembok, bangku, altar, dan rune kapel harus solid");
         }
-        if (chapel.isSolid(21, 8) || chapel.isSolid(30, 8)) {
-            throw new AssertionError("Rune dan brazier kapel harus walkable");
+        if (chapel.isSolid(30, 8) || !chapel.hasBackground()) {
+            throw new AssertionError("Brazier harus walkable dan kapel harus memakai tile PNG");
         }
         for (int c = 2; c < 38; c++) {
             if (chapel.isSolid(c, 5)) {
