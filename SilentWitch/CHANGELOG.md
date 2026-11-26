@@ -4,6 +4,22 @@ Semua perubahan penting pada proyek ini dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/) dan
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.53] - 2026-11-27
+
+### Added
+
+- **Sprite animasi obor baru 16x24 (`Art.java`, `data/art/torch_wall_anim.png`, `data/art/torch_held_anim.png`):**
+  - `torch_wall_anim.png`: 12 frame obor dengan penopang dinding besi (Flamebound Torch) beranimasi halus, dipasang rapi pada dinding batu lorong masuk Dasar Lembah.
+  - `torch_held_anim.png`: 12 frame obor genggam berapi fantasi (Flickering Torch), digenggam dengan gauntlet besi ksatria di depan dada dengan gerakan ayunan langkah.
+  - Test suite `TorchSystemTest.java` memverifikasi rendering, animasi 4-arah, interaksi pengambilan obor di dinding, dan gameplay loop.
+
+### Changed
+
+- **Relokasi Obor Interaktif ke Dinding Batu Dasar Lembah (`GameplayScene.java`, `Obor.java`):**
+  - Obor dipindahkan dari Jalur Tebing ke pilar/dinding batu pintu masuk Dasar Lembah (`valley_floor`) pada koordinat (46, 56), 100% presisi sesuai tangkapan layar pengguna (`Screenshot 2026-11-27 031804.png`).
+  - Dialog obor diperbarui menjadi "OBOR DINDING" dengan teks deskripsi penopang besi kokoh pada dinding batu.
+  - Sistem kegelapan (`drawTorchDarkness`) di Dasar Lembah sebelum obor diambil memakai titik obor dinding sebagai sumber cahaya pertama yang menyingkap pintu masuk lorong gua.
+
 ## [1.4.52] - 2026-11-26
 
 ### Changed

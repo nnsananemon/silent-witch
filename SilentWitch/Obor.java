@@ -1,11 +1,11 @@
 import processing.core.PGraphics;
 
 /**
- * Obor genggam yang ditemukan di pintu masuk Jalur Tebing (Bab 3).
+ * Obor yang ditemukan pada penopang dinding batu di Dasar Lembah (Bab 3).
  *
- * Sebelum diambil, obor ditancapkan di tanah dekat pintu masuk dan menjadi
- * satu-satunya sumber cahaya di lorong gelap. Setelah diambil, pemain
- * menggenggamnya dan cahaya mengikuti pergerakan pemain (diatur GameplayScene).
+ * Sebelum diambil, obor terpasang di dinding dekat pintu masuk dan menjadi
+ * sumber cahaya pertama yang menyingkap lorong gua gelap. Setelah diambil,
+ * pemain menggenggamnya dan cahaya mengikuti pergerakan pemain (diatur GameplayScene).
  */
 public final class Obor implements Interactable {
 
@@ -24,7 +24,7 @@ public final class Obor implements Interactable {
     }
 
     public Obor(float x, float y) {
-        this(x, y, 24f);
+        this(x, y, 28f);
     }
 
     @Override
@@ -59,10 +59,10 @@ public final class Obor implements Interactable {
 
     @Override
     public Dialogue createDialogue() {
-        return new Dialogue("OBOR KAYU",
-                "Sebuah obor kayu dengan kain pembungkus hangus tertancap di tanah dekat pintu masuk.",
+        return new Dialogue("OBOR DINDING",
+                "Sebuah obor terpasang kokoh pada penopang besi di dinding batu.",
                 "Api kecilnya masih menyala, cukup untuk menyingkap dinding batu di sekitarmu.",
-                "Kau mencabut obornya. Kehangatannya langsung terasa di ujung jari.",
+                "Kau mencabut obor dari penopangnya. Kehangatannya langsung terasa di ujung jari.",
                 "Tanpa cahaya ini, lorong reruntuhan di depan hanya akan menjadi kegelapan total.");
     }
 
@@ -71,7 +71,7 @@ public final class Obor implements Interactable {
         boolean wasPicked = pickedUp;
         pickedUp = true;
         if (wasPicked) {
-            return new Dialogue("OBOR KAYU",
+            return new Dialogue("OBOR DINDING",
                     "Obor itu sudah ada di tanganmu. Cahayanya menerangi langkahmu.");
         }
         return createDialogue();
@@ -88,10 +88,10 @@ public final class Obor implements Interactable {
         float flicker = 1f + 0.08f * (float) Math.sin(animTime * 9f);
 
         g.noStroke();
-        g.fill(Palette.alpha(Palette.REST_GLOW, 16));
-        g.ellipse(px, py - 10f, 40f * flicker, 34f * flicker);
-        g.fill(Palette.alpha(Palette.WARM, 30));
-        g.ellipse(px, py - 12f, 22f * flicker, 20f * flicker);
+        g.fill(Palette.alpha(Palette.REST_GLOW, 18));
+        g.ellipse(px, py - 12f, 44f * flicker, 38f * flicker);
+        g.fill(Palette.alpha(Palette.WARM, 36));
+        g.ellipse(px, py - 14f, 24f * flicker, 22f * flicker);
 
         Art.drawTorch(g, px, py, animTime, 1f, false);
     }

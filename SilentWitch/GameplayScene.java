@@ -152,7 +152,7 @@ public final class GameplayScene extends Scene {
         this.map = mapVillage;
         this.player = new Player(map, map.spawnX(), map.spawnY());
         // Obor di pintu masuk Jalur Tebing — sumber cahaya satu-satunya di kegelapan.
-        this.oborTebing = new Obor(56f, 72f, 28f);
+        this.oborTebing = new Obor(46f, 56f, 28f);
 
         // --- Pendaftaran Clue Aula (Kanonis) ---
         Clue clueRak = new Clue("clue_rak_harian",
@@ -423,7 +423,6 @@ public final class GameplayScene extends Scene {
         valleyCliffInteractables.add(tebingSimbol1);
         valleyCliffInteractables.add(tebingSimbol2);
         valleyCliffInteractables.add(tebingSimbol3);
-        valleyCliffInteractables.add(oborTebing);
         valleyCliffInteractables.add(gerbangTebing);
 
         // --- Objek Interaktif Valley — Dasar Lembah (Bab 3B) ---
@@ -440,6 +439,7 @@ public final class GameplayScene extends Scene {
 
         GerbangLembah gerbangLembah = new GerbangLembah(600f, 72f, "LINTASAN RERUNTUHAN");
 
+        valleyFloorInteractables.add(oborTebing);
         valleyFloorInteractables.add(lembahSimbol);
         valleyFloorInteractables.add(restLembah);
         valleyFloorInteractables.add(gerbangLembah);
@@ -927,6 +927,14 @@ public final class GameplayScene extends Scene {
 
     public AltarDeduksi altarDeduksi() {
         return altarDeduksi;
+    }
+
+    public Obor oborTebing() {
+        return oborTebing;
+    }
+
+    public boolean isTorchObtained() {
+        return torchObtained;
     }
 
     public int discoveredClueCount() {
@@ -1746,11 +1754,11 @@ public final class GameplayScene extends Scene {
     }
 
     /** True bila area aktif memakai sistem gelap + obor genggam. */
-    private boolean isTorchArea() {
-        return "valley_cliff_path".equals(currentAreaId)
-                || "valley_floor".equals(currentAreaId)
+    public boolean isTorchArea() {
+        return "valley_floor".equals(currentAreaId)
                 || "valley_ruins".equals(currentAreaId)
-                || "chapel_of_whispers".equals(currentAreaId);
+                || "chapel_of_whispers".equals(currentAreaId)
+                || ("valley_cliff_path".equals(currentAreaId) && torchObtained);
     }
 
     /** Obor digenggam di tangan tokoh saat berjalan di area gelap lembah. */
@@ -1773,8 +1781,8 @@ public final class GameplayScene extends Scene {
     }
 
     /**
-     * Kegelapan Jalur Tebing. Sebelum obor diambil, hanya titik obor di pintu
-     * masuk yang bercahaya; sesudah diambil, cahaya mengikuti pemain.
+     * Kegelapan Dasar Lembah & Gua. Sebelum obor diambil, titik obor di dinding batu
+     * pintu masuk yang bercahaya; sesudah diambil, cahaya mengikuti pemain.
      */
     private void drawTorchDarkness(PGraphics g, int camX, int camY) {
         if (!isTorchArea() || respawnActive) {
@@ -1794,11 +1802,19 @@ public final class GameplayScene extends Scene {
             radius = 82f * flicker;
             baseAlpha = 244;
         } else if ("valley_floor".equals(currentAreaId)) {
-            // Belum bawa obor: brazier titik istirahat jadi sumber cahaya.
-            cx = restLembah.x() - camX;
-            cy = restLembah.y() - 16f - camY;
-            radius = 70f * flicker;
-            baseAlpha = 232;
+            if (!oborTebing.isPickedUp()) {
+                // Belum bawa obor: obor dinding di pintu masuk jadi sumber cahaya pertama
+                cx = oborTebing.x() - camX;
+                cy = oborTebing.y() - camY - 10f;
+                radius = 66f * flicker;
+                baseAlpha = 232;
+            } else {
+                // Brazier titik istirahat jadi sumber cahaya cadangan
+                cx = restLembah.x() - camX;
+                cy = restLembah.y() - 16f - camY;
+                radius = 70f * flicker;
+                baseAlpha = 232;
+            }
         } else if ("valley_ruins".equals(currentAreaId)) {
             // Belum bawa obor: brazier di titik istirahat jadi sumber cahaya.
             cx = restReruntuhan.x() - camX;
@@ -1812,10 +1828,7 @@ public final class GameplayScene extends Scene {
             radius = 70f * flicker;
             baseAlpha = 232;
         } else {
-            cx = oborTebing.x() - camX;
-            cy = oborTebing.y() - camY - 10f;
-            radius = 58f * flicker;
-            baseAlpha = 232;
+            return;
         }
 
         // Hangatnya cahaya obor di dunia, digambar sebelum lapisan kegelapan.

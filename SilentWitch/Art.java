@@ -75,6 +75,8 @@ public final class Art {
     private static PImage cave;
     private static PImage flamelings;
     private static PImage torchSheet;
+    private static PImage torchWallSheet;
+    private static PImage torchHeldSheet;
     private static PImage bricks;
 
     private static PImage heroBodySheet;
@@ -87,8 +89,10 @@ public final class Art {
     /** Tiga wujud flameling (kecil, sedang, besar) setelah latar biru dibuang. */
     private static PImage[] flamelingFrames;
 
-    /** Enam frame animasi obor genggam. */
+    /** Frame animasi obor (wall / genggam). */
     private static PImage[] torchFrames;
+    private static PImage[] torchWallFrames;
+    private static PImage[] torchHeldFrames;
 
     /** Bagian api saja (tanpa gagang) dari tiap frame obor. */
     private static PImage[] torchFlameFrames;
@@ -156,6 +160,8 @@ public final class Art {
         cave = load("cave.png");
         flamelings = load("flamelings.png");
         torchSheet = load("torch_anim.png");
+        torchWallSheet = load("torch_wall_anim.png");
+        torchHeldSheet = load("torch_held_anim.png");
         bricks = load("bricks.png");
 
         heroBodySheet = load("hero_knight_body.png");
@@ -279,23 +285,65 @@ public final class Art {
             }
         }
 
+        if (torchWallSheet != null) {
+            int cellH = torchWallSheet.height;
+            int cellW = (cellH == 24) ? 16 : TORCH_CELL;
+            int cols = torchWallSheet.width / cellW;
+            torchWallFrames = new PImage[cols];
+            for (int c = 0; c < cols; c++) {
+                torchWallFrames[c] = cut(torchWallSheet, c * cellW, 0, cellW, cellH);
+            }
+        }
+
+        if (torchHeldSheet != null) {
+            int cellH = torchHeldSheet.height;
+            int cellW = (cellH == 24) ? 16 : TORCH_CELL;
+            int cols = torchHeldSheet.width / cellW;
+            torchHeldFrames = new PImage[cols];
+            for (int c = 0; c < cols; c++) {
+                torchHeldFrames[c] = cut(torchHeldSheet, c * cellW, 0, cellW, cellH);
+            }
+        }
+
         if (torchSheet != null) {
-            int cols = torchSheet.width / TORCH_CELL;
-            int rowsCount = torchSheet.height / TORCH_CELL;
-            int count = cols * rowsCount;
-            torchFrames = new PImage[count];
-            torchFlameFrames = new PImage[count];
-            int idx = 0;
-            for (int r = 0; r < rowsCount; r++) {
+            int cellH = torchSheet.height;
+            if (cellH == 24) {
+                int cellW = 16;
+                int cols = torchSheet.width / cellW;
+                torchFrames = new PImage[cols];
+                torchFlameFrames = new PImage[cols];
                 for (int c = 0; c < cols; c++) {
-                    PImage cell = cut(torchSheet, c * TORCH_CELL,
-                            r * TORCH_CELL, TORCH_CELL, TORCH_CELL);
-                    torchFrames[idx] = cell;
-                    // Api menempati sekitar x=3..12, y=0..9 pada frame 16x16.
-                    torchFlameFrames[idx] = cell.get(3, 0, 10, 10);
-                    idx++;
+                    PImage cell = cut(torchSheet, c * cellW, 0, cellW, cellH);
+                    torchFrames[c] = cell;
+                    torchFlameFrames[c] = cell.get(3, 0, 10, 10);
+                }
+            } else {
+                int cols = torchSheet.width / TORCH_CELL;
+                int rowsCount = torchSheet.height / TORCH_CELL;
+                int count = cols * rowsCount;
+                torchFrames = new PImage[count];
+                torchFlameFrames = new PImage[count];
+                int idx = 0;
+                for (int r = 0; r < rowsCount; r++) {
+                    for (int c = 0; c < cols; c++) {
+                        PImage cell = cut(torchSheet, c * TORCH_CELL,
+                                r * TORCH_CELL, TORCH_CELL, TORCH_CELL);
+                        torchFrames[idx] = cell;
+                        // Api menempati sekitar x=3..12, y=0..9 pada frame 16x16.
+                        torchFlameFrames[idx] = cell.get(3, 0, 10, 10);
+                        idx++;
+                    }
                 }
             }
+        }
+        if (torchWallFrames == null && torchFrames != null) {
+            torchWallFrames = torchFrames;
+        }
+        if (torchHeldFrames == null && torchFrames != null) {
+            torchHeldFrames = torchFrames;
+        }
+        if (torchFrames == null && torchWallFrames != null) {
+            torchFrames = torchWallFrames;
         }
 
         if (erodaxia == null || cave == null || bricks == null) {
@@ -1324,16 +1372,17 @@ public final class Art {
         return FLAMELING_SPRITE && flamelingFrames != null && flamelingFrames.length > 0;
     }
 
-    /** True bila sheet obor genggam berhasil dimuat. */
+    /** True bila sheet obor (genggam atau dinding) berhasil dimuat. */
     public static boolean torchSpriteReady() {
         ensureLoaded();
-        return torchFrames != null && torchFrames.length > 0;
+        return (torchHeldFrames != null && torchHeldFrames.length > 0)
+                || (torchFrames != null && torchFrames.length > 0);
     }
 
     /**
-     * Versi "digenggam" dari obor. Gagang miring dibuat dari piksel supaya
-     * jelas terlihat di depan badan, api memakai frame dari sheet, dan sebuah
-     * gauntlet menutupi titik genggaman. Goyangannya mengikuti langkah tokoh.
+     * Versi "digenggam" dari obor. Menggunakan frame obor beranimasi
+     * dengan gagang yang digenggam gauntlet di depan badan ksatria.
+     * Goyangannya mengikuti langkah tokoh.
      *
      * @param px, py posisi kaki tokoh di layar
      * @param moving apakah tokoh sedang berjalan
@@ -1342,79 +1391,98 @@ public final class Art {
                                      Player.Facing facing, boolean moving,
                                      float animTime, int alpha) {
         ensureLoaded();
-        if (torchFlameFrames == null || torchFlameFrames.length == 0) {
+        PImage[] frames = (torchHeldFrames != null && torchHeldFrames.length > 0)
+                ? torchHeldFrames : torchFrames;
+        if (frames == null || frames.length == 0) {
             return;
         }
-        int frame = Math.floorMod((int) (animTime * 7f), torchFlameFrames.length);
-        PImage flame = torchFlameFrames[frame];
 
         float dir = facing == Player.Facing.LEFT ? -1f : 1f;
-        boolean vertical = facing == Player.Facing.UP || facing == Player.Facing.DOWN;
 
         // Genggaman di depan dada; sedikit naik-turun mengikuti langkah.
         float bob = moving ? (float) Math.sin(animTime * 8f) * 1f : 0f;
         float gx = px + dir * 8f;
         float gy = py - 12f + bob;
 
-        // Ujung gagang (tempat api) sedikit ke depan dan ke atas dari tangan.
-        float lean = vertical ? 0f : dir * 4f;
-        float tipX = gx + lean;
-        float tipY = gy - 8f;
-
+        // Cahaya hangat di sekitar api (api ada di bagian atas obor).
+        float flameX = gx;
+        float flameY = gy - 12f;
         g.noStroke();
-
-        // Gagang kayu miring:_core gelap + tepian terang.
-        for (int i = 0; i <= 9; i++) {
-            float t = i / 9f;
-            float hx = gx + lean * t;
-            float hy = gy + 2f - i;
-            g.fill(Palette.alpha(0x2B1D16, alpha));
-            g.rect(Math.round(hx) - 1, Math.round(hy), 3, 1);
-            g.fill(Palette.alpha(0x6B4A32, alpha));
-            g.rect(Math.round(hx) - 1, Math.round(hy), 1, 1);
-        }
-
-        // Cahaya hangat di sekitar api.
         g.fill(255, 160, 60, 26);
-        g.ellipse(tipX - 5f, tipY - 5f, 20, 20);
-        g.fill(255, 200, 90, 40);
-        g.ellipse(tipX - 5f, tipY - 5f, 12, 12);
+        g.ellipse(flameX, flameY, 22, 22);
+        g.fill(255, 200, 90, 42);
+        g.ellipse(flameX, flameY, 13, 13);
 
-        // Api dari sheet (frame sudah dipangkas bagian gagangnya).
+        int frame = Math.floorMod((int) (animTime * 8f), frames.length);
+        PImage torchImg = frames[frame];
+
         if (alpha < 255) {
             g.tint(255, 255, 255, alpha);
         }
-        g.image(flame, Math.round(tipX - 5f), Math.round(tipY - 10f));
+
+        if (torchImg.height == 24) {
+            // Sheet obor 16x24 modern (Flickering Fantasy Torch).
+            // Titik pegangan ada di tengah bawah obor (gx - 8, gy - 16).
+            if (facing == Player.Facing.LEFT) {
+                g.pushMatrix();
+                g.translate(gx, 0);
+                g.scale(-1, 1);
+                g.image(torchImg, -8, gy - 16);
+                g.popMatrix();
+            } else {
+                g.image(torchImg, gx - 8, gy - 16);
+            }
+        } else {
+            // Fallback legacy bila sheet berukuran 16x16:
+            boolean vertical = facing == Player.Facing.UP || facing == Player.Facing.DOWN;
+            float lean = vertical ? 0f : dir * 4f;
+            float tipX = gx + lean;
+            float tipY = gy - 8f;
+            for (int i = 0; i <= 9; i++) {
+                float t = i / 9f;
+                float hx = gx + lean * t;
+                float hy = gy + 2f - i;
+                g.fill(Palette.alpha(0x2B1D16, alpha));
+                g.rect(Math.round(hx) - 1, Math.round(hy), 3, 1);
+                g.fill(Palette.alpha(0x6B4A32, alpha));
+                g.rect(Math.round(hx) - 1, Math.round(hy), 1, 1);
+            }
+            if (torchFlameFrames != null && torchFlameFrames.length > 0) {
+                PImage flame = torchFlameFrames[Math.floorMod((int) (animTime * 7f), torchFlameFrames.length)];
+                g.image(flame, Math.round(tipX - 5f), Math.round(tipY - 10f));
+            }
+        }
+
         if (alpha < 255) {
             g.noTint();
         }
 
         // Gauntlet yang menggenggam gagang.
         g.fill(Palette.alpha(0x15121D, alpha));
-        g.rect(Math.round(gx) - 3, Math.round(gy) - 2, 6, 4);
+        g.rect(Math.round(gx) - 2, Math.round(gy) - 1, 4, 3);
         g.fill(Palette.alpha(0x404457, alpha));
-        g.rect(Math.round(gx) - 2, Math.round(gy) - 2, 4, 1);
-        g.fill(Palette.alpha(0x9AA0B2, alpha));
-        g.rect(Math.round(gx) - 1, Math.round(gy) - 2, 1, 1);
+        g.rect(Math.round(gx) - 1, Math.round(gy) - 1, 2, 1);
     }
 
     /**
-     * Menggambar obor yang masih ditancapkan di tanah (sebelum diambil).
+     * Menggambar obor di dinding batu atau tanah (sebelum diambil).
      *
      * @param cx       titik tengah horizontal layar
-     * @param bottomY  titik bawah gagang
+     * @param bottomY  titik bawah dudukan / gagang
      * @param animTime waktu untuk memilih frame animasi api
-     * @param scale    skala render (1 = 16x16 piksel dunia)
+     * @param scale    skala render (1 = 16x24 / 16x16 piksel dunia)
      * @param flip     cermin horizontal
      */
     public static void drawTorch(PGraphics g, float cx, float bottomY,
                                  float animTime, float scale, boolean flip) {
         ensureLoaded();
-        if (torchFrames == null || torchFrames.length == 0) {
+        PImage[] frames = (torchWallFrames != null && torchWallFrames.length > 0)
+                ? torchWallFrames : torchFrames;
+        if (frames == null || frames.length == 0) {
             return;
         }
-        int frame = Math.floorMod((int) (animTime * 8f), torchFrames.length);
-        PImage img = torchFrames[frame];
+        int frame = Math.floorMod((int) (animTime * 8f), frames.length);
+        PImage img = frames[frame];
         float w = img.width * scale;
         float h = img.height * scale;
 
